@@ -91,7 +91,7 @@ def log_msg(message, result):
         f.write(index + '\n')
 
 # Function for get version of Calmira
-def GetCalmiraVersion():
+def GetCalmiraVersion(mode):
     sysData = "/etc/calm-version"
 
     if os.path.isfile(sysData):
@@ -102,8 +102,10 @@ def GetCalmiraVersion():
 
     with open(sysData, "r") as f:
         dictData = json.loads(f.read())
-        print("Имя: \t{}", dictData["distroName"])
-        print("Версия: \t{}", dictData["distroVersion"])
-        print("Кодовое имя: \t{}", dictData["distroCodename"])
 
-
+        if mode == "all":
+            print("Имя: \t{}", dictData["distroName"])
+            print("Версия: \t{}", dictData["distroVersion"])
+            print("Кодовое имя: \t{}", dictData["distroCodename"])
+        elif mode == "compact":
+            print(dictData["distroVersion"])
