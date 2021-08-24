@@ -1,0 +1,19 @@
+#!/bin/bash
+# Settings for cpkg
+#
+# CPkg - an automated packaging tool fog Calmira Linux
+# Cooyright (C) 2021 Michail Krasnov
+#
+# QUIET - quiet mode
+# DBG - debug mode (only for develops!)
+# CLEAN - cleaning cache mode
+# LOG_DIR - directory for logs
+# NCURSES - pseudographic mode
+# BRANCH - packages branch
+# DATABASE 
+
+QUIET="false"
+BRANCH="main"
+CLEAN="false"
+DBG="false"
+DATABASE=/var/db/cpkg

@@ -1,0 +1,11 @@
+{
+	"name": "cpkg2",
+	"version": "2.0",
+	"description": "cpkg2 - ответвление от cpkg, нацеленное на более быструю и стабильную работу и упрощённую работу с базой данных пакетов. Утилита полностью переписана.",
+	"maintainer": "Linuxoid85 <linuxoid85@gmail.com>",
+	"port": "false",
+	"priority": "user",
+	"deps": {
+		"required": "python3 bash calm-configs",
+	},
+}
