@@ -101,11 +101,11 @@ def GetCalmiraVersion(mode):
         exit(1)
 
     with open(sysData, "r") as f:
-        dictData = json.loads(f.read())
+        systemData = json.loads(f.read())
 
         if mode == "all":
-            print("Имя: \t{}", dictData["distroName"])
-            print("Версия: \t{}", dictData["distroVersion"])
-            print("Кодовое имя: \t{}", dictData["distroCodename"])
+            print("Имя: \t{}", systemData["distroName"])
+            print("Версия: \t{}", systemData["distroVersion"])
+            print("Кодовое имя: \t{}", systemData["distroCodename"])
         elif mode == "compact":
-            print(dictData["distroVersion"])
+            return systemData["distroVersion"]

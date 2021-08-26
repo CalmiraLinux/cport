@@ -188,8 +188,28 @@ def install_pkg():
 				print("postinstall скрипты не найдены.")
 			
 			# Добавление пакета в базу данных
+			...
 	else:
 		print("Ошибка: не существует конфигурационного файла 'config.json'! Работа cpkg более невозможна.")
 		exit(1)
 
+# Remove package
+def remove_pkg(package):
+    PACKAGE_DIR = VARDIR + '/packages/' + package
+    PACKAGE_DIR_CONF = PACKAGE_DIR + '/config.json'
 
+    if os.path.isdir(PACKAGE_DIR):
+        if os.path.isfile(PACKAGE_DIR_CONF):
+            with open(PACKAGE_DIR_CONF, 'r') as f:
+                packageData = json.load(f.read())
+        else:
+            print("Ошибка: пакет битый! Информация о нём не найдена, однако, пакет установлен.")
+            exit(1)
+    else:
+        print("Ошибка: пакет не установлен.")
+        exit(1)
+
+    check_priority(package)
+    list_depends(package, "remove")
+
+    print(">> Удаление пакета {}...", package)
