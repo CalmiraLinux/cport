@@ -33,6 +33,7 @@ PREINSTALL = PACKAGE_CACHE + "/preinst.sh"
 POSTINSTALL = PACKAGE_CACHE + "/postinst.sh"
 VARDIR = "/var/db/cpkg" # Database dir
 PORT = "false"
+DATABASE = "/var/db/cpkg/packages"
 
 #==================================================================#
 #
@@ -154,8 +155,9 @@ def unpack_pkg(archive):
 			exit(1)
 	
 # Install package
-def install_pkg():
+def install_pkg(package):
 	PKGDIR = PACKAGE_CACHE + '/pkg/' # Директория с данными пакета
+	PKGDB = DATABASE + '/' + package
 
 	if os.path.isfile(PACKAGE_CONFIG):
 		with open(PACKAGE_CONFIG, 'r') as f:
@@ -187,8 +189,17 @@ def install_pkg():
 			else:
 				print("postinstall скрипты не найдены.")
 			
-			# Добавление пакета в базу данных
-			...
+			
+			if os.path.isdir(PKGDB):
+				print("Удаляется предыдущий ", PKGDB)
+				shutil.rmtree(PKGDB)
+			else:
+				pass
+			
+			print("Создание БД...")
+			os.makedirs(PKGDB)
+			
+			shutil.copytree(PACKAGE_CONFIG, PKGDB)
 	else:
 		print("Ошибка: не существует конфигурационного файла 'config.json'! Работа cpkg более невозможна.")
 		exit(1)
