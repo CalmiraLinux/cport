@@ -9,7 +9,7 @@ import time
 PORTDIR = "./ports/"
 LOG = "./log.txt"
 
-class log():
+class log(object):
     """Log functions"""
 
     def log_msg(message):
@@ -30,7 +30,7 @@ class log():
         print(prev, msg)
         log.log_msg(message)
 
-class check():
+class check(object):
    
     def install(port_dir):
         #self.port_dir = port_dir
@@ -42,7 +42,7 @@ class check():
             file = port_dir + file
 
             if not os.path.isfile(file):
-                cdf.log.error_msg(f"File '{file}': not found!")
+                log.error_msg(f"File '{file}': not found!")
                 v_error = True
         
         if v_error:
@@ -50,7 +50,6 @@ class check():
         return True
     
     def remove(port_dir):
-        port_dir = port_dir
 
         files = ["/remove", "/config.json"]
 
@@ -59,7 +58,7 @@ class check():
             file = port_dir + file
 
             if not os.path.isfile(file):
-                cdf.log.error_msg(f"File '{file}': not found!")
+                log.error_msg(f"File '{file}': not found!")
                 v_error = True
         
         if v_error:
