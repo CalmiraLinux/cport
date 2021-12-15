@@ -8,6 +8,7 @@ import sys
 import json
 import time
 import subprocess
+import argparse
 import cport_def as cdf
 
 PORTDIR = cdf.PORTDIR
@@ -33,12 +34,28 @@ class remove(object):
         else:
             cdf.log.ok_msg("Remove complete!", prev="\n\n")
 
+##############################################################################################################
+#------------------------------------------------------------------------------------------------------------#
+##############################################################################################################
+
+parser = argparse.ArgumentParser(description="Utility for building and installing the port")
+
+parser.add_argument(
+    "-n", "--name", dest="port", type=str, required=True, nargs="+",
+    help="Pass the program the name of the port to remove"
+)
+
+args = parser.parse_args()
+
 try:
-    port = sys.argv[1]
-    remove(port)
+    for port in args.port:
+        remove(port)
+                    
+        if len(args.port) > 1:
+            sep = 80 * '-'
+            print(sep)
     
 except KeyboardInterrupt:
     cdf.log.error_msg("Keyboard Interrupt!")
-except IndexError:
-    cdf.log.error_msg("You must input 1 argument!")
-    exit(1)
+except:
+    cdf.log.error_msg(f"Install port '{args.port}': Uknown error!")

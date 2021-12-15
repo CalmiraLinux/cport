@@ -3,6 +3,9 @@ set -Eeuo pipefail
 
 which vim
 sleep 3
-echo 11
+
+if [ -n $1 ]; then
+    echo "flags: $1"
+fi
 
 exit 0

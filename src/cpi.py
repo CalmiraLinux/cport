@@ -15,8 +15,10 @@ PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
 class install(object):
-    def __init__(self, port):
-        self.port = port
+    def __init__(self, port, flags="default"):
+        self.port    = port
+        self.flags   = flags
+
         port_dir     = PORTDIR  + port
         port_install = port_dir + "/install"
         port_config  = port_dir + "/config.json"
@@ -24,8 +26,8 @@ class install(object):
         cdf.log.msg(f"Starting building a port '{port}'...", prev="\n")
 
         if cdf.check.install(port_dir) and install.print_info(port_config):
-            cdf.log.log_msg(f"Starting building port {port}...")
-            install.build(port_install)
+            cdf.log.log_msg(f"Starting building port {port} using the '{flags}' flags...")
+            install.build(port_install, flags)
 
     def print_info(config):
         values = [
@@ -54,10 +56,11 @@ class install(object):
         
         return True
 
-    def build(install):
+    def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")
+        command = f"{install} " + flags
 
-        run = subprocess.run(install, shell=True)
+        run = subprocess.run(command, shell=True)
 
         if run.returncode != 0:
             cdf.log.error_msg("Port returned a non-zero return code!", prev="\n\n")
@@ -78,12 +81,20 @@ parser.add_argument(
     help="Pass the program the name of the port to install"
 )
 
+parser.add_argument(
+    "-f", "--flags", dest="flags", type=str,
+    help="[EXPERIMENT] - using compiler flags"
+)
+
 args = parser.parse_args()
 
 try:
     for port in args.port:
-        install(port)
-        
+        if args.flags:
+            install(port, flags=args.flags)
+        else:
+            install(port)
+                    
         if len(args.port) > 1:
             sep = 80 * '-'
             print(sep)

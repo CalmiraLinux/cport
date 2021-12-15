@@ -27,7 +27,7 @@ class log(object):
             f.write(msg)
     
     def error_msg(message, prev=""):
-        msg = f"[ {time.ctime()} ] - \033[31m{message}\033[0m"
+        msg = f"!!! \033[31m{message}\033[0m"
 
         print(prev, msg)
         log.log_msg(message)
