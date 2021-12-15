@@ -1,0 +1,8 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+which vim
+sleep 3
+echo 11
+
+exit 0
