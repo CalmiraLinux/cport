@@ -21,6 +21,8 @@ class install(object):
         port_install = port_dir + "/install"
         port_config  = port_dir + "/config.json"
 
+        cdf.log.msg(f"Starting building a port '{port}'...", prev="\n")
+
         if cdf.check.install(port_dir) and install.print_info(port_config):
             cdf.log.log_msg(f"Starting building port {port}...")
             install.build(port_install)
@@ -53,11 +55,18 @@ class install(object):
         return True
 
     def build(install):
+        cdf.log.msg("Executing a build script...", prev="\n")
+
         run = subprocess.run(install, shell=True)
+
         if run.returncode != 0:
             cdf.log.error_msg("Port returned a non-zero return code!", prev="\n\n")
         else:
             cdf.log.ok_msg("Build complete!", prev="\n\n")
+
+##############################################################################################################
+#------------------------------------------------------------------------------------------------------------#
+##############################################################################################################
 
 parser = argparse.ArgumentParser(description="Utility for building and installing the port")
 
@@ -65,15 +74,19 @@ parser.add_argument("-u", "--update", action="store_true", dest='update',
     help="Update the installed port instead of its \"clean\" installation")
 
 parser.add_argument(
-    "-n", "--name", dest="port", type=str, required=True,
+    "-n", "--name", dest="port", type=str, required=True, nargs="+",
     help="Pass the program the name of the port to install"
 )
 
 args = parser.parse_args()
 
 try:
-    port = args.port
-    install(port)
+    for port in args.port:
+        install(port)
+        
+        if len(args.port) > 1:
+            sep = 80 * '-'
+            print(sep)
     
 except KeyboardInterrupt:
     cdf.log.error_msg("Keyboard Interrupt!")

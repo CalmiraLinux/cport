@@ -1,4 +1,4 @@
 # Неиспользуемые файлы
-src/log.txt
-src/test
-src/ports
+/src/log.txt
+/src/test
+/src/ports

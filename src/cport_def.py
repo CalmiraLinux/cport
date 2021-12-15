@@ -9,6 +9,14 @@ import time
 PORTDIR = "./ports/"
 LOG = "./log.txt"
 
+def dialog():
+    run = input("Continue? (y/n)")
+
+    if run == "y" or run == "Y":
+        return 0
+    else:
+        return 1
+
 class log(object):
     """Log functions"""
 
@@ -29,6 +37,11 @@ class log(object):
 
         print(prev, msg)
         log.log_msg(message)
+    
+    def msg(message, prev="", end_msg="\n"):
+        msg = f"{prev}>>> \033[32m{message}\033[0m{end_msg}"
+
+        print(msg)
 
 class check(object):
    
