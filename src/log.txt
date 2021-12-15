@@ -1,14 +1,4 @@
-[ Wed Dec 15 16:22:31 2021 ] - Starting building port vim...
-[ Wed Dec 15 16:22:34 2021 ] - Build complete!
-[ Wed Dec 15 16:24:16 2021 ] - You must input 1 argument!
-[ Wed Dec 15 16:24:30 2021 ] - You must input 1 argument!
-[ Wed Dec 15 16:24:48 2021 ] - You must input 1 argument!
-[ Wed Dec 15 16:46:35 2021 ] - File './ports/test/install': not found!
-[ Wed Dec 15 16:46:35 2021 ] - File './ports/test/config.json': not found!
-[ Wed Dec 15 16:46:42 2021 ] - Starting building port vim...
-[ Wed Dec 15 16:46:44 2021 ] - Keyboard Interrupt!
-[ Wed Dec 15 16:46:48 2021 ] - File './ports/vim/remove': not found!
-[ Wed Dec 15 16:47:04 2021 ] - Starting building port vim...
-[ Wed Dec 15 16:47:07 2021 ] - Build complete!
-[ Wed Dec 15 16:47:43 2021 ] - Port returned a non-zero return code!
-[ Wed Dec 15 16:48:14 2021 ] - Remove complete!
+[ Wed Dec 15 17:56:54 2021 ] - Starting building port vim...
+[ Wed Dec 15 17:56:57 2021 ] - Build complete!
+[ Wed Dec 15 17:57:45 2021 ] - Starting building port vim...
+[ Wed Dec 15 17:57:48 2021 ] - Build complete!

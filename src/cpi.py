@@ -8,6 +8,7 @@ import sys
 import json
 import time
 import subprocess
+import argparse
 import cport_def as cdf
 
 PORTDIR = cdf.PORTDIR
@@ -58,12 +59,23 @@ class install(object):
         else:
             cdf.log.ok_msg("Build complete!", prev="\n\n")
 
+parser = argparse.ArgumentParser(description="Utility for building and installing the port")
+
+parser.add_argument("-u", "--update", action="store_true", dest='update',
+    help="Update the installed port instead of its \"clean\" installation")
+
+parser.add_argument(
+    "-n", "--name", dest="port", type=str, required=True,
+    help="Pass the program the name of the port to install"
+)
+
+args = parser.parse_args()
+
 try:
-    port = sys.argv[1]
+    port = args.port
     install(port)
     
 except KeyboardInterrupt:
     cdf.log.error_msg("Keyboard Interrupt!")
-except IndexError:
-    cdf.log.error_msg("You must input 1 argument!")
-    exit(1)
+except:
+    cdf.log.error_msg(f"Install port '{args.port}': Uknown error!")
