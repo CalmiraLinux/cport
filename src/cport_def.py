@@ -13,9 +13,8 @@ try:
 except:
     NO_SQLITE = True
 
-PORTDIR = "./ports/"
-LOG = "./log.txt"
-VERSION = "1.0a1"
+PORTDIR = "/usr/ports/"
+LOG = "/var/log/cport.log"
 
 def dialog():
     run = input("Continue? (y/n)")
