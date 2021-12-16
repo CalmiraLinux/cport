@@ -1,12 +1,12 @@
-# cport
+# CPort - Calmira Ports
 
 cport - менеджер системы портов, следующий философии UNIX Way. Пришёл на смену громоздкому и нестабильному `port-utils`. Входит в состав CABS (Calmira Automated Build System).
 
 ## Прогрммы:
 
-- [X] cpi - для установки порта;
-- [X] cpr - для удаления порта;
-- [ ] cpf - для обновления системы портов;
+- [X] cpi (Calmira Port Install) - для установки порта;
+- [X] cpr (Calmira Port Remove)  - для удаления порта;
+- [ ] cpf (Calmira Port Fetch)   - для обновления системы портов;
 
 
 ## Использование
