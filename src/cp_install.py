@@ -44,10 +44,13 @@ class install(object):
         cdf.log.msg(f"Starting building a port '{port}'...", prev="\n")
 
         if cdf.check.install(port_dir) and install.print_info(port_config):
+            cdf.dialog(p_exit=True)
+            
             cdf.log.log_msg(
                 f"Starting building port {port} using the '{flags}' flags..."
             )
             install.build(port_install, flags)
+
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
             exit(1)

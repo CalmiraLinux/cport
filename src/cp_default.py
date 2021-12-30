@@ -36,13 +36,22 @@ except:
 PORTDIR = "./ports/"
 LOG = "./cport.log"
 
-def dialog():
-    run = input("Continue? (y/n)")
-
-    if run == "y" or run == "Y":
-        return 0
+def dialog(p_exit=False, default_no=False):
+    print("\n> Continue?", end=" ")
+    if default_no:
+        print("(y/N)", end=" ")
     else:
-        return 1
+        print("(Y/n)", end=" ")
+
+    run = input()
+
+    if run == "n" or run == "N":
+        if p_exit:
+            print("Aborted!")
+            exit(1)
+        else:
+            print("Aborted!")
+            return 1
 
 class log(object):
     """Log functions"""

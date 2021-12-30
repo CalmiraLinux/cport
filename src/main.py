@@ -78,6 +78,10 @@ if args.install:
     except KeyboardInterrupt:
         cdf.log.error_msg("Keyboarg Interrupt!")
         exit(1)
+
+    except SystemExit:
+        print("\n\nAn incorrigible error occurred during the build!")
+        exit(1)
         
     except:
         cdf.log.error_msg(f"Install port '{args.install}': Uknown error!")
@@ -96,6 +100,10 @@ elif args.remove:
         cdf.log.error_msg("Keyboard Interrupt!")
         exit(1)
     
+    except SystemExit:
+        print("\n\nAn incorrigible error occurred during the build!")
+        exit(1)
+        
     except:
         cdf.log.error_msg(f"Remove port '{args.remove}': Uknown error!")
         exit(1)
