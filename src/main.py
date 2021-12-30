@@ -60,11 +60,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if args.install:
-    """
-    Install selected ports
-    """
-    try:
+def main():
+    if args.install:
         for port in args.install:
             if args.flags:
                 cpi.install(port, flags=args.flags)
@@ -74,40 +71,27 @@ if args.install:
             if len(args.install) > 1:
                 sep = 80 * '-'
                 print(sep)
-                
-    except KeyboardInterrupt:
-        cdf.log.error_msg("Keyboarg Interrupt!")
-        exit(1)
-
-    except SystemExit:
-        print("\n\nAn incorrigible error occurred during the build!")
-        exit(1)
-        
-    except:
-        cdf.log.error_msg(f"Install port '{args.install}': Uknown error!")
-        exit(1)
-
-elif args.remove:
-    try:
+    
+    elif args.remove:
         for port in args.remove:
             cpr.remove(port)
-            
+
             if len(args.remove) > 1:
                 sep = 80 * '-'
                 print(sep)
     
-    except KeyboardInterrupt:
-        cdf.log.error_msg("Keyboard Interrupt!")
-        exit(1)
-    
-    except SystemExit:
-        print("\n\nAn incorrigible error occurred during the build!")
-        exit(1)
+    elif args.info:
+        config = cdf.PORTDIR + args.info + "/config.json"
+        cpI.info.port(config)
 
-    except:
-        cdf.log.error_msg(f"Remove port '{args.remove}': Uknown error!")
-        exit(1)
-
-elif args.info:
-    config = cdf.PORTDIR + args.info + "/config.json"
-    cpI.info.port(config)
+try:
+    main()
+except KeyboardInterrupt:
+    cdf.log.error_msg("Keyboard interrupt!")
+    exit(1)
+except SystemExit:
+    cdf.log.error_msg("An incorrigible error occurred during the build/remove!")
+    exit(1)
+except:
+    cdf.log.error_msg("Uknown error!")
+    exit(1)

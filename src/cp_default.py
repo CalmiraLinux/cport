@@ -70,13 +70,11 @@ class log(object):
             print(f" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
             exit(1)
     
-    def error_msg(message, prev="", log=None):
+    def error_msg(message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
 
         print(prev, msg)
-        if log != None:
-            log.log_msg(log)
-        else:
+        if log:
             log.log_msg(message)
     
     def ok_msg(message, prev=""):

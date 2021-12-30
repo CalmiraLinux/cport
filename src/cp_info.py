@@ -105,14 +105,14 @@ class info(object):
     def depends(configs: list):
         for config in configs:
             for param in deps_info:
-                print(f"{param}: {get.param_dep(config, param)}")
+                print(f"\033[1m{param}:\033[0m {get.param_dep(config, param)}")
         return 0
     
     def files(configs: list):
         for config in configs:
             for param in files_info:
-                print(f"{param}: {get.param(config, param)}")
+                print(f"\033[1m{param}:\033[0m {get.param(config, param)}")
     
     def port(config):
         for param in base_info:
-            print(f"{param}: {get.param(config, param)}")
+            print(f"\033[1m{param}:\033[0m {get.param(config, param)}")
