@@ -28,6 +28,7 @@ import sys
 import json
 import time
 import subprocess
+import cp_info as cpI
 import cp_default as cdf
 
 PORTDIR = cdf.PORTDIR
@@ -38,14 +39,22 @@ class remove(object):
         self.port = port
 
         port_dir = PORTDIR + port
+        port_config = [port_dir+"/config.json"]
         port_remove = port_dir + "/remove"
 
+        cdf.log.msg(f"Start removing a port '{port}'...", prev="\n")
+
         if cdf.check.remove(port_dir):
+            print(f"Port '{port}' dependencies:\n")
+            cpI.info.depends(port_config)
+            cdf.dialog(p_exit=True)
+
             remove.remove_pkg(port_remove)
         else:
             exit(1)
 
     def remove_pkg(port_remove):
+        cdf.log.msg("Executing a remove script...", prev="\n")
         run = subprocess.run(port_remove, shell=True)
 
         if run.returncode != 0:

@@ -29,7 +29,7 @@ import cp_default as cdf
 
 base_info  = [
     "name", "version", "description",
-    "priority", "maintainer", "deps"
+    "priority", "maintainer"
 ]
 
 deps_info  = [
@@ -64,11 +64,32 @@ class get(object):
         f.close()
         return prm
     
+    def param_dep(config, conf_param):
+        if not os.path.isfile(config):
+            cdf.log.error_msg(f"File '{config}': not found!")
+            exit(1)
+        
+        try:
+            f = open(config)
+            data = json.load(f)
+        except KeyError:
+            cdf.log.error_msg(f"File '{config}: file is not config!")
+            exit(1)
+        
+        try:
+            prm = data['deps'][conf_param]
+        except:
+            prm = "not found"
+        
+        f.close()
+        return prm
+    
 class info(object):
     def depends(configs: list):
         for config in configs:
             for param in deps_info:
-                print(f"{param}: {get.param(config, param)}")
+                print(f"{param}: {get.param_dep(config, param)}")
+        return 0
     
     def files(configs: list):
         for config in configs:
