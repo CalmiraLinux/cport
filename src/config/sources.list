@@ -1,0 +1,6 @@
+[master]
+url=https://github.com/CalmiraLinux/Ports/raw/
+branch=testing
+
+[updates]
+release=1.2
