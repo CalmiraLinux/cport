@@ -103,7 +103,7 @@ elif args.remove:
     except SystemExit:
         print("\n\nAn incorrigible error occurred during the build!")
         exit(1)
-        
+
     except:
         cdf.log.error_msg(f"Remove port '{args.remove}': Uknown error!")
         exit(1)

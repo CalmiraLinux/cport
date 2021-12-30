@@ -40,11 +40,16 @@ class remove(object):
 
         port_dir = PORTDIR + port
         port_config = [port_dir+"/config.json"]
+        conf        = port_dir + "/config.json"
         port_remove = port_dir + "/remove"
 
         cdf.log.msg(f"Start removing a port '{port}'...", prev="\n")
 
         if cdf.check.remove(port_dir):
+            if cpI.get.priority(conf) == "system":
+                cdf.log.error_msg(f"Port '{port}': system priority. Deleting the port is not possible.")
+                return 1
+            
             print(f"Port '{port}' dependencies:\n")
             cpI.info.depends(port_config)
             cdf.dialog(p_exit=True)

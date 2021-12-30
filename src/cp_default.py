@@ -43,7 +43,11 @@ def dialog(p_exit=False, default_no=False):
     else:
         print("(Y/n)", end=" ")
 
-    run = input()
+    try:
+        run = input()
+    except KeyboardInterrupt:
+        print("Keyboard Interrupt!")
+        exit(1)
 
     if run == "n" or run == "N":
         if p_exit:
@@ -82,7 +86,7 @@ class log(object):
         log.log_msg(message)
     
     def warning(message):
-        msg = f"> \033[1mWARNING\033[0m {message}"
+        msg = f"[ \033[1mWARNING\033[0m ] {message}"
         
         print(msg)
     

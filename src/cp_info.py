@@ -84,6 +84,23 @@ class get(object):
         f.close()
         return prm
     
+    def priority(config):
+        if not os.path.isfile(config):
+            cdf.log.error_msg(f"File '{config}': not found!")
+            exit(1)
+        
+        try:
+            f = open(config)
+            data = json.load(f)
+        except KeyError:
+            cdf.log.error_msg(f"File '{config}: file is not config!")
+            exit(1)
+
+        prior = data["priority"]
+        f.close()
+
+        return prior
+
 class info(object):
     def depends(configs: list):
         for config in configs:

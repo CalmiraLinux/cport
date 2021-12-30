@@ -27,6 +27,7 @@ import os
 import sys
 import json
 import subprocess
+import cp_info    as cpI
 import cp_default as cdf
 
 PORTDIR = cdf.PORTDIR
@@ -44,8 +45,12 @@ class install(object):
         cdf.log.msg(f"Starting building a port '{port}'...", prev="\n")
 
         if cdf.check.install(port_dir) and install.print_info(port_config):
-            cdf.dialog(p_exit=True)
-            
+            if cpI.get.priority(port_config) == "system":
+                cdf.log.warning(f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible.")
+                cdf.dialog(p_exit=True)
+            else:
+                cdf.dialog(p_exit=True)
+
             cdf.log.log_msg(
                 f"Starting building port {port} using the '{flags}' flags..."
             )
