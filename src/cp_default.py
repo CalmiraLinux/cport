@@ -36,6 +36,7 @@ except:
 VERSION = "v1.0a2 DEV"
 PORTDIR = "./ports/"
 LOG = "./cport.log"
+DB  = "./blacklist.db"
 
 def dialog(p_exit=False, default_no=False):
     print("\n> Continue?", end=" ")
@@ -104,16 +105,14 @@ class log(object):
 class check(object):
    
     def install(port_dir):
-        #self.port_dir = port_dir
-
         files = ["/install", "/config.json"]
 
         v_error = False
         for file in files:
-            file = port_dir + file
+            f = port_dir + file
 
-            if not os.path.isfile(file):
-                log.error_msg(f"File '{file}': not found!")
+            if not os.path.isfile(f):
+                log.error_msg(f"File '{f}': not found!")
                 v_error = True
         
         if v_error:

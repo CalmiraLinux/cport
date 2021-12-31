@@ -99,7 +99,7 @@ class get(object):
         prior = data["priority"]
         f.close()
 
-        return prior
+        return str(prior)
 
 class info(object):
     def depends(configs: list):

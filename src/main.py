@@ -28,10 +28,11 @@
 # LOAD SCRIPT CONFIGURATIONS
 #
 
-import cp_remove  as cpr
-import cp_install as cpi
-import cp_info    as cpI
-import cp_default as cdf
+import cp_remove     as cpr
+import cp_install    as cpi
+import cp_info       as cpI
+import cp_blacklists as cpb
+import cp_default    as cdf
 import argparse
 
 parser = argparse.ArgumentParser(
@@ -56,6 +57,16 @@ parser.add_argument(
 parser.add_argument(
     "--info", "-I", type=str, dest="info",
     help="Get information about port package"
+)
+
+parser.add_argument(
+    "--blacklist.add", dest="add_blacklist", type=str,
+    help="[EXPERIMENT] add a port in blacklist"
+)
+
+parser.add_argument(
+    "--blacklist.remove", dest="remove_blacklist", type=str,
+    help="[EXPERIMENT] remove a port from blacklist"
 )
 
 parser.add_argument(
@@ -95,6 +106,13 @@ def main():
         config = cdf.PORTDIR + args.info + "/config.json"
         cpI.info.port(config)
     
+    elif args.add_blacklist:
+        cpb.add(args.add_blacklist)
+            #cdf.log.error_msg("Error!")
+    
+    elif args.remove_blacklist:
+        cpb.remove(args.remove_blacklist)
+    
     elif args.version:
         ver()
     
@@ -110,6 +128,6 @@ except KeyboardInterrupt:
 except SystemExit:
     cdf.log.error_msg("An incorrigible error occurred during the build/remove!")
     exit(1)
-except:
-    cdf.log.error_msg("Uknown error!")
-    exit(1)
+#except:
+    #cdf.log.error_msg("Uknown error!")
+    #exit(1)

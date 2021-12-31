@@ -10,3 +10,6 @@
 * `/etc/cport.d/`:
     * Базовая конфигурация: `config.ini`;
     * Репозитории: `sources.ini`.
+* `/var/db/cport.d`:
+    * Чёрный список портов: `blacklist.db`;
+    * Установленные порты: `installed.db`.
