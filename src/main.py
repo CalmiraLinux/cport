@@ -75,6 +75,10 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--update", type=str, help="Update the port system"
+)
+
+parser.add_argument(
     "-v", "--version", dest="version",
     action="store_true", help="Get information about cport version"
 )

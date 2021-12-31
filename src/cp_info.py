@@ -30,7 +30,7 @@ import cp_blacklists as cpb
 
 base_info  = [
     "name", "version", "description",
-    "priority", "maintainer"
+    "priority", "maintainer", "site"
 ]
 
 deps_info  = [

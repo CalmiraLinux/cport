@@ -26,6 +26,7 @@
 import os
 import sys
 import json
+import time
 import subprocess
 import cp_info       as cpI
 import cp_default    as cdf
@@ -33,6 +34,21 @@ import cp_blacklists as cpb
 
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
+
+def calc_sbu(func):
+    def wrapper(*args, **kwargs):
+        time_def   = float(cdf.settings.get("base", "sbu"))
+        time_start = float(time.time())
+
+        return_value = func(*args, **kwargs)
+        time_end   = float(time.time())
+
+        difference = time_end - time_start
+
+        print(f"\nStandart Build Unit (mins) = {time_def/60}")
+        print(f"Build time (mins) = {difference/60}")
+        return return_value
+    return wrapper
 
 class install(object):
 
@@ -48,7 +64,10 @@ class install(object):
 
         if cdf.check.install(port_dir) and cpb.check_bl(port):
             if cpI.get.priority(port_config) == "system":
-                cdf.log.warning(f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible.")
+                cdf.log.warning(
+                    f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible."
+                )
+
                 cdf.dialog(p_exit=True)
                 
             else:
@@ -63,10 +82,12 @@ class install(object):
             cdf.log.log_msg(
                 f"Starting building port {port} using the '{flags}' flags...", level="INFO"
             )
+
             install.build(port_install, flags)
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
 
+    @calc_sbu
     def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")
         command = f"{install} " + flags
@@ -77,6 +98,7 @@ class install(object):
             cdf.log.error_msg(
                 "Port returned a non-zero return code!", prev="\n\n"
             )
+
         else:
             cdf.log.ok_msg("Build complete!", prev="\n\n")
         

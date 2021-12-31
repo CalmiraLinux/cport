@@ -39,9 +39,9 @@ cport - менеджер системы портов, следующий фил�
 ## Использование
 
 ```bash
-usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...]]
-             [-f FLAGS] [--info INFO] [--blacklist.add ADD_BLACKLIST]
-             [--blacklist.remove REMOVE_BLACKLIST] [--blacklist.fetch FETCH_BLACKLIST] [-v]
+cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...]]
+      [-f FLAGS] [--info INFO] [--blacklist.add ADD_BLACKLIST]
+      [--blacklist.remove REMOVE_BLACKLIST] [--blacklist.fetch FETCH_BLACKLIST] [-v]
 ```
 
 ## Опции

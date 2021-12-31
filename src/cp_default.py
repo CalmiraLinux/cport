@@ -25,6 +25,7 @@
 
 import os
 import time
+import configparser
 
 NO_SQLITE = False
 
@@ -37,6 +38,7 @@ VERSION = "v1.0a2 DEV"
 PORTDIR = "./ports/"
 LOG = "./cport.log"
 DB  = "./blacklist.db"
+CONFIG = "./config/cport.conf"
 
 def dialog(p_exit=False, default_no=False):
     print("\n> Continue?", end=" ")
@@ -101,6 +103,27 @@ class log(object):
         msg = f"{prev}>>> \033[32m{message}\033[0m{end_msg}"
 
         print(msg)
+
+class settings(object):
+
+    conf = configparser.ConfigParser()
+
+    def get(section, param, source=CONFIG):
+        settings.conf.read(source)
+        
+        conf = settings.conf.get(section, param)
+        return str(conf)
+    
+    def p_set(section, param, value, source=CONFIG):
+        if os.path.isfile(source):
+            log.error_msg(f"File '{source}' not found!")
+            return False
+        
+        settings.conf.set(section, param, value)
+
+        f = open(source, "w")
+        settings.conf.write(f)
+        f.close()
 
 class check(object):
    
