@@ -86,7 +86,7 @@ def ver():
     print(msg)
     print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
-def main():
+def cmd_parser():
     if args.install:
         for port in args.install:
             if args.flags:
@@ -130,7 +130,7 @@ def main():
         return 1
 
 try:
-    main()
+    cmd_parser()
 except KeyboardInterrupt:
     cdf.log.error_msg("Keyboard interrupt!")
     exit(1)
