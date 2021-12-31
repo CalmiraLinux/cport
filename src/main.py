@@ -28,9 +28,9 @@
 # LOAD SCRIPT CONFIGURATIONS
 #
 
-import cp_remove as cpr
+import cp_remove  as cpr
 import cp_install as cpi
-import cp_info as cpI
+import cp_info    as cpI
 import cp_default as cdf
 import argparse
 
@@ -97,6 +97,10 @@ def main():
     
     elif args.version:
         ver()
+    
+    else:
+        cdf.log.error_msg("You must input an arguments!")
+        return 1
 
 try:
     main()

@@ -42,49 +42,28 @@ class install(object):
         port_install = port_dir + "/install"
         port_config  = port_dir + "/config.json"
 
-        cdf.log.msg(f"Starting building a port '{port}'...", prev="\n")
+        cdf.log.msg(f"Starting building a port '{port}'...")
 
-        if cdf.check.install(port_dir) and install.print_info(port_config):
+        if cdf.check.install(port_dir):
             if cpI.get.priority(port_config) == "system":
                 cdf.log.warning(f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible.")
                 cdf.dialog(p_exit=True)
             else:
+                cdf.log.msg("Base info:")
+                cpI.info.port(port_config)
+                
+                cdf.log.msg("Depends:", prev="\n")
+                cpI.info.depends([port_config])
+
                 cdf.dialog(p_exit=True)
 
             cdf.log.log_msg(
-                f"Starting building port {port} using the '{flags}' flags..."
+                f"Starting building port {port} using the '{flags}' flags...", level="INFO"
             )
             install.build(port_install, flags)
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
             return False
-
-    def print_info(config):
-        values = [
-            "name", "version", "maintainer",
-            "release", "priority"
-        ]
-
-        try:
-            f = open(config, 'r')
-            data = json.load(f)
-        except FileNotFoundError:
-            cdf.log.error_msg(f"File {config} doesn't exits!")
-            return False
-        except KeyError:
-            cdf.log.error_msg(f"File {config} is not config!")
-            return False
-        except:
-            cdf.log.error_msg(f"Uknown error while parsing file {config}!")
-            return False
-        
-        for value in values:
-            try:
-                print(f"{value}: {data[value]}")
-            except KeyError:
-                print(f"{value}: not found")
-        
-        return True
 
     def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")
@@ -100,11 +79,3 @@ class install(object):
             cdf.log.ok_msg("Build complete!", prev="\n\n")
         
         return run.returncode
-  
-"""
-class db(object):
-    def add(config):
-        if not os.path.isfile(config):
-            cdf.log.error_msg(f"Error while adding port in database: file '{config}' not found!")
-            exit(1)
-"""

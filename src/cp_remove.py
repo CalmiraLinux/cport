@@ -26,9 +26,8 @@
 import os
 import sys
 import json
-import time
 import subprocess
-import cp_info as cpI
+import cp_info    as cpI
 import cp_default as cdf
 
 PORTDIR = cdf.PORTDIR
@@ -43,15 +42,19 @@ class remove(object):
         conf        = port_dir + "/config.json"
         port_remove = port_dir + "/remove"
 
-        cdf.log.msg(f"Start removing a port '{port}'...", prev="\n")
+        cdf.log.msg(f"Start removing a port '{port}'...")
 
         if cdf.check.remove(port_dir):
             if cpI.get.priority(conf) == "system":
                 cdf.log.error_msg(f"Port '{port}': system priority. Deleting the port is not possible.")
                 return False
             
-            print(f"Port '{port}' dependencies:\n")
+            cdf.log.msg("Base info:")
+            cpI.info.port(conf)
+
+            cdf.log.msg("Depends:", prev="\n")
             cpI.info.depends(port_config)
+
             cdf.dialog(p_exit=True)
 
             remove.remove_pkg(port_remove)

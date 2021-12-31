@@ -61,14 +61,21 @@ def dialog(p_exit=False, default_no=False):
 class log(object):
     """Log functions"""
 
-    def log_msg(message):
-        msg = f"[ {time.ctime()} ] - {message}\n"
+    def log_msg(message, level="ERROR"):
+        """
+        Format:
+        [ time ] - LEVEL - message
+        """
+        msg = f"[ {time.ctime()} ] - {level} - {message}\n"
         
         try:
-            with open(LOG, "a") as f:
-                f.write(msg)
+            f = open(LOG, "a")
+            f.write(msg)
+            f.close()
         except PermissionError:
             print(f" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
+            return 1
+        except:
             return 1
     
     def error_msg(message, prev="", log=False):
@@ -76,13 +83,13 @@ class log(object):
 
         print(prev, msg)
         if log:
-            log.log_msg(message)
+            log.log_msg(message, level="FAIL")
     
     def ok_msg(message, prev=""):
         msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
 
         print(prev, msg)
-        log.log_msg(message)
+        log.log_msg(message, level="INFO")
     
     def warning(message):
         msg = f"[ \033[1mWARNING\033[0m ] {message}"
