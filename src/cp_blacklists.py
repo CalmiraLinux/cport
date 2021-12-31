@@ -104,3 +104,25 @@ def remove(port):
     except sqlite3.DatabaseError as error:
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
+
+def fetch(port):
+    """
+    A function for checking the presence of a port
+    in the blacklist. If the package is present,
+    it returns True, if it is absent, it returns False.
+    """
+
+    data = f"SELECT * FROM ports WHERE port = '{port}'"
+    db = cursor.execute(data)
+
+    if not db.fetchone() is None:
+        return True
+    else:
+        return False
+
+
+def check_bl(port):
+    if fetch(port):
+        cdf.log.error_msg(f"The port '{port}' is blacklisted, so it cannot be installed!")
+        return False
+    return True

@@ -70,6 +70,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--blacklist.fetch", dest="fetch_blacklist", type=str,
+    help="[EXPERIMENT] check the presence of the port in the blacklist"
+)
+
+parser.add_argument(
     "-v", "--version", dest="version",
     action="store_true", help="Get information about cport version"
 )
@@ -95,8 +100,7 @@ def main():
     
     elif args.remove:
         for port in args.remove:
-            if not cpr.remove(port):
-                exit(1)
+            cpr.remove(port)
 
             if len(args.remove) > 1:
                 sep = 80 * '-'
@@ -112,6 +116,12 @@ def main():
     
     elif args.remove_blacklist:
         cpb.remove(args.remove_blacklist)
+    
+    elif args.fetch_blacklist:
+        if cpb.fetch(args.fetch_blacklist):
+            print(f"\033[1m{args.fetch_blacklist}:\033[0m true")
+        else:
+            print(f"\033[1m{args.fetch_blacklist}:\033[0m false")
     
     elif args.version:
         ver()

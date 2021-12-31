@@ -27,14 +27,15 @@ import os
 import sys
 import json
 import subprocess
-import cp_info    as cpI
-import cp_default as cdf
+import cp_info       as cpI
+import cp_default    as cdf
+import cp_blacklists as cpb
 
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
 class install(object):
-    
+
     def __init__(self, port, flags="default"):
         self.port    = port
         self.flags   = flags
@@ -45,7 +46,7 @@ class install(object):
 
         cdf.log.msg(f"Starting building a port '{port}'...")
 
-        if cdf.check.install(port_dir):
+        if cdf.check.install(port_dir) and cpb.check_bl(port):
             if cpI.get.priority(port_config) == "system":
                 cdf.log.warning(f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible.")
                 cdf.dialog(p_exit=True)
@@ -65,7 +66,6 @@ class install(object):
             install.build(port_install, flags)
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
-            return False
 
     def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")

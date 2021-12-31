@@ -25,7 +25,8 @@
 
 import os
 import json
-import cp_default as cdf
+import cp_default    as cdf
+import cp_blacklists as cpb
 
 base_info  = [
     "name", "version", "description",
@@ -103,6 +104,12 @@ class get(object):
 
         return str(prior)
 
+    def blacklist(port):
+        if cpb.fetch(port):
+            print(f"\033[1mblacklist:\033[0m true")
+        else:
+            print(f"\033[1mblacklist:\033[0m false")
+
 class info(object):
 
     def depends(configs: list):
@@ -119,3 +126,9 @@ class info(object):
     def port(config):
         for param in base_info:
             print(f"\033[1m{param}:\033[0m {get.param(config, param)}")
+        
+        # Get blacklist
+        f = open(config)
+        data = json.load(f)
+
+        get.blacklist(data["name"])

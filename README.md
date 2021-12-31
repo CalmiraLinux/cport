@@ -18,7 +18,7 @@ cport - менеджер системы портов, следующий фил�
 ```bash
 usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...]]
              [-f FLAGS] [--info INFO] [--blacklist.add ADD_BLACKLIST]
-             [--blacklist.remove REMOVE_BLACKLIST] [-v]
+             [--blacklist.remove REMOVE_BLACKLIST] [--blacklist.fetch FETCH_BLACKLIST] [-v]
 ```
 
 ## Опции
@@ -29,5 +29,6 @@ usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...
 - `--info`, `-I` - просмотр информации о порте;
 - `--blacklist.add` - добавить порт в чёрный список;
 - `--blacklist.remove` - удалить порт из чёрного списка;
+- `--blacklist.fetch` - проверить, добавлен ли указанный порт в чёрный список;
 - `--version`, `-v` - версия;
 - `--help`, `-h` - краткая справка.

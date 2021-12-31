@@ -29,12 +29,13 @@ import json
 import subprocess
 import cp_info    as cpI
 import cp_default as cdf
+import cp_blacklists as cpb
 
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
 class remove(object):
-    
+
     def __init__(self, port):
         self.port = port
 
@@ -45,10 +46,10 @@ class remove(object):
 
         cdf.log.msg(f"Start removing a port '{port}'...")
 
-        if cdf.check.remove(port_dir):
+        if cdf.check.remove(port_dir) and cpb.check_bl(port):
             if cpI.get.priority(conf) == "system":
                 cdf.log.error_msg(f"Port '{port}': system priority. Deleting the port is not possible.")
-                return False
+                exit(1)
             
             cdf.log.msg("Base info:")
             cpI.info.port(conf)
@@ -60,7 +61,7 @@ class remove(object):
 
             remove.remove_pkg(port_remove)
         else:
-            return False
+            exit(1)
 
     def remove_pkg(port_remove):
         cdf.log.msg("Executing a remove script...", prev="\n")
