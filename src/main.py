@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # CPort - a new port manager for Calmira Linux
-# Copyright (C) 2021 Michail Krasnov <linuxoid85@gmail.com>
+# Copyright (C) 2021, 2022 Michail Krasnov <linuxoid85@gmail.com>
 #
 # main.py
 #
@@ -61,17 +61,17 @@ parser.add_argument(
 
 parser.add_argument(
     "--blacklist.add", dest="add_blacklist", type=str,
-    help="[EXPERIMENT] add a port in blacklist"
+    help="Add a port in blacklist"
 )
 
 parser.add_argument(
     "--blacklist.remove", dest="remove_blacklist", type=str,
-    help="[EXPERIMENT] remove a port from blacklist"
+    help="Remove a port from blacklist"
 )
 
 parser.add_argument(
     "--blacklist.fetch", dest="fetch_blacklist", type=str,
-    help="[EXPERIMENT] check the presence of the port in the blacklist"
+    help="Check the presence of the port in the blacklist"
 )
 
 parser.add_argument(
@@ -112,7 +112,6 @@ def main():
     
     elif args.add_blacklist:
         cpb.add(args.add_blacklist)
-            #cdf.log.error_msg("Error!")
     
     elif args.remove_blacklist:
         cpb.remove(args.remove_blacklist)

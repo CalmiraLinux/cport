@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 #
 # CPort - a new port manager for Calmira Linux
-# Copyright (C) 2021 Michail Krasnov <linuxoid85@gmail.com>
+# Copyright (C) 2021. 2022 Michail Krasnov <linuxoid85@gmail.com>
 #
-# cp_remove.py
+# cp_info.py
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
