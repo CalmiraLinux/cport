@@ -58,7 +58,17 @@ parser.add_argument(
     help="Get information about port package"
 )
 
+parser.add_argument(
+    "-v", "--version", dest="version",
+    action="store_true", help="Get information about cport version"
+)
+
 args = parser.parse_args()
+
+def ver():
+    msg = "cport " + cdf.VERSION + " - utility for building and installing the port\n"
+    print(msg)
+    print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def main():
     if args.install:
@@ -84,6 +94,9 @@ def main():
     elif args.info:
         config = cdf.PORTDIR + args.info + "/config.json"
         cpI.info.port(config)
+    
+    elif args.version:
+        ver()
 
 try:
     main()

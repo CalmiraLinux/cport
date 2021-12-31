@@ -33,6 +33,7 @@ try:
 except:
     NO_SQLITE = True
 
+VERSION = "v1.0a2 DEV"
 PORTDIR = "./ports/"
 LOG = "./cport.log"
 
