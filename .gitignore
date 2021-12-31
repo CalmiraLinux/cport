@@ -1,5 +1,7 @@
 # Неиспользуемые файлы
-src/log.txt
+src/cport.log
 src/test/*
 src/ports/*
+
+# Параметры VSCodium
 .vscode
