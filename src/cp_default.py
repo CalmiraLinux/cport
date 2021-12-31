@@ -179,21 +179,3 @@ class check(object):
         
         if str(data["release"]) != check.get_calm_release():
             log.warning("Возможно, этот порт не предназначен для сборки на данной системе")
-
-class db(object):
-
-    def add(data: list):
-        """
-        Добавляет данные в таблицу. data:
-        [name, version, maintainer, priority, install_date]
-        """
-
-        if len(data) != 5:
-            log.error_msg(
-                "Incorrect number of data to be added the database was passed"
-            )
-            return 1
-        
-        if NO_SQLITE:
-            log.error_msg("sqlite3 database cannot be used!")
-            return 1
