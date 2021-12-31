@@ -34,6 +34,7 @@ PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
 class install(object):
+    
     def __init__(self, port, flags="default"):
         self.port    = port
         self.flags   = flags

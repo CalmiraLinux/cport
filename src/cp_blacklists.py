@@ -94,12 +94,13 @@ def add(port):
         return False
 
 def remove(port):
-    data = f"DELETE FROM ports WHERE name = '{port}'"
+    data = f"DELETE FROM ports WHERE port = '{port}'"
 
     try:
         cursor.execute(data)
         conn.commit()
         
         return True
-    except:
+    except sqlite3.DatabaseError as error:
+        cdf.log.error_msg(f"SQLite3 error: {error}")
         return False

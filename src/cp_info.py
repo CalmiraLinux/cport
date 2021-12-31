@@ -42,8 +42,10 @@ files_info = [
 ]
 
 class get(object):
+
     # TODO: добавить функцию 'port()' для проверки на существование порта
     # TODO: добавить функцию 'port_files()' для получения списка файлов порта
+    
     def param(config, conf_param):
         if not os.path.isfile(config):
             cdf.log.error_msg(f"File '{config}': not found!")
@@ -102,6 +104,7 @@ class get(object):
         return str(prior)
 
 class info(object):
+
     def depends(configs: list):
         for config in configs:
             for param in deps_info:

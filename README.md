@@ -16,8 +16,9 @@ cport - менеджер системы портов, следующий фил�
 ## Использование
 
 ```bash
-usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...]] [-f FLAGS] [--info INFO]
-             [-v]
+usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...]]
+             [-f FLAGS] [--info INFO] [--blacklist.add ADD_BLACKLIST]
+             [--blacklist.remove REMOVE_BLACKLIST] [-v]
 ```
 
 ## Опции
@@ -26,5 +27,7 @@ usage: cport [-h] [--install INSTALL [INSTALL ...]] [--remove REMOVE [REMOVE ...
     - `--flags`, `-f` - передача определённых флагов компилятору при сборке (**ЭКСПЕРИМЕНТАЛЬНО**);
 - `--remove`, `-r` - удаление порта;
 - `--info`, `-I` - просмотр информации о порте;
+- `--blacklist.add` - добавить порт в чёрный список;
+- `--blacklist.remove` - удалить порт из чёрного списка;
 - `--version`, `-v` - версия;
 - `--help`, `-h` - краткая справка.
