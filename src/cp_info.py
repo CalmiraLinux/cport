@@ -47,14 +47,14 @@ class get(object):
     def param(config, conf_param):
         if not os.path.isfile(config):
             cdf.log.error_msg(f"File '{config}': not found!")
-            exit(1)
+            return False
         
         try:
             f = open(config)
             data = json.load(f)
         except KeyError:
             cdf.log.error_msg(f"File '{config}: file is not config!")
-            exit(1)
+            return False
         
         try:
             prm = data[conf_param]
@@ -67,14 +67,14 @@ class get(object):
     def param_dep(config, conf_param):
         if not os.path.isfile(config):
             cdf.log.error_msg(f"File '{config}': not found!")
-            exit(1)
+            return False
         
         try:
             f = open(config)
             data = json.load(f)
         except KeyError:
             cdf.log.error_msg(f"File '{config}: file is not config!")
-            exit(1)
+            return False
         
         try:
             prm = data['deps'][conf_param]
@@ -87,14 +87,14 @@ class get(object):
     def priority(config):
         if not os.path.isfile(config):
             cdf.log.error_msg(f"File '{config}': not found!")
-            exit(1)
+            return False
         
         try:
             f = open(config)
             data = json.load(f)
         except KeyError:
             cdf.log.error_msg(f"File '{config}: file is not config!")
-            exit(1)
+            return False
 
         prior = data["priority"]
         f.close()

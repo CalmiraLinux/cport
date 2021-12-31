@@ -55,10 +55,9 @@ class install(object):
                 f"Starting building port {port} using the '{flags}' flags..."
             )
             install.build(port_install, flags)
-
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
-            exit(1)
+            return False
 
     def print_info(config):
         values = [
@@ -99,6 +98,8 @@ class install(object):
             )
         else:
             cdf.log.ok_msg("Build complete!", prev="\n\n")
+        
+        return run.returncode
   
 """
 class db(object):

@@ -74,7 +74,8 @@ def main():
     
     elif args.remove:
         for port in args.remove:
-            cpr.remove(port)
+            if not cpr.remove(port):
+                exit(1)
 
             if len(args.remove) > 1:
                 sep = 80 * '-'

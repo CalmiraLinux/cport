@@ -68,7 +68,7 @@ class log(object):
                 f.write(msg)
         except PermissionError:
             print(f" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
-            exit(1)
+            return 1
     
     def error_msg(message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
@@ -136,13 +136,13 @@ class check(object):
             data = json.load(f)
         except FileNotFoundError:
             log.error_msg(f"File '{SYSTEM}' not found!")
-            exit(1)
+            return False
         except KeyError:
             log.error_msg(f"File '{SYSTEM}' is not a config file!")
-            exit(1)
+            return False
         except:
             log.error_msg(f"Uknown error while parsing file '{SYSTEM}'!")
-            exit(1)
+            return False
         
         release = str(data["distroVersion"])
         f.close()
@@ -155,20 +155,20 @@ class check(object):
         for file in config, SYSTEM:
             if not os.path.isfile(file):
                 log.error_msg(f"File '{file}' not found!")
-                exit(1)
+                return False
         
         try:
             f = open(config)
             data = json.load(f)
         except FileNotFoundError:
             log.error_msg(f"File '{config}' not found!")
-            exit(1)
+            return False
         except KeyError:
             log.error_msg(f"File '{config}' is not a config file!")
-            exit(1)
+            return False
         except:
             log.error_msg(f"Uknown error while parsing file '{config}'!")
-            exit(1)
+            return False
         
         if str(data["release"]) != check.get_calm_release():
             log.warning("Возможно, этот порт не предназначен для сборки на данной системе")

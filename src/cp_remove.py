@@ -48,7 +48,7 @@ class remove(object):
         if cdf.check.remove(port_dir):
             if cpI.get.priority(conf) == "system":
                 cdf.log.error_msg(f"Port '{port}': system priority. Deleting the port is not possible.")
-                return 1
+                return False
             
             print(f"Port '{port}' dependencies:\n")
             cpI.info.depends(port_config)
@@ -56,7 +56,7 @@ class remove(object):
 
             remove.remove_pkg(port_remove)
         else:
-            exit(1)
+            return False
 
     def remove_pkg(port_remove):
         cdf.log.msg("Executing a remove script...", prev="\n")
@@ -66,5 +66,7 @@ class remove(object):
             cdf.log.error_msg(
                 "Port returned a non-zero return code!", prev="\n\n"
             )
+            return False
         else:
             cdf.log.ok_msg("Remove complete!", prev="\n\n")
+            return True
