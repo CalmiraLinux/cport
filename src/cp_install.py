@@ -48,6 +48,7 @@ class install(object):
             if cpI.get.priority(port_config) == "system":
                 cdf.log.warning(f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible.")
                 cdf.dialog(p_exit=True)
+                
             else:
                 cdf.log.msg("Base info:")
                 cpI.info.port(port_config)
