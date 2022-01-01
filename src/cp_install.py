@@ -43,11 +43,12 @@ def calc_sbu(func):
         return_value = func(*args, **kwargs)
         time_end     = float(time.time())
 
-        difference   = time_end - time_start
+        difference   = time_end - time_start # Building time (secs)
 
-        print(f"\nStandart Build Unit (mins) = {time_def/60}")
-        print(f"Build time (mins) = {difference/60}")
+        sbu = difference / time_def # Calculate Standrt Build Unit for port
+        print(f"Build time (sbu) = {round(sbu, 2)}") # Rounding the sbu value to hundredths and print result
         return return_value
+
     return wrapper
 
 class install(object):
