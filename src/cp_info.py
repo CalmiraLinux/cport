@@ -104,12 +104,6 @@ class get(object):
 
         return str(prior)
 
-    def blacklist(port):
-        if cpb.fetch(port):
-            print(f"\033[1mblacklist:\033[0m true")
-        else:
-            print(f"\033[1mblacklist:\033[0m false")
-
 class info(object):
 
     def depends(configs: list):
@@ -131,4 +125,7 @@ class info(object):
         f = open(config)
         data = json.load(f)
 
-        get.blacklist(data["name"])
+        if cpb.fetch(data["name"]):
+            print(f"\033[1mblacklist:\033[0m true")
+        else:
+            print(f"\033[1mblacklist:\033[0m false")

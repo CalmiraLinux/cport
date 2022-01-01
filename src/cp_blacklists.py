@@ -64,7 +64,7 @@ DB      = cdf.DB
 conn = sqlite3.connect(DB)
 cursor = conn.cursor()
 
-def check_priority(port):
+def check_priority(port: str):
     config = PORTDIR + port + "/config.json"
     port_dir = PORTDIR + port
 
@@ -78,7 +78,7 @@ def check_priority(port):
     else:
         return True
 
-def add(port):
+def add(port: str):
     if not check_priority(port):
         return False
     
@@ -93,7 +93,7 @@ def add(port):
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
 
-def remove(port):
+def remove(port: str):
     data = f"DELETE FROM ports WHERE port = '{port}'"
 
     try:
@@ -105,7 +105,7 @@ def remove(port):
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
 
-def fetch(port):
+def fetch(port: str):
     """
     A function for checking the presence of a port
     in the blacklist. If the package is present,
