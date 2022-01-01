@@ -158,47 +158,52 @@ class check(object):
             return False
         return True
     
-    def get_calm_release():
-        SYSTEM = "/etc/calm-release"
+    def json_config(config, param=None):
+        if param != None:
+            check_param = True
+        else:
+            check_param = False
         
         try:
-            f = open(SYSTEM)
+            f = open(config)
             data = json.load(f)
+
+            if check_param:
+                data_param = data[param]
+            
         except FileNotFoundError:
-            log.error_msg(f"File '{SYSTEM}' not found!")
+            log.error_msg(f"File '{config}' not found!")
             return False
+        
         except KeyError:
-            log.error_msg(f"File '{SYSTEM}' is not a config file!")
+            log.error_msg(f"File '{config}' is not a config!")
             return False
+        
         except:
-            log.error_msg(f"Uknown error while parsing file '{SYSTEM}'!")
+            log.error_msg(f"Uknown error while parsing config '{config}'!")
             return False
+        
+        return True
+    
+    def _get_calm_release():
+        SYSTEM = "/etc/calm-release"
+        
+        if not check.json_config(SYSTEM):
+            return "uknown release"
         
         release = str(data["distroVersion"])
         f.close()
         
         return release
     
-    def release(config):
-        SYSTEM = "/etc/calm-release"
-        
-        for file in config, SYSTEM:
-            if not os.path.isfile(file):
-                log.error_msg(f"File '{file}' not found!")
-                return False
-        
-        try:
+    def release(config):        
+        if check.json_config(config):
             f = open(config)
             data = json.load(f)
-        except FileNotFoundError:
-            log.error_msg(f"File '{config}' not found!")
+
+            if str(data["release"]) != check._get_calm_release():
+                return False
+            else:
+                return True
+        else:
             return False
-        except KeyError:
-            log.error_msg(f"File '{config}' is not a config file!")
-            return False
-        except:
-            log.error_msg(f"Uknown error while parsing file '{config}'!")
-            return False
-        
-        if str(data["release"]) != check.get_calm_release():
-            log.warning("Возможно, этот порт не предназначен для сборки на данной системе")

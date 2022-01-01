@@ -78,6 +78,8 @@ def check_priority(port: str):
     else:
         return True
 
+# TODO: заменить все конструкции с добавлением и удалением
+# элементов из БД на централизованные функции из 'cp_default'
 def add(port: str):
     if not check_priority(port):
         return False
@@ -89,6 +91,7 @@ def add(port: str):
         conn.commit()
 
         return True
+
     except sqlite3.DatabaseError as error:
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
@@ -101,6 +104,7 @@ def remove(port: str):
         conn.commit()
         
         return True
+
     except sqlite3.DatabaseError as error:
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
@@ -119,7 +123,6 @@ def fetch(port: str):
         return True
     else:
         return False
-
 
 def check_bl(port):
     if fetch(port):

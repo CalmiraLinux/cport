@@ -52,6 +52,7 @@ class get(object):
             cdf.log.error_msg(f"File '{config}': not found!")
             return False
         
+        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
             f = open(config)
             data = json.load(f)
@@ -72,6 +73,7 @@ class get(object):
             cdf.log.error_msg(f"File '{config}': not found!")
             return False
         
+        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
             f = open(config)
             data = json.load(f)
@@ -92,6 +94,7 @@ class get(object):
             cdf.log.error_msg(f"File '{config}': not found!")
             return False
         
+        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
             f = open(config)
             data = json.load(f)
