@@ -41,9 +41,9 @@ def calc_sbu(func):
         time_start = float(time.time())
 
         return_value = func(*args, **kwargs)
-        time_end   = float(time.time())
+        time_end     = float(time.time())
 
-        difference = time_end - time_start
+        difference   = time_end - time_start
 
         print(f"\nStandart Build Unit (mins) = {time_def/60}")
         print(f"Build time (mins) = {difference/60}")
