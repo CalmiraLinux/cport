@@ -27,6 +27,8 @@ import os
 import sys
 import json
 import time
+import wget
+import tarfile
 import subprocess
 import cp_info       as cpI
 import cp_default    as cdf
@@ -61,6 +63,11 @@ class install(object):
         port_dir     = PORTDIR  + port
         port_install = port_dir + "/install"
         port_config  = port_dir + "/config.json"
+        port_resources = port_dir + "/resources.conf"
+
+        res = cdf.settings.get_json(port_resources)
+        d_link = res["resources"]["url"]
+        d_archive = res["resources"]["file"]
 
         cdf.log.msg(f"Starting building a port '{port}'...")
 
@@ -92,10 +99,69 @@ class install(object):
             cdf.log.log_msg(
                 f"Starting building port '{port}' using the '{flags}' flags...", level="INFO"
             )
-
-            install.build(port_install, flags)
+            if install.download(d_link, cdf.CACHE) and install.unpack(d_archive, cdf.CACHE):
+                install.build(port_install, flags)
         else:
             cdf.log.error_msg(f"Some errors while testing port files!")
+    
+    def download(link, dest):
+        """
+        Function for download a port files
+
+        Usage:
+        download(link, dest)
+
+        - 'link' - download url;
+        - 'dest' - destination file.
+        """
+
+        if os.path.isfile(dest):
+            os.remove(dest)
+        
+        try:
+            wget.download(link, dest)
+            return True
+
+        except ConnectionError:
+            cdf.log.error_msg(f"Connection error while downloading '{link}'!")
+            return False
+
+        except:
+            cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
+            return False
+    
+    def unpack(file, dest):
+        """
+        Function for unpack a tar archives
+
+        Usage:
+        unpack(file, dest)
+
+        - 'file' - archive file;
+        - 'dest' - destination file.
+        """
+
+        if not os.path.isfile(file):
+            cdf.log.error_msg(f"File '{file}' not found!")
+            return False
+        
+        try:
+            t = tarfile.open(file, 'r')
+            t.extractall(path=dest)
+
+            return True
+        
+        except tarfile.ReadError:
+            cdf.log.error_msg(f"Package '{file}' read error! Perhaps he is broken.")
+            return False
+        
+        except tarfile.CompressionError:
+            cdf.log.error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
+            return False
+        
+        except:
+            cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
+            return False
 
     @calc_sbu
     def build(install, flags=""):

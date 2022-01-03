@@ -40,6 +40,8 @@ LOG = "./cport.log"
 DB  = "./blacklist.db"
 CONFIG = "./config/cport.conf"
 
+CACHE = "/usr/src/"
+
 def dialog(p_exit=False, default_no=False):
     print("\n> Continue?", end=" ")
     if default_no:
@@ -117,6 +119,13 @@ class settings(object):
             conf = "uknown"
 
         return str(conf)
+    
+    def get_json(file):
+        f = open(file)
+        data = json.load(f)
+        f.close()
+
+        return data
     
     def p_set(section, param, value, source=CONFIG):
         if os.path.isfile(source):
