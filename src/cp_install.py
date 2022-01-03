@@ -90,7 +90,7 @@ class install(object):
                 cdf.dialog(p_exit=True)
 
             cdf.log.log_msg(
-                f"Starting building port {port} using the '{flags}' flags...", level="INFO"
+                f"Starting building port '{port}' using the '{flags}' flags...", level="INFO"
             )
 
             install.build(port_install, flags)
