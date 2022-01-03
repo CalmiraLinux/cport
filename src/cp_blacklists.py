@@ -47,6 +47,7 @@ import os
 import json
 import time
 import cp_default as cdf
+import cp_info    as cpI
 
 try:
     import sqlite3
@@ -55,8 +56,6 @@ except:
         "It is not possible to use the blacklist: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
-
-import cp_info as cpI
 
 PORTDIR = cdf.PORTDIR
 DB      = cdf.DB

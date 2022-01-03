@@ -47,6 +47,7 @@ def calc_sbu(func):
 
         sbu = difference / time_def # Calculate Standrt Build Unit for port
         print(f"Build time (sbu) = {round(sbu, 2)}") # Rounding the sbu value to hundredths and print result
+        
         return return_value
 
     return wrapper
@@ -72,6 +73,14 @@ class install(object):
                 cdf.dialog(p_exit=True)
                 
             else:
+                # ==begin
+                # Проверка на совместимость порта с текущим
+                # релизом Calmira GNU/Linux
+                if not cdf.check.release(port_config):
+                    cdf.log.error_msg(f"Port '{port}' не совместим с текущим релизом Calmira!")
+                    cdf.dialog(p_exit=True)
+                # ==end
+                
                 cdf.log.msg("Base info:")
                 cpI.info.port(port_config)
                 
@@ -91,16 +100,16 @@ class install(object):
     @calc_sbu
     def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")
-        command = f"{install} " + flags
+        command = f"{install} {flags}"
 
         run = subprocess.run(command, shell=True)
 
         if run.returncode != 0:
             cdf.log.error_msg(
-                "Port returned a non-zero return code!", prev="\n\n"
+                "\aPort returned a non-zero return code!", prev="\n\n"
             )
 
         else:
-            cdf.log.ok_msg("Build complete!", prev="\n\n")
+            cdf.log.ok_msg("\aBuild complete!", prev="\n\n")
         
         return run.returncode

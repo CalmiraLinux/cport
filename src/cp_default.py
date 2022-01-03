@@ -111,7 +111,11 @@ class settings(object):
     def get(section, param, source=CONFIG):
         settings.conf.read(source)
         
-        conf = settings.conf.get(section, param)
+        try:
+            conf = settings.conf.get(section, param)
+        except configparser.NoOptionError:
+            conf = "uknown"
+
         return str(conf)
     
     def p_set(section, param, value, source=CONFIG):
