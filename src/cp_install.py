@@ -64,6 +64,11 @@ def calc_sbu(func):
     return wrapper
 
 class prepare(object):
+    """
+    Содержит методы, вызываемые перед сборкой порта.
+    Необходимы для подготовки к сборке.
+    """
+
     def download(link, dest):
         """
         Function for download a port files
@@ -124,6 +129,12 @@ class prepare(object):
             return False
 
 class install(object):
+    """
+    Содержит функции для сборки порта и добавления его
+    в базу данных установленных портов.
+
+    TODO: добавить метод для работы с БД
+    """
 
     @calc_sbu
     def build(install, flags=""):

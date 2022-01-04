@@ -35,6 +35,9 @@ PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
 class remove(object):
+    """
+    Содержит функции для удаления порта из системы и базы данных
+    """
 
     def __init__(self, port):
         self.port = port

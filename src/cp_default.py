@@ -111,38 +111,6 @@ class log(object):
 
         print(msg)
 
-class settings(object):
-
-    conf = configparser.ConfigParser()
-
-    def get(section, param, source=CONFIG):
-        settings.conf.read(source)
-        
-        try:
-            conf = settings.conf.get(section, param)
-        except configparser.NoOptionError:
-            conf = "uknown"
-
-        return str(conf)
-    
-    def get_json(file):
-        f = open(file)
-        data = json.load(f)
-        f.close()
-
-        return data
-    
-    def p_set(section, param, value, source=CONFIG):
-        if os.path.isfile(source):
-            log.error_msg(f"File '{source}' not found!")
-            return False
-        
-        settings.conf.set(section, param, value)
-
-        f = open(source, "w")
-        settings.conf.write(f)
-        f.close()
-
 class check(object):
    
     def install(port_dir):
@@ -225,6 +193,48 @@ class check(object):
                 return True
         else:
             return False
+
+class settings(object):
+    """
+    Содержит методы для работы с параметрами: получение параметров,
+    изменение параметров, парсинг конфигов.
+    """
+
+    conf = configparser.ConfigParser()
+
+    def get(section, param, source=CONFIG):
+        settings.conf.read(source)
+        
+        try:
+            conf = settings.conf.get(section, param)
+        except configparser.NoOptionError:
+            conf = "uknown"
+
+        return str(conf)
+    
+    def get_json(file):
+        if check.json_config(file):
+            f = open(file)
+            data = json.load(f)
+            f.close()
+
+        else:
+            data = {
+                "data": "uknown"
+            }
+
+        return data
+    
+    def p_set(section, param, value, source=CONFIG):
+        if os.path.isfile(source):
+            log.error_msg(f"File '{source}' not found!")
+            return False
+        
+        settings.conf.set(section, param, value)
+
+        f = open(source, "w")
+        settings.conf.write(f)
+        f.close()
 
 class initial_check(object):
     def db():

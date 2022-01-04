@@ -30,7 +30,6 @@
 
 import libcport
 import cp_remove     as cpr
-import cp_install    as cpi
 import cp_info       as cpI
 import cp_blacklists as cpb
 import cp_default    as cdf
