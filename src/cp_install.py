@@ -23,6 +23,15 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
+"""
+Методы и классы для сборки и установки портов
+
+Возможности:
+- скачивание и распаковка порта;
+- выполнение инструкций сборки;
+- TODO: добавление порта в `installed.db`
+"""
+
 import os
 import sys
 import json
@@ -47,63 +56,14 @@ def calc_sbu(func):
 
         difference   = time_end - time_start # Building time (secs)
 
-        sbu = difference / time_def # Calculate Standrt Build Unit for port
+        sbu = difference / time_def
         print(f"Build time (sbu) = {round(sbu, 2)}") # Rounding the sbu value to hundredths and print result
         
         return return_value
 
     return wrapper
 
-class install(object):
-
-    def __init__(self, port, flags="default"):
-        self.port    = port
-        self.flags   = flags
-
-        port_dir     = PORTDIR  + port
-        port_install = port_dir + "/install"
-        port_config  = port_dir + "/config.json"
-        port_resources = port_dir + "/resources.conf"
-
-        res = cdf.settings.get_json(port_resources)
-        d_link = res["resources"]["url"]
-        d_archive = res["resources"]["file"]
-
-        cdf.log.msg(f"Starting building a port '{port}'...")
-
-        if cdf.check.install(port_dir) and cpb.check_bl(port):
-            if cpI.get.priority(port_config) == "system":
-                cdf.log.warning(
-                    f"Port '{port}': system priority. system priority. Subsequent port deletion is not possible."
-                )
-
-                cdf.dialog(p_exit=True)
-                
-            else:
-                # ==begin
-                # Проверка на совместимость порта с текущим
-                # релизом Calmira GNU/Linux
-                if not cdf.check.release(port_config):
-                    cdf.log.error_msg(f"Port '{port}' не совместим с текущим релизом Calmira!")
-                    cdf.dialog(p_exit=True)
-                # ==end
-                
-                cdf.log.msg("Base info:")
-                cpI.info.port(port_config)
-                
-                cdf.log.msg("Depends:", prev="\n")
-                cpI.info.depends([port_config])
-
-                cdf.dialog(p_exit=True)
-
-            cdf.log.log_msg(
-                f"Starting building port '{port}' using the '{flags}' flags...", level="INFO"
-            )
-            if install.download(d_link, cdf.CACHE) and install.unpack(d_archive, cdf.CACHE):
-                install.build(port_install, flags)
-        else:
-            cdf.log.error_msg(f"Some errors while testing port files!")
-    
+class prepare(object):
     def download(link, dest):
         """
         Function for download a port files
@@ -163,6 +123,8 @@ class install(object):
             cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
             return False
 
+class install(object):
+
     @calc_sbu
     def build(install, flags=""):
         cdf.log.msg("Executing a build script...", prev="\n")
@@ -174,8 +136,9 @@ class install(object):
             cdf.log.error_msg(
                 "\aPort returned a non-zero return code!", prev="\n\n"
             )
+            cdf.log.log_msg("Port returned a non-zero return code!", level="FAIL")
 
         else:
-            cdf.log.ok_msg("\aBuild complete!", prev="\n\n")
+            cdf.log.ok_msg("Build complete!", prev="\n\n")
         
         return run.returncode

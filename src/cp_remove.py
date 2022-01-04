@@ -59,6 +59,8 @@ class remove(object):
 
             cdf.dialog(p_exit=True)
 
+            cdf.log.log_msg(f"Start removing port '{port}'...", level="INFO")
+
             remove.remove_pkg(port_remove)
         else:
             exit(1)
@@ -71,6 +73,7 @@ class remove(object):
             cdf.log.error_msg(
                 "Port returned a non-zero return code!", prev="\n\n"
             )
+            cdf.log.error_msg("Port returned a non-zero return code!", level="FAIL")
             return False
         else:
             cdf.log.ok_msg("Remove complete!", prev="\n\n")

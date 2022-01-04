@@ -28,6 +28,7 @@
 # LOAD SCRIPT CONFIGURATIONS
 #
 
+import libcport
 import cp_remove     as cpr
 import cp_install    as cpi
 import cp_info       as cpI
@@ -51,7 +52,7 @@ parser.add_argument(
 
 parser.add_argument(
     "-f", "--flags", dest="flags", type=str,
-    help="[EXPERIMENT] - using compiler flags"
+    help="Using compiler flags and cmd arguments"
 )
 
 parser.add_argument(
@@ -94,9 +95,9 @@ def cmd_parser():
     if args.install:
         for port in args.install:
             if args.flags:
-                cpi.install(port, flags=args.flags)
+                libcport.install(port, flags=args.flags)
             else:
-                cpi.install(port)
+                libcport.install(port)
             
             if len(args.install) > 1:
                 sep = 80 * '-'

@@ -23,6 +23,10 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
+"""
+Общие методы API
+"""
+
 import os
 import time
 import configparser
@@ -38,6 +42,7 @@ VERSION = "v1.0a2 DEV"
 PORTDIR = "./ports/"
 LOG = "./cport.log"
 DB  = "./blacklist.db"
+# DB = "/var/db/cport.d/"
 CONFIG = "./config/cport.conf"
 
 CACHE = "/usr/src/"
@@ -94,7 +99,7 @@ class log(object):
         msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
 
         print(prev, msg)
-        log.log_msg(message, level="INFO")
+        log.log_msg(message, level=" OK ")
     
     def warning(message):
         msg = f"[ \033[1mWARNING\033[0m ] {message}"
@@ -220,3 +225,21 @@ class check(object):
                 return True
         else:
             return False
+
+class initial_check(object):
+    def db():
+        """
+        Function for check the ports and cport databases
+        """
+
+        files = (DB+"blacklists.db", DB+"installed.db")
+        v_error = False
+
+        for file in files:
+            if not os.path.isfile(file):
+                log.error_msg(f"File '{file}' not found!")
+                v_error = True
+        
+        if v_error:
+            return False
+        return True
