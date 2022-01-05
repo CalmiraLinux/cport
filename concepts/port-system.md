@@ -2,7 +2,7 @@
 
 > **Автор:** [Михаил Краснов](https://github.com/Linuxoid85)
 
-> **E-main:** [linuxoid85@gmail.com](mailto:linuxoid85@gmail.com)
+> **E-mail:** [linuxoid85@gmail.com](mailto:linuxoid85@gmail.com)
 
 > **Категория:** Добавление/изменение функционала.
 
