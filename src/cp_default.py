@@ -131,7 +131,7 @@ class check(object):
     
     def remove(port_dir):
 
-        files = ["/remove", "/config.json"]
+        files = ["/files.list", "/config.json"]
 
         v_error = False
         for file in files:

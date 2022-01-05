@@ -72,9 +72,9 @@ def install(port, flags="default"):
     ## Checkings ##
     cdf.log.log_msg("Checking for file exist...", level="INFO")
     if not cdf.check.install(port_dir):
-        message = "Error while checking files for install"
+        message = "Error during testing for the presence of port files"
 
-        cdf.log.log_msg(message, level="ERROR")
+        cdf.log.log_msg(message, level="FAIL")
         cdf.log.error_msg(message)
 
         return False
@@ -82,16 +82,16 @@ def install(port, flags="default"):
         cdf.log.log_msg("Checking successfully", level=" OK ")
 
     # Проверка на наличие порта в чёрном списке
-    cdf.log.log_msg("Checking where port is blacklisted...", level="INFO")
+    cdf.log.log_msg("Checking for the presence of a port in the blacklist...", level="INFO")
     if cpb.fetch(port):
-        message = f"Port '{port}' is blacklisted"
+        message = f"The port '{port}' is blacklisted"
 
         cdf.log.log_msg(message, level="ERROR")
         cdf.log.error_msg(message)
 
         return False
     else:
-        cdf.log.log_msg(f"Port '{port}' isn't blacklisted", level=" OK ")
+        cdf.log.log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
     
     # Check priority
     if cpI.get.priority(port_config) == "system":
@@ -107,11 +107,11 @@ def install(port, flags="default"):
         cdf.dialog(p_exit=True)
     """
     
-    # Print inforpation about port
+    ## Print inforpation about port ##
     cdf.log.msg("Base info:")
     cpI.info.port(port_config)
 
-    cdf.log.msg("Depends", prev="\n")
+    cdf.log.msg("Depends:", prev="\n")
     cpI.info.depends([port_config])
 
     cdf.dialog(p_exit=True)
@@ -153,3 +153,59 @@ def install(port, flags="default"):
         return True
     else:
         return False
+
+def remove(port):
+    port_dir    = PORTDIR + port
+    port_config = port_dir + "/config.json"
+
+    log_message = f"Starting the removal of the '{port}' port..."
+
+    cdf.log.msg(log_message)
+    cdf.log.log_msg(f"{42 * '='}", level="SEP ")
+    cdf.log.log_msg(log_message, level="INFO")
+
+    ## Checkings ##
+    if not cdf.check.remove(port_dir):
+        message = "Error during testing for the presence of port files"
+
+        cdf.log.log_msg(message, level="FAIL")
+        cdf.log.error_msg(message)
+
+        return False
+    else:
+        cdf.log.log_msg("Checking successfully", level=" OK ")
+    
+    # Проверка на наличие порта в чёрном списке
+    cdf.log.log_msg("Checking for the presence of a port in the blacklist...", level="INFO")
+    if cpb.fetch(port):
+        message = f"The port '{port}' is blacklisted"
+
+        cdf.log.log_msg(message, level="FAIL")
+        cdf.log.error_msg(message)
+
+        return False
+    else:
+        cdf.log.log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
+    
+    # Check priority
+    if cpI.get.priority(port_config) == "system":
+        message = f"'{port}' have a system priority. Aborted."
+
+        cdf.log.log_msg(message, level="FAIL")
+        cdf.log.error_msg(message)
+
+        return False
+    
+    ## Print information about port ##
+    cdf.log.msg("Base info:")
+    cpI.info.port(port_config)
+
+    cdf.log.msg("Depends:", prev="\n")
+    cpI.info.depends([port_config])
+
+    cdf.dialog(p_exit=True)
+
+    ## Remove files ##
+    if not cpr.remove(port):
+        return False
+    return True

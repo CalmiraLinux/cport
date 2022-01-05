@@ -26,7 +26,7 @@
 import os
 import sys
 import json
-import subprocess
+import shutil
 import cp_info    as cpI
 import cp_default as cdf
 import cp_blacklists as cpb
@@ -34,50 +34,53 @@ import cp_blacklists as cpb
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
-class remove(object):
-    """
-    Содержит функции для удаления порта из системы и базы данных
-    """
+def remove(port):
+    port_dir = PORTDIR + port
+    files_list = port_dir + "/files.list"
 
-    def __init__(self, port):
-        self.port = port
+    cdf.log.msg(f"Deleting '{port}' port files...", prev="\n")
 
-        port_dir = PORTDIR + port
-        port_config = [port_dir+"/config.json"]
-        conf        = port_dir + "/config.json"
-        port_remove = port_dir + "/remove"
+    files = [] # Files list
+    f = open(files_list, "r")
 
-        cdf.log.msg(f"Start removing a port '{port}'...")
+    while True:
+        line = f.readline()
 
-        if cdf.check.remove(port_dir) and cpb.check_bl(port):
-            if cpI.get.priority(conf) == "system":
-                cdf.log.error_msg(f"Port '{port}': system priority. Deleting the port is not possible.")
-                exit(1)
+        if not line:
+            break
+        else:
+            files.append(f'{line.strip()}')
+    
+    f.close()
+
+    for file in files:
+        cdf.log.log_msg(f"Start removing a file '{file}'...", level="INFO")
+
+        """
+        if not os.path.exists(file):
+            message = f"File '{file}' doesn't exists"
+
+            cdf.log.log_msg(message, level="FAIL")
+            cdf.log.error_msg(message)
+
+            break
+        """
+
+        try:
+            os.remove(file)
+            cdf.log.log_msg(f"File '{file}' deleted successfully", level=" OK ")
+        
+        except IsADirectoryError:
+            shutil.rmtree(file)
+            cdf.log.log_msg(f"Directory '{file}' deleted successfully", level=" OK ")
+        
+        except:
+            message = f"Uknown error while removing a file '{file}'"
             
-            cdf.log.msg("Base info:")
-            cpI.info.port(conf)
+            cdf.log.log_msg(message, level="FAIL")
+            cdf.log.error_msg(message)
 
-            cdf.log.msg("Depends:", prev="\n")
-            cpI.info.depends(port_config)
-
-            cdf.dialog(p_exit=True)
-
-            cdf.log.log_msg(f"Start removing port '{port}'...", level="INFO")
-
-            remove.remove_pkg(port_remove)
-        else:
-            exit(1)
-
-    def remove_pkg(port_remove):
-        cdf.log.msg("Executing a remove script...", prev="\n")
-        run = subprocess.run(port_remove, shell=True)
-
-        if run.returncode != 0:
-            cdf.log.error_msg(
-                "Port returned a non-zero return code!", prev="\n\n"
-            )
-            cdf.log.error_msg("Port returned a non-zero return code!", level="FAIL")
             return False
-        else:
-            cdf.log.ok_msg("Remove complete!", prev="\n\n")
-            return True
+
+    cdf.log.msg(f"{len(files)} files successfully deleted")
+    return True

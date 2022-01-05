@@ -36,7 +36,7 @@ import cp_default    as cdf
 import argparse
 
 parser = argparse.ArgumentParser(
-    description="Utility for building and installing the port"
+    description="Utility for building and installing the ports"
 )
 
 parser.add_argument(
@@ -86,7 +86,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 def ver():
-    msg = "cport " + cdf.VERSION + " - utility for building and installing the port\n"
+    msg = "cport " + cdf.VERSION + " - utility for building and installing the ports\n"
     print(msg)
     print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
@@ -104,7 +104,7 @@ def cmd_parser():
     
     elif args.remove:
         for port in args.remove:
-            cpr.remove(port)
+            libcport.remove(port)
 
             if len(args.remove) > 1:
                 sep = 80 * '-'
