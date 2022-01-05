@@ -1,4 +1,4 @@
-# Рефракторинг методов класса `cp_install.install()`
+# Рефракторинг методов класса `cp_install.install()` [DONE]
 
 > **Автор:** [Михаил Краснов](https://github.com/Linuxoid85)
 

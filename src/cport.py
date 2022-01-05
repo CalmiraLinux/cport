@@ -92,6 +92,10 @@ def ver():
 
 def cmd_parser():
     if args.install:
+        if not libcport.getgid(0):
+            cdf.log.error_msg("Error: you must run 'cport' as root!")
+            exit(1)
+        
         for port in args.install:
             if args.flags:
                 libcport.install(port, flags=args.flags)
@@ -103,6 +107,10 @@ def cmd_parser():
                 print(sep)
     
     elif args.remove:
+        if not libcport.getgid(0):
+            cdf.log.error_msg("Error: you must run 'cport' as root!")
+            exit(1)
+        
         for port in args.remove:
             libcport.remove(port)
 
@@ -115,12 +123,24 @@ def cmd_parser():
         cpI.info.port(config)
     
     elif args.add_blacklist:
+        if not libcport.getgid(0):
+            cdf.log.error_msg("Error: you must run 'cport' as root!")
+            exit(1)
+        
         cpb.add(args.add_blacklist)
     
     elif args.remove_blacklist:
+        if not libcport.getgid(0):
+            cdf.log.error_msg("Error: you must run 'cport' as root!")
+            exit(1)
+        
         cpb.remove(args.remove_blacklist)
     
     elif args.fetch_blacklist:
+        if not libcport.getgid(0):
+            cdf.log.error_msg("Error: you must run 'cport' as root!")
+            exit(1)
+        
         if cpb.fetch(args.fetch_blacklist):
             print(f"\033[1m{args.fetch_blacklist}:\033[0m true")
         else:

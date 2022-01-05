@@ -41,6 +41,7 @@
 Предназначен для использования **только** в cport.
 """
 
+import os
 import cp_blacklists as cpb
 import cp_default    as cdf
 import cp_info       as cpI
@@ -48,6 +49,12 @@ import cp_install    as cpi
 import cp_remove     as cpr
 
 PORTDIR = cdf.PORTDIR
+
+def getgid(gid: int):
+    if os.getgid() != gid:
+        return False
+    else:
+        return True
 
 def install(port, flags="default"):
     port_dir       = PORTDIR  + port # Directory with port
@@ -128,8 +135,7 @@ def install(port, flags="default"):
         message = f"Error while downloading file '{download}'!"
 
         cdf.log.log_msg(message, level="ERROR")
-        cdf.log.error_msg(message)
-
+        
         return False
     else:
         cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")

@@ -93,9 +93,9 @@ class prepare(object):
             cdf.log.error_msg(f"Connection error while downloading '{link}'!")
             return False
 
-        #except:
-        #    cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
-        #    return False
+        except:
+            cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
+            return False
     
     def unpack(file, dest):
         """

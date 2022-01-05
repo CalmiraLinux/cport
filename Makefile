@@ -1,10 +1,13 @@
+# cport
+# (C) 2022 Michail Krasnov
+
 all:
 	mkdir /var/db/cport.d
 	mkdir /etc/cport.d
 
 	cp src/cport.py                 /usr/sbin/cport
-	cp src/cp_*.py     	            /usr/lib/python3.10/site-packages/
-	cp src/libcport.py              /usr/lib/python3.10/site-packages/
+	cp src/api/cp_*.py	            /usr/lib/python3.10/site-packages/
+	cp src/lib/libcport.py          /usr/lib/python3.10/site-packages/
 
 	cp src/blacklist.db             /var/db/cport.d/
 	cp src/config/*                 /etc/cport.d/
