@@ -37,6 +37,7 @@ import sys
 import json
 import time
 import wget
+import shutil
 import tarfile
 import subprocess
 import cp_info       as cpI
@@ -45,6 +46,7 @@ import cp_blacklists as cpb
 
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
+CACHE   = cdf.CACHE
 
 def calc_sbu(func):
     def wrapper(*args, **kwargs):
@@ -91,9 +93,9 @@ class prepare(object):
             cdf.log.error_msg(f"Connection error while downloading '{link}'!")
             return False
 
-        except:
-            cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
-            return False
+        #except:
+        #    cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
+        #    return False
     
     def unpack(file, dest):
         """
@@ -106,10 +108,12 @@ class prepare(object):
         - 'dest' - destination file.
         """
 
-        if not os.path.isfile(file):
+        if not os.path.isfile(CACHE+file):
             cdf.log.error_msg(f"File '{file}' not found!")
             return False
         
+        file = CACHE + file
+
         try:
             t = tarfile.open(file, 'r')
             t.extractall(path=dest)
@@ -124,9 +128,9 @@ class prepare(object):
             cdf.log.error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
             return False
         
-        except:
-            cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
-            return False
+        #except:
+        #    cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
+        #    return False
 
 class install(object):
     """

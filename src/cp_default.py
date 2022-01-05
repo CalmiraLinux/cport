@@ -29,6 +29,7 @@
 
 import os
 import time
+import json
 import configparser
 
 NO_SQLITE = False
@@ -45,7 +46,7 @@ DB  = "./blacklist.db"
 # DB = "/var/db/cport.d/"
 CONFIG = "./config/cport.conf"
 
-CACHE = "/usr/src/"
+CACHE = "./src/"
 
 def dialog(p_exit=False, default_no=False):
     print("\n> Continue?", end=" ")

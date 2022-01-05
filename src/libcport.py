@@ -56,12 +56,12 @@ def install(port, flags="default"):
     port_config    = port_dir + "/config.json"
     port_resources = port_dir + "/resources.conf"
 
-    # TODO: remove the docstring
-    """
-    res = cdf.settings.get_json(port_resources)
-    download = res["resources"]["url"]
-    archive  = res["resources"]["file"]
-    """
+    try:
+        res = cdf.settings.get_json(port_resources)
+        download = res["resources"]["url"]
+        archive  = res["resources"]["file"]
+    except:
+        return False
 
     log_message = f"Starting building a port '{port}'..."
 
@@ -115,10 +115,8 @@ def install(port, flags="default"):
 
     cdf.dialog(p_exit=True)
 
-    # TODO: remove the docstring
-    """
     ## Download files ##
-    cdf.log.log_msg(f"Downloading file '{download}'...")
+    cdf.log.log_msg(f"Downloading file '{download}'...", level="INFO")
     d = cpi.prepare.download(download, cdf.CACHE)
 
     if d != True:
@@ -132,7 +130,7 @@ def install(port, flags="default"):
         cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
 
     ## Unpack files ##
-    cdf.log.log_msg(f"Unpacking file '{archive}'...")
+    cdf.log.log_msg(f"Unpacking file '{archive}'...", level="INFO")
     u = cpi.prepare.unpack(archive, cdf.CACHE)
 
     if u != True:
@@ -147,7 +145,6 @@ def install(port, flags="default"):
     
     del(u)
     del(d)
-    """
 
     ## Build port ##
     cdf.log.log_msg("Start building a port...", level="INFO")
