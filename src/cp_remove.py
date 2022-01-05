@@ -34,14 +34,13 @@ import cp_blacklists as cpb
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
-def remove(port):
+def get_files(port) -> list:
     port_dir = PORTDIR + port
     files_list = port_dir + "/files.list"
 
     cdf.log.msg(f"Deleting '{port}' port files...", prev="\n")
 
     files = [] # Files list
-    error_files = []
     f = open(files_list, "r")
 
     while True:
@@ -54,7 +53,13 @@ def remove(port):
     
     f.close()
 
+    return files
+
+def remove(port):
+    files = get_files(port)
+    error_files = []
     v_error = False
+
     for file in files:
         cdf.log.log_msg(f"Start removing a file '{file}'...", level="INFO")
 
@@ -85,7 +90,7 @@ def remove(port):
             v_error = True
 
     if v_error:
-        cdf.log.msg(f"Some errors while deleting {len(error_files)} files")
+        cdf.log.error_msg(f"Some errors while deleting {len(error_files)} files", prev="\n")
         return False
     else:
         cdf.log.msg(f"{len(files)} files successfully deleted")

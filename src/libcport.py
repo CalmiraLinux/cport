@@ -117,7 +117,11 @@ def install(port, flags="default"):
     cdf.dialog(p_exit=True)
 
     ## Download files ##
-    cdf.log.log_msg(f"Downloading file '{download}'...", level="INFO")
+    message = f"Downloading file '{download}'..."
+
+    cdf.log.log_msg(message, level="INFO")
+    cdf.log.msg(message, prev="\n")
+
     d = cpi.prepare.download(download, cdf.CACHE)
 
     if d != True:
@@ -131,7 +135,11 @@ def install(port, flags="default"):
         cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
 
     ## Unpack files ##
-    cdf.log.log_msg(f"Unpacking file '{archive}'...", level="INFO")
+    message = f"Unpacking file '{archive}'..."
+
+    cdf.log.log_msg(message, level="INFO")
+    cdf.log.msg(message, prev="\n\n")
+
     u = cpi.prepare.unpack(archive, cdf.CACHE)
 
     if u != True:

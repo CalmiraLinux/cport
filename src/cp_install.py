@@ -142,7 +142,7 @@ class install(object):
 
     @calc_sbu
     def build(install, flags=""):
-        cdf.log.msg("Executing a build script...", prev="\n")
+        cdf.log.msg("Executing a build script...")
         command = f"{install} {flags}"
 
         run = subprocess.run(command, shell=True)

@@ -137,6 +137,8 @@ try:
     cmd_parser()
 except KeyboardInterrupt:
     cdf.log.error_msg("Keyboard interrupt!")
+
+    os.system("killall install")
     exit(1)
 except SystemExit:
     cdf.log.error_msg("An incorrigible error occurred during the build/remove!")
