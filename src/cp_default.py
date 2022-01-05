@@ -40,13 +40,13 @@ except:
     NO_SQLITE = True
 
 VERSION = "v1.0a2 DEV"
-PORTDIR = "./ports/"
-LOG = "./cport.log"
-DB  = "./blacklist.db"
+PORTDIR = "/usr/ports/"
+LOG = "/var/log/cport.log"
+DB  = "/var/db/cport.d/blacklist.db"
 # DB = "/var/db/cport.d/"
-CONFIG = "./config/cport.conf"
+CONFIG = "/etc/cport.d/cport.conf"
 
-CACHE = "./src/"
+CACHE = "/usr/src/"
 
 def dialog(p_exit=False, default_no=False):
     print("\n> Continue?", end=" ")
