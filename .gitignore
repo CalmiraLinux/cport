@@ -2,6 +2,7 @@
 src/cport.log
 src/test/*
 src/ports/*
+src/src
 
 # Параметры VSCodium
 .vscode

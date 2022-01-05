@@ -66,7 +66,8 @@ def install(port, flags="default"):
     log_message = f"Starting building a port '{port}'..."
 
     cdf.log.msg(log_message)
-    cdf.log.log_msg(f"{42*'='}\n"+log_message, level="INFO")
+    cdf.log.log_msg(f"{42*'='}", level="SEP ")
+    cdf.log.log_msg(log_message, level="INFO")
 
     ## Checkings ##
     cdf.log.log_msg("Checking for file exist...", level="INFO")
