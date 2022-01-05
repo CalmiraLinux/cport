@@ -41,6 +41,7 @@ def remove(port):
     cdf.log.msg(f"Deleting '{port}' port files...", prev="\n")
 
     files = [] # Files list
+    error_files = []
     f = open(files_list, "r")
 
     while True:
@@ -53,18 +54,9 @@ def remove(port):
     
     f.close()
 
+    v_error = False
     for file in files:
         cdf.log.log_msg(f"Start removing a file '{file}'...", level="INFO")
-
-        """
-        if not os.path.exists(file):
-            message = f"File '{file}' doesn't exists"
-
-            cdf.log.log_msg(message, level="FAIL")
-            cdf.log.error_msg(message)
-
-            break
-        """
 
         try:
             os.remove(file)
@@ -74,13 +66,27 @@ def remove(port):
             shutil.rmtree(file)
             cdf.log.log_msg(f"Directory '{file}' deleted successfully", level=" OK ")
         
-        except:
-            message = f"Uknown error while removing a file '{file}'"
+        except FileNotFoundError:
+            message = f"File '{file}' not found!"
             
             cdf.log.log_msg(message, level="FAIL")
             cdf.log.error_msg(message)
 
-            return False
+            error_files.append(file)
+            v_error = True
 
-    cdf.log.msg(f"{len(files)} files successfully deleted")
-    return True
+        except PermissionError:
+            message = f"Permission denied while removing a file '{file}'"
+            
+            cdf.log.log_msg(message, level="FAIL")
+            cdf.log.error_msg(message)
+
+            error_files.append(file)
+            v_error = True
+
+    if v_error:
+        cdf.log.msg(f"Some errors while deleting {len(error_files)} files")
+        return False
+    else:
+        cdf.log.msg(f"{len(files)} files successfully deleted")
+        return True
