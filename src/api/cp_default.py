@@ -183,15 +183,25 @@ class check(object):
         
         return release
     
-    def release(config):        
+    def release(config):    
+        # TODO: проверить на работоспособность    
         if check.json_config(config):
             f = open(config)
             data = json.load(f)
 
-            if str(data["release"]) != check._get_calm_release():
-                return False
+            ## CHANGE IN v1.0a3:
+            # В конфиге 'config.json' релиз, для которого предназначен
+            # порт, занесён в список 'release', который перебирается
+            # ниже.
+            ## OLD:
+            # Раньше в конфиге 'release' был представлен обычным str
+
+            for release in data["release"]:
+                if str(release) == check._get_calm_release():
+                    return True
             else:
-                return True
+                return False
+
         else:
             return False
 

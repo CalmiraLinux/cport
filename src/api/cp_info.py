@@ -132,3 +132,5 @@ class info(object):
             print(f"\033[1mblacklist:\033[0m true")
         else:
             print(f"\033[1mblacklist:\033[0m false")
+
+        return True

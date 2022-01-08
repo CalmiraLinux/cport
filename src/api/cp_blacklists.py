@@ -77,8 +77,6 @@ def check_priority(port: str):
     else:
         return True
 
-# TODO: заменить все конструкции с добавлением и удалением
-# элементов из БД на централизованные функции из 'cp_default'
 def add(port: str):
     if not check_priority(port):
         return False
@@ -124,6 +122,7 @@ def fetch(port: str):
         return False
 
 def check_bl(port):
+    # TODO: [DEPRECATED]
     if fetch(port):
         cdf.log.error_msg(f"The port '{port}' is blacklisted, so it cannot be installed!")
         return False

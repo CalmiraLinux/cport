@@ -29,7 +29,6 @@
 #
 
 import libcport
-import cp_remove     as cpr
 import cp_info       as cpI
 import cp_blacklists as cpb
 import cp_default    as cdf
@@ -98,9 +97,11 @@ def cmd_parser():
         
         for port in args.install:
             if args.flags:
-                libcport.install(port, flags=args.flags)
+                if not libcport.install(port, flags=args.flags):
+                    exit(1)
             else:
-                libcport.install(port)
+                if not libcport.install(port):
+                    exit(1)
             
             if len(args.install) > 1:
                 sep = 80 * '-'
@@ -112,7 +113,8 @@ def cmd_parser():
             exit(1)
         
         for port in args.remove:
-            libcport.remove(port)
+            if not libcport.remove(port):
+                exit(1)
 
             if len(args.remove) > 1:
                 sep = 80 * '-'
@@ -120,21 +122,24 @@ def cmd_parser():
     
     elif args.info:
         config = cdf.PORTDIR + args.info + "/config.json"
-        cpI.info.port(config)
+        if not cpI.info.port(config):
+            exit(1)
     
     elif args.add_blacklist:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
             exit(1)
         
-        cpb.add(args.add_blacklist)
+        if not cpb.add(args.add_blacklist):
+            exit(1)
     
     elif args.remove_blacklist:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
             exit(1)
         
-        cpb.remove(args.remove_blacklist)
+        if not cpb.remove(args.remove_blacklist):
+            exit(1)
     
     elif args.fetch_blacklist:
         if not libcport.getgid(0):
@@ -151,7 +156,7 @@ def cmd_parser():
     
     else:
         cdf.log.error_msg("You must input an arguments!")
-        return 1
+        exit(1)
 
 try:
     cmd_parser()
@@ -166,3 +171,5 @@ except SystemExit:
 #except:
     #cdf.log.error_msg("Uknown error!")
     #exit(1)
+finally:
+    exit(0)
