@@ -38,8 +38,6 @@ def get_files(port) -> list:
     port_dir = PORTDIR + port
     files_list = port_dir + "/files.list"
 
-    cdf.log.msg(f"Deleting '{port}' port files...", prev="\n")
-
     files = [] # Files list
     f = open(files_list, "r")
 

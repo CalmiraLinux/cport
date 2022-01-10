@@ -143,7 +143,6 @@ class install(object):
 
     @calc_sbu
     def build(install, flags=""):
-        cdf.log.msg("Executing a build script...")
         command = f"{install} {flags}"
 
         run = subprocess.run(command, shell=True)
@@ -153,8 +152,5 @@ class install(object):
                 "\aPort returned a non-zero return code!", prev="\n\n"
             )
             cdf.log.log_msg("Port returned a non-zero return code!", level="FAIL")
-
-        else:
-            cdf.log.ok_msg("Build complete!", prev="\n\n")
         
         return run.returncode

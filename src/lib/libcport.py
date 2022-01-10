@@ -70,11 +70,8 @@ def install(port, flags="default"):
     except:
         return False
 
-    log_message = f"Starting building a port '{port}'..."
-
-    cdf.log.msg(log_message)
     cdf.log.log_msg(f"{42*'='}", level="SEP ")
-    cdf.log.log_msg(log_message, level="INFO")
+    cdf.log.log_msg(f"Starting building a port '{port}'...", level="INFO")
 
     ## Checkings ##
     cdf.log.log_msg("Checking for file exist...", level="INFO")
@@ -115,10 +112,10 @@ def install(port, flags="default"):
     """
     
     ## Print inforpation about port ##
-    cdf.log.msg("Base info:")
+    print("\033[1mBase information:\033[0m")
     cpI.info.port(port_config)
 
-    cdf.log.msg("Depends:", prev="\n")
+    print("\n\033[0mDependencies:\033[0m")
     cpI.info.depends([port_config])
 
     cdf.dialog(p_exit=True)
@@ -127,7 +124,7 @@ def install(port, flags="default"):
     message = f"Downloading file '{download}'..."
 
     cdf.log.log_msg(message, level="INFO")
-    cdf.log.msg(message, prev="\n")
+    print(f"\n{message}", end = " ")
 
     d = cpi.prepare.download(download, cdf.CACHE)
 
@@ -144,7 +141,7 @@ def install(port, flags="default"):
     message = f"Unpacking file '{archive}'..."
 
     cdf.log.log_msg(message, level="INFO")
-    cdf.log.msg(message, prev="\n\n")
+    print(f"\n\n{message}")
 
     u = cpi.prepare.unpack(archive, cdf.CACHE)
 
@@ -172,11 +169,8 @@ def remove(port):
     port_dir    = PORTDIR + port
     port_config = port_dir + "/config.json"
 
-    log_message = f"Starting the removal of the '{port}' port..."
-
-    cdf.log.msg(log_message)
     cdf.log.log_msg(f"{42 * '='}", level="SEP ")
-    cdf.log.log_msg(log_message, level="INFO")
+    cdf.log.log_msg(f"Starting the removal of the '{port}' port...", level="INFO")
 
     ## Checkings ##
     if not cdf.check.remove(port_dir):
@@ -211,10 +205,10 @@ def remove(port):
         return False
     
     ## Print information about port ##
-    cdf.log.msg("Base info:")
+    print("\033[1mBase information:\033[0m")
     cpI.info.port(port_config)
 
-    cdf.log.msg("Depends:", prev="\n")
+    print("\n\033[1mDependencies:\033[0m")
     cpI.info.depends([port_config])
 
     cdf.dialog(p_exit=True)
