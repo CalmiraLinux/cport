@@ -44,6 +44,19 @@ import cp_info       as cpI
 import cp_default    as cdf
 import cp_blacklists as cpb
 
+try:
+    import sqlite3
+
+    db = cdf.DB + "/installed.db"
+
+    conn = sqlite3.connect(db)
+    cursor = comm.cursor()
+except:
+    cdf.log.error_msg(
+        "It is not possible to use the blacklist: you must install the 'sqlite3' port and rebuild the 'base/python' port."
+    )
+    exit(1)
+
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 CACHE   = cdf.CACHE
@@ -154,3 +167,17 @@ class install(object):
             cdf.log.log_msg("Port returned a non-zero return code!", level="FAIL")
         
         return run.returncode
+    
+    def add_in_db(port_info: tuple):
+        # Table structure:
+        # | name | version | maintainer | release | build_time |
+        # |------|---------|------------|---------|------------|
+        try:
+            cursor.execute("INSERT INTO ports VALUES (?,?,?,?,?)", port_info)
+            conn.commit()
+
+            return True
+        
+        except sqlite3.DatabaseError as error:
+            cdf.log.error_msg(f"SQLite3 error: {error}")
+            return False

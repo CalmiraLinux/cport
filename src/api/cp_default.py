@@ -42,9 +42,8 @@ except:
 VERSION = "v1.0a2 DEV"
 PORTDIR = "/usr/ports/"
 LOG = "/var/log/cport.log"
-DB  = "/var/db/cport.d/blacklist.db"
-# DB = "/var/db/cport.d/"
-CONFIG = "/etc/cport.d/cport.conf"
+DB  = "/var/db/cport.d"            # cport databases
+CONFIG = "/etc/cport.d/cport.conf" # cport configuration file
 
 CACHE = "/usr/src/"
 

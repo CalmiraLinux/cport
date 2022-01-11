@@ -58,9 +58,9 @@ except:
     exit(1)
 
 PORTDIR = cdf.PORTDIR
-DB      = cdf.DB
+db      = cdf.DB + "/blacklists.db"
 
-conn = sqlite3.connect(DB)
+conn = sqlite3.connect(db)
 cursor = conn.cursor()
 
 def check_priority(port: str):

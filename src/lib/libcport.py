@@ -161,7 +161,14 @@ def install(port, flags="default"):
     ## Build port ##
     cdf.log.log_msg("Start building a port...", level="INFO")
     if cpi.install.build(port_install, flags) == 0:
-        return True
+        f = open(port_config)
+        js = json.load(f)
+
+        data = (
+            js["name"], js["version"], js["maintainer"], js["release"], time.ctime()
+        )
+
+        cpi.install.add_in_db(data)
     else:
         return False
 
