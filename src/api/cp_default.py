@@ -245,21 +245,3 @@ class settings(object):
         f = open(source, "w")
         settings.conf.write(f)
         f.close()
-
-class initial_check(object):
-    def db():
-        """
-        Function for check the ports and cport databases
-        """
-
-        files = (DB+"blacklists.db", DB+"installed.db")
-        v_error = False
-
-        for file in files:
-            if not os.path.isfile(file):
-                log.error_msg(f"File '{file}' not found!")
-                v_error = True
-        
-        if v_error:
-            return False
-        return True

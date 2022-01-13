@@ -24,21 +24,21 @@
 #
 
 """
-Функции cport. Использует Ports API.
+cport functions. Uses the Ports API.
 
 # TODO:
 - 'remove()' method;
 - 'info()' method;
 - 'blacklist()' method.
 
-# Описание
+# Description
 
-Данный модуль используется в пакетном менеджере `cport` как обёртка над Port API.
+This module is used in the `cport` package manager as a wrapper over the Port API.
 
-В планах реализация функций для удаления порта и просмотре о нём информации,
-а так же работы с чёрным списком портов.
+There are plans to implement functions for deleting a port and viewing information about it,
+as well as working with a blacklist of ports.
 
-Предназначен для использования **только** в cport.
+Intended for use **only** in sport.
 """
 
 import os
