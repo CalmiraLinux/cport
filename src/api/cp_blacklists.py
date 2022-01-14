@@ -51,17 +51,17 @@ import cp_info    as cpI
 
 try:
     import sqlite3
+
+    PORTDIR = cdf.PORTDIR
+    db      = cdf.DB + "/blacklists.db"
+
+    conn   = sqlite3.connect(db)
+    cursor = conn.cursor()
 except:
     cdf.log.error_msg(
-        "It is not possible to use the blacklist: you must install the 'sqlite3' port and rebuild the 'base/python' port."
+        "It is not possible to use the cp_blacklists API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
-
-PORTDIR = cdf.PORTDIR
-db      = cdf.DB + "/blacklists.db"
-
-conn = sqlite3.connect(db)
-cursor = conn.cursor()
 
 def check_priority(port: str):
     config = PORTDIR + port + "/config.json"
