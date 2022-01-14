@@ -22,3 +22,82 @@
 # Project Page: http://github.com/Linuxoid85/cport
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
+
+import os
+import wget
+import json
+import subprocess
+import cp_default as cdf
+
+BRANCH   = cdf.settings.get("repors", "url", source=cdf.SOURCES) + cdf.settings.get("repos", "branch", source=cdf.SOURCES)
+METADATA = BRANCH + "/metadata.json"                # Link to download the metadata
+METADATA_INST = "/usr/share/cport/metadata.json"    # Installed metadata file
+METADATA_TMP  = "/tmp/metadata.json"                # Temp downloaded metadata file
+
+class check(object):
+    """
+    Check updates
+    """
+
+    def get_update_number(metadata) -> int:
+        if not os.path.isfile(metadata):
+            raise FileNotFoundError
+        
+        f = open(metadata)
+        data = json.load(f)
+        update_number = data["update_number"]
+        f.close()
+
+        return int(update_number)
+    
+    def updates(metadata=METADATA_TMP):
+        updt_num_inst  = check.get_update_number(METADATA_INST) # Update number from installed metadata
+        updt_num_dwnld = check.get_update_number(metadata)      # Update number from downloaded metadata
+
+        difference = updt_num_dwnld - updt_num_inst
+
+        if difference == 0:
+            return "no_updates"
+        elif difference < 0:
+            return "downgrade"
+        else:
+            return "found_updates"
+
+class get(object):
+
+    def changelog():
+        link = BRANCH + "/CHANGELOG.md"
+        pager = cdf.settings.get("base", "pager")
+        
+        try:
+            wget.download(link, "/tmp/CHANGELOG.md")
+
+            command = pager + " /tmp/CHANGELOG.md"
+            run     = subprocess.run(command, shell=True)
+
+            return run.returncode
+
+        except:
+            return 1
+
+    def get_metadata(branch, dest=METADATA_TMP):
+        try:
+            if os.path.isfile(METADATA_TMP):
+                os.remove(METADATA_TMP)
+            
+            wget.download(METADATA, METADATA_TMP)
+        except:
+            return False
+    
+    def diff(metadata):
+        if not os.path.isfile(metadata):
+            raise FileNotFoundError
+        
+        f = open(metadata)
+        data = json.load(f)
+
+        for param in "updates", "addings", "removes":
+            try:
+                print(f"\033[1m{param}\033[0m: {data[param]}")
+            except:
+                print(f"\033[1m{param}\033[0m: not found")
