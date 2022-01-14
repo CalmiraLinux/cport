@@ -49,7 +49,16 @@ SOURCES = "/etc/cport.d/sources.list"
 CACHE = "/usr/src/"
 
 def dialog(p_exit=False, default_no=False):
+    """```
+    Function for print the dialog messages.
+
+    Arguments:
+    - `p_exit`: if 'True' then exit while user input "n" or "N" (no);
+    - `default_no`: if 'True' then "n" or "N" - the default answer.
+    ```"""
+
     print("\n> Continue?", end=" ")
+
     if default_no:
         print("(y/N)", end=" ")
     else:
@@ -130,7 +139,6 @@ class check(object):
         return True
     
     def remove(port_dir):
-
         files = ["/files.list", "/config.json"]
 
         v_error = False
@@ -206,10 +214,10 @@ class check(object):
             return False
 
 class settings(object):
-    """
+    """```
     Содержит методы для работы с параметрами: получение параметров,
     изменение параметров, парсинг конфигов.
-    """
+    ```"""
 
     conf = configparser.ConfigParser()
 
@@ -246,3 +254,88 @@ class settings(object):
         f = open(source, "w")
         settings.conf.write(f)
         f.close()
+
+class lock():
+    """```
+    # `cp_default.lock()`
+
+    API methods for blocking cport processes, as well as checking the status (blocked/not blocked).
+
+    ## Files
+
+    - `/var/lock/cport.lock` - the *.ini configuration file.
+
+    ## File Contents
+
+    This file contains information about the procedure that is currently being performed using cport:
+
+    - "install";
+    - "remove";
+    - "other".
+
+    ## File structure
+
+    procedure = {procedure}\n
+    time      = time.ctime()
+
+    ## Variables
+
+    - `lock.FILE` - the lock file.
+
+    ## TODO:
+
+    - [ ] Function for unlock cport processes;
+    - [ ] Functions for better checkings...
+    ```"""
+
+    FILE = "/var/lock/cport.lock"
+
+    def lock(procedure) -> bool:
+        """```
+        # `cp_default.lock.lock(procedure)`
+        Function for blocking the cport processes
+
+        ## Arguments:
+
+        - `procedure`: procedure name:
+            - `install`;
+            - `remove`;
+            - `other`.
+        ```"""
+
+        if os.path.isfile(lock.FILE):
+            return False
+        
+        try:
+            info = f"[lock]\nprocedure = {procedure}\ntime      = {time.ctime()}"
+            f = open(lock.FILE, "w")
+            
+            f.write(info)
+            f.close()
+
+            return True
+        except:
+            return False
+    
+    def check() -> bool:
+        """```
+        # `cp_default.lock.check()`
+
+        Function for check the cport locking process.
+
+        ## Returned
+
+        The function returned a `bool` type:
+
+        - `True` if cport process is locked;
+        - `False` if cport process doesn't locked.
+        ```"""
+
+        if not os.path.isfile(lock.FILE):
+            return False
+        else:
+            procedure = settings.get("lock", "procedure", source=lock.FILE)
+            lock_time = settings.get("lock", "time", source=lock.FILE)
+
+            print(f"The cport processes was locked.\n\033[1mProcedure:\033[0m {procedure}\n\033[1mLock time:\033[0m {lock_time}")
+            return True
