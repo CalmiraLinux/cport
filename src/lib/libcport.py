@@ -23,13 +23,13 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
-"""
+"""```
 cport functions. Uses the Ports API.
 
 # TODO:
-- 'remove()' method;
-- 'info()' method;
-- 'blacklist()' method.
+- `remove()` method;
+- `info()` method;
+- `blacklist()` method.
 
 # Description
 
@@ -39,7 +39,7 @@ There are plans to implement functions for deleting a port and viewing informati
 as well as working with a blacklist of ports.
 
 Intended for use **only** in sport.
-"""
+```"""
 
 import os
 import cp_blacklists as cpb

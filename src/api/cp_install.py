@@ -79,21 +79,21 @@ def calc_sbu(func):
     return wrapper
 
 class prepare(object):
-    """
+    """```
     Содержит методы, вызываемые перед сборкой порта.
     Необходимы для подготовки к сборке.
-    """
+    ```"""
 
     def download(link, dest):
-        """
+        """```
         Function for download a port files
 
         Usage:
-        download(link, dest)
+        `download(link, dest)`
 
-        - 'link' - download url;
-        - 'dest' - destination file.
-        """
+        - `link` - download url;
+        - `dest` - destination file.
+        ```"""
 
         if os.path.isfile(dest):
             os.remove(dest)
@@ -112,15 +112,15 @@ class prepare(object):
         #    return False
     
     def unpack(file, dest):
-        """
+        """```
         Function for unpack a tar archives
 
         Usage:
-        unpack(file, dest)
+        `unpack(file, dest)`
 
-        - 'file' - archive file;
-        - 'dest' - destination file.
-        """
+        - `file` - archive file;
+        - `dest` - destination file.
+        ```"""
 
         if not os.path.isfile(CACHE+file):
             cdf.log.error_msg(f"File '{file}' not found!")

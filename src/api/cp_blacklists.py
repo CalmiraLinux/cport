@@ -107,11 +107,11 @@ def remove(port: str):
         return False
 
 def fetch(port: str):
-    """
+    """```
     A function for checking the presence of a port
     in the blacklist. If the package is present,
     it returns True, if it is absent, it returns False.
-    """
+    ```"""
 
     data = f"SELECT * FROM ports WHERE port = '{port}'"
     db = cursor.execute(data)
