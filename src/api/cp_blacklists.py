@@ -64,6 +64,7 @@ except:
     exit(1)
 
 def check_priority(port: str):
+    # TODO: DEPRECATED
     config = PORTDIR + port + "/config.json"
     port_dir = PORTDIR + port
 
@@ -110,7 +111,7 @@ def fetch(port: str):
     """```
     A function for checking the presence of a port
     in the blacklist. If the package is present,
-    it returns True, if it is absent, it returns False.
+    it returns `True`, if it is absent, it returns `False`.
     ```"""
 
     data = f"SELECT * FROM ports WHERE port = '{port}'"
@@ -120,10 +121,3 @@ def fetch(port: str):
         return True
     else:
         return False
-
-def check_bl(port):
-    # TODO: [DEPRECATED]
-    if fetch(port):
-        cdf.log.error_msg(f"The port '{port}' is blacklisted, so it cannot be installed!")
-        return False
-    return True

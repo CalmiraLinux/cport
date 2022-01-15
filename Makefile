@@ -6,8 +6,8 @@ all:
 	mkdir /etc/cport.d
 
 	cp src/cport.py                 /usr/sbin/cport
-	cp src/api/cp_*.py              /usr/lib/python3.9/site-packages/
-	cp src/lib/libcport.py          /usr/lib/python3.9/site-packages/
+	cp src/api/cp_*.py              /usr/lib/python3.10/site-packages/
+	cp src/lib/libcport.py          /usr/lib/python3.10/site-packages/
 
 	cp src/databases/*.db           /var/db/cport.d/
 	cp src/config/*                 /etc/cport.d/

@@ -275,17 +275,16 @@ class lock():
 
     ## File structure
 
-    procedure = {procedure}\n
-    time      = time.ctime()
-
+    ```
+    procedure = {procedure}
+    time      = {time.ctime()}
+    ```
+    
     ## Variables
 
     - `lock.FILE` - the lock file.
 
     ## TODO:
-
-    - [ ] Function for unlock cport processes;
-    - [ ] Functions for better checkings...
     ```"""
 
     FILE = "/var/lock/cport.lock"
@@ -317,7 +316,19 @@ class lock():
         except:
             return False
     
-    def check() -> bool:
+    def unlock() -> bool:
+        """```
+        # `cp_default.lock.unlock()`
+        Function for unblocking the cport processes
+        ```"""
+
+        try:
+            os.remove(lock.FILE)
+            return True
+        except:
+            return False
+    
+    def check() -> dict:
         """```
         # `cp_default.lock.check()`
 
@@ -325,17 +336,29 @@ class lock():
 
         ## Returned
 
-        The function returned a `bool` type:
+        The function returned a `dict`:
 
-        - `True` if cport process is locked;
-        - `False` if cport process doesn't locked.
+        ```
+        data = {
+            "procedure": f"{procedure}",
+            "time": f"{lock_time}"
+        }
+        ```
+
         ```"""
 
         if not os.path.isfile(lock.FILE):
-            return False
+            data = {
+                "procedure": "cport doesn't locked",
+                "time": f"{time.ctime()}"
+            }
         else:
             procedure = settings.get("lock", "procedure", source=lock.FILE)
             lock_time = settings.get("lock", "time", source=lock.FILE)
 
-            print(f"The cport processes was locked.\n\033[1mProcedure:\033[0m {procedure}\n\033[1mLock time:\033[0m {lock_time}")
-            return True
+            data = {
+                "procedure": procedure,
+                "time": lock_time
+            }
+
+        return data
