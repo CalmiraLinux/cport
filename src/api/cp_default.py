@@ -39,7 +39,7 @@ try:
 except:
     NO_SQLITE = True
 
-VERSION = "v1.0a2 DEV"
+VERSION = "v1.0a3 DEV"
 PORTDIR = "/usr/ports/"
 LOG = "/var/log/cport.log"
 DB  = "/var/db/cport.d"            # cport databases
@@ -328,11 +328,11 @@ class lock():
         except:
             return False
     
-    def check() -> dict:
+    def info() -> dict:
         """```
-        # `cp_default.lock.check()`
+        # `cp_default.lock.info()`
 
-        Function for check the cport locking process.
+        Function for get info about the cport locking process.
 
         ## Returned
 

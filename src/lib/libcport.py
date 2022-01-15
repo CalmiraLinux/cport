@@ -56,6 +56,13 @@ def getgid(gid: int):
     else:
         return True
 
+def unlock():
+    if not cdf.unlock():
+        cdf.log.error_msg("Unknown error unlocking the cport process")
+        return False
+    else:
+        return True
+
 def install(port, flags="default"):
     port_dir       = PORTDIR  + port # Directory with port
 
@@ -63,11 +70,24 @@ def install(port, flags="default"):
     port_config    = port_dir + "/config.json"
     port_resources = port_dir + "/resources.conf"
 
+    if os.path.isfile(cdf.lock.FILE):
+        data = cdf.lock.info()
+        cdf.log.error_msg(
+            f"""The port assembly process cannot be started!
+            The cport process executes the following script {data['procedure']}, started at {data['time']}"""
+        )
+        return False
+    
+    if not cdf.lock.lock("install"):
+        cdf.log.error_msg("Unknown error blocking the installation process")
+        return False
+
     try:
         res = cdf.settings.get_json(port_resources)
         download = res["resources"]["url"]
         archive  = res["resources"]["file"]
     except:
+        unlock()
         return False
 
     cdf.log.log_msg(f"{42*'='}", level="SEP ")
@@ -81,6 +101,7 @@ def install(port, flags="default"):
         cdf.log.log_msg(message, level="FAIL")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     else:
         cdf.log.log_msg("Checking successfully", level=" OK ")
@@ -93,6 +114,7 @@ def install(port, flags="default"):
         cdf.log.log_msg(message, level="ERROR")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     else:
         cdf.log.log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
@@ -133,6 +155,7 @@ def install(port, flags="default"):
 
         cdf.log.log_msg(message, level="ERROR")
         
+        unlock()
         return False
     else:
         cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
@@ -151,6 +174,7 @@ def install(port, flags="default"):
         cdf.log.log_msg(message, level="ERROR")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     else:
         cdf.log.log_msg(f"File '{archive}' was unpacked successfully", level=" OK ")
@@ -170,11 +194,26 @@ def install(port, flags="default"):
 
         cpi.install.add_in_db(data)
     else:
+        unlock()
         return False
+    
+    unlock()
 
 def remove(port):
     port_dir    = PORTDIR + port
     port_config = port_dir + "/config.json"
+
+    if os.path.isfile(cdf.lock.FILE):
+        data = cdf.lock.info()
+        cdf.log.error_msg(
+            f"""The port assembly process cannot be started!
+            The cport process executes the following script {data['procedure']}, started at {data['time']}"""
+        )
+        return False
+    
+    if not cdf.lock.lock("remove"):
+        cdf.log.error_msg("Unknown error blocking the deletion process")
+        return False
 
     cdf.log.log_msg(f"{42 * '='}", level="SEP ")
     cdf.log.log_msg(f"Starting the removal of the '{port}' port...", level="INFO")
@@ -186,6 +225,7 @@ def remove(port):
         cdf.log.log_msg(message, level="FAIL")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     else:
         cdf.log.log_msg("Checking successfully", level=" OK ")
@@ -198,6 +238,7 @@ def remove(port):
         cdf.log.log_msg(message, level="FAIL")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     else:
         cdf.log.log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
@@ -209,6 +250,7 @@ def remove(port):
         cdf.log.log_msg(message, level="FAIL")
         cdf.log.error_msg(message)
 
+        unlock()
         return False
     
     ## Print information about port ##
@@ -222,5 +264,7 @@ def remove(port):
 
     ## Remove files ##
     if not cpr.remove(port):
+        unlock()
         return False
+    unlock()
     return True
