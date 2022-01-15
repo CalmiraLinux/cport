@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v1.0b1
+
+* Добавление `cacheonly`-режима;
+
 ## v1.0a3
 
 * Метод `cdf.lock.check()` переименована в `cdf.lock.info()`;

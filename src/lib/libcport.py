@@ -72,6 +72,7 @@ def install(port, flags="default"):
 
     if os.path.isfile(cdf.lock.FILE):
         data = cdf.lock.info()
+
         cdf.log.error_msg(
             f"""The port assembly process cannot be started!
             The cport process executes the following script {data['procedure']}, started at {data['time']}"""
@@ -148,18 +149,26 @@ def install(port, flags="default"):
     cdf.log.log_msg(message, level="INFO")
     print(f"\n{message}", end = " ")
 
-    d = cpi.prepare.download(download, cdf.CACHE)
+    # Следующая часть кода скачивает необходимый файл из репозиториев
+    # NOTE: работает только в том случае, когда выключен
+    # cacheonly-режим ('cache = false' в /etc/cport.d/cport.conf).
+    cache = cdf.settings.get("develop", "cache")
 
-    if d != True:
-        message = f"Error while downloading file '{download}'!"
+    if cache == "false":
+        d = cpi.prepare.download(download, cdf.CACHE)
 
-        cdf.log.log_msg(message, level="ERROR")
+        if d != True:
+            message = f"Error while downloading file '{download}'!"
+
+            cdf.log.log_msg(message, level="ERROR")
         
-        unlock()
-        return False
+            unlock()
+            return False
+        else:
+            cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
     else:
-        cdf.log.log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
-
+        cdf.log.warning("Cacheonly mode is used! In this case, no files will be downloaded. Local versions of archives are used (if they are present on the disk).")
+    
     ## Unpack files ##
     message = f"Unpacking file '{archive}'..."
 
