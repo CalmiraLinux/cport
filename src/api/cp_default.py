@@ -39,7 +39,7 @@ try:
 except:
     NO_SQLITE = True
 
-VERSION = "v1.0a3 DEV"
+VERSION = "v1.0b1 DEV"
 PORTDIR = "/usr/ports/"
 LOG = "/var/log/cport.log"
 DB  = "/var/db/cport.d"            # cport databases
@@ -116,6 +116,7 @@ class log(object):
         
         print(msg)
     
+    # TODO: DEPRECATED
     def msg(message, prev="", end_msg="\n"):
         msg = f"{prev}>>> \033[32m{message}\033[0m{end_msg}"
 

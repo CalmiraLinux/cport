@@ -28,9 +28,11 @@ import json
 import cp_default    as cdf
 import cp_blacklists as cpb
 
+# base_info - base information about port
 base_info  = [
     "name", "version", "description",
-    "priority", "maintainer", "site"
+    "priority", "maintainer", "site",
+    "slave", "size"
 ]
 
 deps_info  = [
