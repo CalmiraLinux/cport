@@ -1,7 +1,7 @@
 # cport
 # (C) 2022 Michail Krasnov
 
-all:
+install:
 	mkdir /var/db/cport.d
 	mkdir /etc/cport.d
 
