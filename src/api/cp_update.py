@@ -29,10 +29,15 @@ import json
 import subprocess
 import cp_default as cdf
 
-BRANCH   = cdf.settings.get("repors", "url", source=cdf.SOURCES) + cdf.settings.get("repos", "branch", source=cdf.SOURCES)
-METADATA = BRANCH + "/metadata.json"                # Link to download the metadata
+BRANCH = cdf.settings.get("repors", "url", source=cdf.SOURCES) + cdf.settings.get("repos", "branch", source=cdf.SOURCES)
+
+METADATA      = BRANCH + "/metadata.json"           # Link to download the metadata
 METADATA_INST = "/usr/share/cport/metadata.json"    # Installed metadata file
 METADATA_TMP  = "/tmp/metadata.json"                # Temp downloaded metadata file
+
+PORTS         = BRANCH + "/ports.txz"               # Link to download the ports archive
+PORTS_INST    = "/usr/ports"                        # Installed ports package
+PORTS_TMP     = "/tmp/ports.txz"                    # Temp downloaded ports archive
 
 class check(object):
     """
@@ -50,18 +55,25 @@ class check(object):
 
         return int(update_number)
     
-    def updates(metadata=METADATA_TMP):
+    def updates(metadata=METADATA_TMP) -> int:
+        """
+        Return codes:
+        0  - updates not found;
+        1  - found updates;
+        -1 - downgrade
+        """
+
         updt_num_inst  = check.get_update_number(METADATA_INST) # Update number from installed metadata
         updt_num_dwnld = check.get_update_number(metadata)      # Update number from downloaded metadata
 
         difference = updt_num_dwnld - updt_num_inst
 
         if difference == 0:
-            return "no_updates"
+            return 0
         elif difference < 0:
-            return "downgrade"
+            return -1
         else:
-            return "found_updates"
+            return 1
 
 class get(object):
 
@@ -82,13 +94,24 @@ class get(object):
 
     def get_metadata(branch, dest=METADATA_TMP):
         try:
-            if os.path.isfile(METADATA_TMP):
-                os.remove(METADATA_TMP)
+            if os.path.isfile(dest):
+                os.remove(dest)
             
-            wget.download(METADATA, METADATA_TMP)
+            wget.download(METADATA, dest)
+            return True
         except:
             return False
     
+    def port(branch, dest=PORTS_TMP):
+        try:
+            if os.path.isfile(dest):
+                os.remove(dest)
+            
+            wget.download(PORTS, dest)
+            return True
+        except:
+            return False
+
     def diff(metadata):
         if not os.path.isfile(metadata):
             raise FileNotFoundError
