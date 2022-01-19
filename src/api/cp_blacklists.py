@@ -53,7 +53,7 @@ try:
     import sqlite3
 
     PORTDIR = cdf.PORTDIR
-    db      = cdf.DB + "/blacklists.db"
+    db      = cdf.DB + "/blacklist.db"
 
     conn   = sqlite3.connect(db)
     cursor = conn.cursor()

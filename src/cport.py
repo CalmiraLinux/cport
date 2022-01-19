@@ -37,6 +37,7 @@ import argparse
 parser = argparse.ArgumentParser(
     description="Utility for building and installing the ports"
 )
+subparcer = parser.add_subparsers()
 
 parser.add_argument(
     "--install", "-i", type=str, dest="install", nargs="+",
@@ -58,18 +59,20 @@ parser.add_argument(
     help="Get information about port package"
 )
 
-parser.add_argument(
-    "--blacklist.add", dest="add_blacklist", type=str,
+blacklist = subparcer.add_parser("blacklist")
+
+blacklist.add_argument(
+    "--add", dest="add_blacklist", type=str,
     help="Add a port in blacklist"
 )
 
-parser.add_argument(
-    "--blacklist.remove", dest="remove_blacklist", type=str,
+blacklist.add_argument(
+    "--remove", dest="remove_blacklist", type=str,
     help="Remove a port from blacklist"
 )
 
-parser.add_argument(
-    "--blacklist.fetch", dest="fetch_blacklist", type=str,
+blacklist.add_argument(
+    "--fetch", dest="fetch_blacklist", type=str,
     help="Check the presence of the port in the blacklist"
 )
 
