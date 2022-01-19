@@ -128,11 +128,14 @@ def install(port, flags="default"):
     # Check disk usage
     f = open(port_config)
     
-    data = json.load(f)
-    size = float(data["size"])
+    try:
+        data = json.load(f)
+        size = float(data["size"])
 
-    f.close()
-
+        f.close()
+    except:
+        size = 1.0
+    
     if not cpi.prepare.check_size(size):
         message = "There is no space on the hard disk to build the port!"
         cdf.log.log_msg(message)

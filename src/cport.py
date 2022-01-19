@@ -39,10 +39,19 @@ parser = argparse.ArgumentParser(
 )
 subparcer = parser.add_subparsers()
 
-parser.add_argument(
-    "--install", "-i", type=str, dest="install", nargs="+",
-    help="Build and install the port package"
+### START INSTALL ###
+install = subparcer.add_parser("install")
+
+install.add_argument("--package", type=str, dest="install",
+    nargs="+", help="Build and install the port package"
 )
+
+install.add_argument(
+    "-f", "--flags", dest="flags", type=str,
+    help="Using compiler flags and cmd arguments"
+)
+
+### END INSTALL ###
 
 parser.add_argument(
     "--remove", "-r", type=str, dest="remove", nargs="+",
@@ -100,9 +109,11 @@ def cmd_parser():
         
         for port in args.install:
             if args.flags:
+                print(args.flags)
                 if not libcport.install(port, flags=args.flags):
                     exit(1)
             else:
+                print("Start building...")
                 if not libcport.install(port):
                     exit(1)
             
