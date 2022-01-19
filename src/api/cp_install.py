@@ -84,6 +84,16 @@ class prepare(object):
     Необходимы для подготовки к сборке.
     ```"""
 
+    def check_size(size: float):
+        usage = shutil.disk_usage("/")
+        free  = float(usage[2] + 100)
+        del(usage)
+
+        if free <= size:
+            return False
+        else:
+            return True
+
     def download(link, dest):
         """```
         Function for download a port files

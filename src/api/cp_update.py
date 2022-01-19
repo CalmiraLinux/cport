@@ -66,7 +66,7 @@ class check(object):
         updt_num_inst  = check.get_update_number(METADATA_INST) # Update number from installed metadata
         updt_num_dwnld = check.get_update_number(metadata)      # Update number from downloaded metadata
 
-        difference = updt_num_dwnld - updt_num_inst
+        difference     = updt_num_dwnld - updt_num_inst
 
         if difference == 0:
             return 0

@@ -124,6 +124,21 @@ def install(port, flags="default"):
     if cpI.get.priority(port_config) == "system":
         cdf.log.warning(f"'{port}' have a system priority!")
         cdf.dialog(p_exit=True)
+    
+    # Check disk usage
+    f = open(port_config)
+    
+    data = json.load(f)
+    size = float(data["size"])
+
+    f.close()
+
+    if not cpi.prepare.check_size(size):
+        message = "There is no space on the hard disk to build the port!"
+        cdf.log.log_msg(message)
+        cdf.log.error_msg(message)
+
+        return False
         
     """
     # Check release
