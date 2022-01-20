@@ -121,6 +121,11 @@ class get(object):
 
         for param in "updates", "addings", "removes":
             try:
-                print(f"\033[1m{param}\033[0m: {data[param]}")
+                print(f"\033[1m{param}\033[0m:", end=" ")
+                values = data[param]
+
+                for value in values:
+                    print(f"{value}", end=" ")
+                print()
             except:
                 print(f"\033[1m{param}\033[0m: not found")
