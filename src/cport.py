@@ -71,17 +71,17 @@ parser.add_argument(
 blacklist = subparcer.add_parser("blacklist")
 
 blacklist.add_argument(
-    "--add", dest="add_blacklist", type=str,
+    "--add", "-a", dest="add_blacklist", type=str,
     help="Add a port in blacklist"
 )
 
 blacklist.add_argument(
-    "--remove", dest="remove_blacklist", type=str,
+    "--remove", "-r", dest="remove_blacklist", type=str,
     help="Remove a port from blacklist"
 )
 
 blacklist.add_argument(
-    "--fetch", dest="fetch_blacklist", type=str,
+    "--fetch", "-f", dest="fetch_blacklist", type=str,
     help="Check the presence of the port in the blacklist"
 )
 
