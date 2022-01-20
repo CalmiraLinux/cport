@@ -42,12 +42,12 @@ subparcer = parser.add_subparsers()
 ### START INSTALL ###
 install = subparcer.add_parser("install")
 
-install.add_argument("--package", type=str, dest="install",
+install.add_argument("--package", "-p", type=str, dest="install",
     nargs="+", help="Build and install the port package"
 )
 
 install.add_argument(
-    "-f", "--flags", dest="flags", type=str,
+    "--flags", "-f", dest="flags", type=str,
     help="Using compiler flags and cmd arguments"
 )
 
