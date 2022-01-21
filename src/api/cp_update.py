@@ -129,3 +129,5 @@ class get(object):
                 print()
             except:
                 print(f"\033[1m{param}\033[0m: not found")
+        
+        f.close()

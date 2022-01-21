@@ -187,6 +187,9 @@ class check(object):
         if not check.json_config(SYSTEM):
             return "uknown release"
         
+        f = open(SYSTEM)
+        data = json.load(f)
+        
         release = str(data["distroVersion"])
         f.close()
         
@@ -195,8 +198,12 @@ class check(object):
     def release(config):    
         # TODO: проверить на работоспособность    
         if check.json_config(config):
-            f = open(config)
-            data = json.load(f)
+            f        = open(config)
+            
+            data     = json.load(f)
+            releases = data["release"]
+            
+            f.close()
 
             ## CHANGE IN v1.0a3:
             # В конфиге 'config.json' релиз, для которого предназначен
@@ -205,7 +212,7 @@ class check(object):
             ## OLD:
             # Раньше в конфиге 'release' был представлен обычным str
 
-            for release in data["release"]:
+            for release in releases:
                 if str(release) == check._get_calm_release():
                     return True
             else:

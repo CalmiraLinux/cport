@@ -165,7 +165,7 @@ def install(port, flags="default"):
     message = f"Downloading file '{download}'..."
 
     cdf.log.log_msg(message, level="INFO")
-    print(f"\n{message}", end = " ")
+    print(f"\n{message}")
 
     # Следующая часть кода скачивает необходимый файл из репозиториев
     # NOTE: работает только в том случае, когда выключен
