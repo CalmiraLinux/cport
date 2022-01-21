@@ -125,7 +125,7 @@ class get(object):
                 values = data[param]
 
                 for value in values:
-                    print(f"{value}", end=" ")
+                    print(f"'{value}'", end=" ")
                 print()
             except:
                 print(f"\033[1m{param}\033[0m: not found")
