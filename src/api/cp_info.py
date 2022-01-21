@@ -84,12 +84,18 @@ class get(object):
             return False
         
         try:
+            not_deps = False
             prm = data['deps'][conf_param]
+
+            param_list = ""
+            for value in prm:
+                param_list = param_list + f"'{value}' "
+
+            f.close()
+            return param_list
         except:
-            prm = "not found"
-        
-        f.close()
-        return prm
+            f.close()
+            return "not found"
     
     def priority(config):
         if not os.path.isfile(config):
