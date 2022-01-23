@@ -45,7 +45,8 @@ LOG = "/var/log/cport.log"
 DB  = "/var/db/cport.d"            # cport databases
 CONFIG = "/etc/cport.d/cport.conf" # cport configuration file
 SOURCES = "/etc/cport.d/sources.list"
-
+METADATA_INST = "/usr/share/cport/metadata.json"    # Installed metadata file
+METADATA_TMP  = "/tmp/metadata.json"                # Temp downloaded metadata file
 CACHE = "/usr/src/"
 
 def dialog(p_exit=False, default_no=False):
@@ -154,7 +155,7 @@ class check(object):
             return False
         return True
     
-    def json_config(config, param=None):
+    def json_config(config, param=None) -> bool:
         if param != None:
             check_param = True
         else:
