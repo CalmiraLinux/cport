@@ -47,6 +47,7 @@ import cp_default    as cdf
 import cp_info       as cpI
 import cp_install    as cpi
 import cp_remove     as cpr
+import cp_find       as cpf
 
 PORTDIR = cdf.PORTDIR
 
@@ -295,3 +296,53 @@ def remove(port):
         return False
     unlock()
     return True
+
+def find_from_all(port: str):
+    print(f"\033[1mFind port {port}...\033[0m")
+
+    if cpf.find_in_metadata(port):
+        print("metadata: found")
+    
+    if cpf.find_installed(port):
+        print("installed: true")
+    else:
+        print("installed: false")
+    
+    if cpf.find_in_filesystem(port):
+        print("in filesystem: ok")
+    
+    port_config = PORTDIR + port + "/config.json"
+
+    try:
+        cpI.info.description_port(port_config)
+        return 0
+    except:
+        print("Description not found")
+        return 1
+
+def find_from_metadata(port: str):
+    if not cpf.find_in_metadata(port):
+        return 1
+    else:
+        port_config = PORTDIR + port + "/config.json"
+        print(cpI.info.description_port(port_config))
+        
+        return 0
+
+def find_from_db(port: str):
+    if not cpf.find_in_database(port):
+        return 1
+    else:
+        port_config = PORTDIR + port + "/config.json"
+        print(cpI.info.description_port(port_config))
+
+        return 0
+
+def find_from_fs(port: str):
+    if not cpf.find_in_filesystem(port):
+        return 1
+    else:
+        port_config = PORTDIR + port + "/config.json"
+        print(cpI.info.description_port(port_config))
+
+        return 0

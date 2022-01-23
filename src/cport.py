@@ -85,6 +85,28 @@ blacklist.add_argument(
     help="Check the presence of the port in the blacklist"
 )
 
+find = subparcer.add_parser("find")
+
+find.add_argument(
+    "--installed", "-i", dest="find_installed", type=str,
+    help="Find from installed ports"
+)
+
+find.add_argument(
+    "--filesystem", "-f", dest="find_fs", type=str,
+    help="Find from filesystem"
+)
+
+find.add_argument(
+    "--metadata", "-m", dest="find_metadata", type=str,
+    help="Find from metadata"
+)
+
+find.add_argument(
+    "--all", "-a", dest="find_all", type=str,
+    help="Find from installed ports, filesystem and metadata"
+)
+
 parser.add_argument(
     "--update", type=str, help="Update the port system"
 )
@@ -165,6 +187,18 @@ def cmd_parser():
         else:
             print(f"\033[1m{args.fetch_blacklist}:\033[0m false")
     
+    elif args.find_all:
+        exit(libcport.find_from_all(args.find_all))
+    
+    elif args.find_metadata:
+        exit(libcport.find_from_metadata(args.find_metadata))
+    
+    elif args.find_installed:
+        exit(libcport.find_from_db(args.find_installed))
+    
+    elif args.find_fs:
+        exit(libcport.find_from_fs(args.find_fs))
+
     elif args.version:
         ver()
     

@@ -117,6 +117,14 @@ class get(object):
 
 class info(object):
 
+    def description_port(config):
+        f = open(config)
+        data = json.load(f)
+        desc = data["description"]
+        f.close()
+
+        return desc
+
     def depends(configs: list):
         for config in configs:
             for param in deps_info:
