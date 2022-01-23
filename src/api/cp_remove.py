@@ -23,6 +23,8 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
+# TODO: добавить проверку на наличие удаляемого порта в 'installed.db'
+
 import os
 import sys
 import json
