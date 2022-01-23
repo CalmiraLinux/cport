@@ -107,6 +107,7 @@ def remove(port: str):
         cdf.log.error_msg(f"SQLite3 error: {error}")
         return False
 
+# TODO: can be better
 def fetch(port: str):
     """```
     A function for checking the presence of a port
