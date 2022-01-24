@@ -47,9 +47,9 @@ import cp_default    as cdf
 import cp_info       as cpI
 import cp_install    as cpi
 import cp_remove     as cpr
-import cp_find       as cpf
 
 PORTDIR = cdf.PORTDIR
+METADATA = cdf.METADATA_INST
 
 def getgid(gid: int):
     if os.getgid() != gid:
@@ -297,52 +297,83 @@ def remove(port):
     unlock()
     return True
 
-def find_from_all(port: str):
-    print(f"\033[1mFind port {port}...\033[0m")
+class find():
 
-    if cpf.find_in_metadata(port):
-        print("metadata: found")
-    
-    if cpf.find_installed(port):
-        print("installed: true")
-    else:
-        print("installed: false")
-    
-    if cpf.find_in_filesystem(port):
-        print("in filesystem: ok")
-    
-    port_config = PORTDIR + port + "/config.json"
+    def filesystem(self, port: str) -> bool:
+        directory = "/usr/ports/" + port
 
-    try:
-        cpI.info.description_port(port_config)
-        return 0
-    except:
-        print("Description not found")
-        return 1
+        if not os.path.isdir(directory):
+            print(f"{port}: false")
+            return False
+        else:
+            print(f"{port}: true")
+            return True
+    
+    def database(self, port: str) -> bool:
+        conn   = sqlite3.connect(DB)
+        cursor = conn.cursor()
 
-def find_from_metadata(port: str):
-    if not cpf.find_in_metadata(port):
-        return 1
-    else:
-        port_config = PORTDIR + port + "/config.json"
-        print(cpI.info.description_port(port_config))
+        command = f"SELECT * FROM ports WHERE port = '{port}'"
+        db      = cursor.execute(command)
+
+        if db.fetchone() is None:
+            return False
+        else:
+            return True
+
+    def metadata(self, port: str) -> bool:
+        if not cdf.check.json_config(METADATA):
+            cdf.log.error_msg(f"Config {METADATA} is not config")
+            return False
         
-        return 0
+        try:
+            f = open(METADATA)
+            data = json.load(f)
 
-def find_from_db(port: str):
-    if not cpf.find_in_database(port):
-        return 1
-    else:
-        port_config = PORTDIR + port + "/config.json"
-        print(cpI.info.description_port(port_config))
+            find_value = data["ports_list"][port]
+            f.close()
 
-        return 0
+            return True
+        
+        except:
+            cdf.log.error_msg(f"Port '{port}' doesn't found in metadata!")
+            return False
+    
+    def f_all(self, port: str) -> dict:
+        cdf.log.log_msg(f"Checking found port '{port}' in metadata", level="INFO")
 
-def find_from_fs(port: str):
-    if not cpf.find_in_filesystem(port):
-        return 1
-    else:
-        port_config = PORTDIR + port + "/config.json"
-        print(cpI.info.description_port(port_config))
+        if not self.metadata(port):
+            cdf.log.log_msg(f"Port '{port}' doesn't found in metadata!", level="FAIL")
+            metadata = False
 
-        return 0
+        else:
+            cdf.log.log_msg(f"Port '{port}' is found in metadata!", level=" OK ")
+            metadata = True
+        
+        cdf.log.log_msg(f"Checking found port '{port}' in filesystem", level="INFO")
+
+        if not self.filesystem(port):
+            cdf.log.log_msg(f"Port '{port}' doesn't found in filesystem!", level="FAIL")
+            filesystem = False
+
+        else:
+            cdf.log.log_msg(f"Port '{port}' is found in filesystem!", level=" OK ")
+            filesystem = True
+        
+        cdf.log.log_msg(f"Checking found port '{port}' in installed database", level="INFO")
+
+        if not self.database(port):
+            cdf.log.log_msg(f"Port '{port}' doesn't found in database!", level="FAIL")
+            database = False
+
+        else:
+            cdf.log.log_msg(f"Port '{port}' is found in database!", level=" OK ")
+            database = True
+        
+        data = {
+            "metadata": metadata,
+            "filesystem": filesystem,
+            "database": database
+        }
+
+        return data

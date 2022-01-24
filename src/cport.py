@@ -37,12 +37,34 @@ import argparse
 parser = argparse.ArgumentParser(
     description="Utility for building and installing the ports"
 )
-subparcer = parser.add_subparsers()
+
+######################################################################
+
+parser.add_argument(
+    "--remove", "-r", type=str, dest="remove", nargs="+",
+    help="Remove the port package from system"
+)
+
+parser.add_argument(
+    "--info", "-I", type=str, dest="info",
+    help="Get information about port package"
+)
+
+parser.add_argument(
+    "--update", type=str, help="Update the port system"
+)
+
+parser.add_argument(
+    "-v", "--version", dest="version",
+    action="store_true", help="Get information about cport version"
+)
+
+subparser = parser.add_subparsers()
 
 ### START INSTALL ###
-install = subparcer.add_parser("install")
+install = subparser.add_parser("install")
 
-install.add_argument("--package", "-p", type=str, dest="install",
+install.add_argument("--package", "-p", type=str, dest="inst",
     nargs="+", help="Build and install the port package"
 )
 
@@ -53,22 +75,9 @@ install.add_argument(
 
 ### END INSTALL ###
 
-parser.add_argument(
-    "--remove", "-r", type=str, dest="remove", nargs="+",
-    help="Remove the port package from system"
-)
+### START BLACKLIST ###
 
-parser.add_argument(
-    "-f", "--flags", dest="flags", type=str,
-    help="Using compiler flags and cmd arguments"
-)
-
-parser.add_argument(
-    "--info", "-I", type=str, dest="info",
-    help="Get information about port package"
-)
-
-blacklist = subparcer.add_parser("blacklist")
+blacklist = subparser.add_parser("blacklist")
 
 blacklist.add_argument(
     "--add", "-a", dest="add_blacklist", type=str,
@@ -85,36 +94,7 @@ blacklist.add_argument(
     help="Check the presence of the port in the blacklist"
 )
 
-find = subparcer.add_parser("find")
-
-find.add_argument(
-    "--installed", "-i", dest="find_installed", type=str,
-    help="Find from installed ports"
-)
-
-find.add_argument(
-    "--filesystem", "-f", dest="find_fs", type=str,
-    help="Find from filesystem"
-)
-
-find.add_argument(
-    "--metadata", "-m", dest="find_metadata", type=str,
-    help="Find from metadata"
-)
-
-find.add_argument(
-    "--all", "-a", dest="find_all", type=str,
-    help="Find from installed ports, filesystem and metadata"
-)
-
-parser.add_argument(
-    "--update", type=str, help="Update the port system"
-)
-
-parser.add_argument(
-    "-v", "--version", dest="version",
-    action="store_true", help="Get information about cport version"
-)
+### END BLACKLIST ###
 
 args = parser.parse_args()
 
@@ -124,12 +104,12 @@ def ver():
     print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def cmd_parser():
-    if args.install:
+    if args.inst:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
             exit(1)
         
-        for port in args.install:
+        for port in args.inst:
             if args.flags:
                 print(args.flags)
                 if not libcport.install(port, flags=args.flags):
@@ -139,7 +119,7 @@ def cmd_parser():
                 if not libcport.install(port):
                     exit(1)
             
-            if len(args.install) > 1:
+            if len(args.inst) > 1:
                 sep = 80 * '-'
                 print(sep)
     
@@ -161,6 +141,10 @@ def cmd_parser():
         if not cpI.info.port(config):
             exit(1)
     
+    elif args.fs_find:
+        print("Этот кусок кода, конечно, должен работать, но из-за разработчиков Python и прочих он не работает.")
+        libcport.find().filesystem(args.find_fs)
+
     elif args.add_blacklist:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
@@ -184,20 +168,10 @@ def cmd_parser():
         
         if cpb.fetch(args.fetch_blacklist):
             print(f"\033[1m{args.fetch_blacklist}:\033[0m true")
+            exit(0)
         else:
             print(f"\033[1m{args.fetch_blacklist}:\033[0m false")
-    
-    elif args.find_all:
-        exit(libcport.find_from_all(args.find_all))
-    
-    elif args.find_metadata:
-        exit(libcport.find_from_metadata(args.find_metadata))
-    
-    elif args.find_installed:
-        exit(libcport.find_from_db(args.find_installed))
-    
-    elif args.find_fs:
-        exit(libcport.find_from_fs(args.find_fs))
+            exit(1)
 
     elif args.version:
         ver()
@@ -219,5 +193,3 @@ except SystemExit:
 #except:
     #cdf.log.error_msg("Uknown error!")
     #exit(1)
-finally:
-    exit(0)

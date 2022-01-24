@@ -17,5 +17,5 @@ install:
 remove:
 	rm -rf /var/db/cport.d
 	rm -rf /etc/cport.d
-	rm -rf /usr/lib/python3.9/site-packages/cp_{blacklists,default,info,install,remove}.py
+	rm -rf /usr/lib/python3.10/site-packages/{libcport,cp_{blacklists,default,info,install,remove}}.py
 	rm -rf /usr/sbin/cport
