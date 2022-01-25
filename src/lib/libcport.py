@@ -23,23 +23,23 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
-"""```
+"""
 cport functions. Uses the Ports API.
 
 ## TODO:
-- `remove()` method;
-- `info()` method;
-- `blacklist()` method.
+- 'remove()' method;
+- 'info()' method;
+- 'blacklist()' method.
 
 ## Description
 
-This module is used in the `cport` package manager as a wrapper over the Port API.
+This module is used in the cport package manager as a wrapper over the Port API.
 
 There are plans to implement functions for deleting a port and viewing information about it,
 as well as working with a blacklist of ports.
 
-Intended for use **only** in sport.
-```"""
+Intended for use **only** in cport.
+"""
 
 import os
 import sqlite3
@@ -306,7 +306,7 @@ class find():
     Methods:
     - filesystem() - find ports in filesystem (/usr/ports/*)
     - database(db) - find ports in database (e.g. installed.db)
-    - metadata()   - find ports in cport metadata
+    - metadata() - find ports in cport metadata
     - f_all() - find ports in filesystem, database and metadata.
     """
 
@@ -341,12 +341,9 @@ class find():
             return False
         
         try:
-            f = open(METADATA)
-            data = json.load(f)
-
-            find_value = data["ports_list"][self.port]
-            f.close()
-
+            with open(METADATA, 'r') as f:
+                data = json.load(f)
+                find_value = data["port_list"][self.port]
             return True
         
         except:
@@ -391,3 +388,50 @@ class find():
         }
 
         return data
+
+class check():
+    """
+    Class with methods for checking ports
+    """
+
+    def __init__(self, port: str):
+        self.port  = port
+        self.p_dir = PORTDIR + port
+    
+    def port_dir(self):
+        cdf.log.log_msg(f"Start checking of exists dir '{self.p_dir}'...", level="INFO")
+        if os.path.isdir(self.p_dir):
+            cdf.log.log_msg("OK", level=" OK ")
+            return True
+        else:
+            cdf.log.log_msg("FAIL", level="FAIL")
+            return False
+    
+    def port_files(self):
+        cdf.log.log_msg(f"Start checking of exists port '{self.port}' files...", level="INFO")
+
+        files = [
+            "config.json",
+            "resources.conf"
+            "install"
+        ] # Require files
+
+        files_not_exist = []
+
+        for file in files:
+            file = self.p_dir + "/" + file
+
+            if not os.path.isfile(file):
+                files_not_exist.append(file)
+        
+        f_n_e = ""
+        for file in files_not_exist:
+            f_n_e = f_n_e + f"{file} "
+        
+        print(f"\033[1mExist files:\033[0m {f_e}")
+        print(f"\033[1mDon't exist files:\033[0m {f_n_e}")
+
+        if len(files_not_exist) > 0:
+            return False
+        else:
+            return True
