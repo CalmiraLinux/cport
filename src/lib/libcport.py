@@ -299,21 +299,24 @@ def remove(port):
 
 class find():
 
-    def filesystem(self, port: str) -> bool:
-        directory = "/usr/ports/" + port
+    def __init__(self, port: str):
+        self.port = port
+
+    def filesystem(self) -> bool:
+        directory = "/usr/ports/" + self.port
 
         if not os.path.isdir(directory):
-            print(f"{port}: false")
+            print(f"{self.port}: false")
             return False
         else:
-            print(f"{port}: true")
+            print(f"{self.port}: true")
             return True
     
-    def database(self, port: str) -> bool:
+    def database(self) -> bool:
         conn   = sqlite3.connect(DB)
         cursor = conn.cursor()
 
-        command = f"SELECT * FROM ports WHERE port = '{port}'"
+        command = f"SELECT * FROM ports WHERE port = '{self.port}'"
         db      = cursor.execute(command)
 
         if db.fetchone() is None:
@@ -321,7 +324,7 @@ class find():
         else:
             return True
 
-    def metadata(self, port: str) -> bool:
+    def metadata(self) -> bool:
         if not cdf.check.json_config(METADATA):
             cdf.log.error_msg(f"Config {METADATA} is not config")
             return False
@@ -330,44 +333,44 @@ class find():
             f = open(METADATA)
             data = json.load(f)
 
-            find_value = data["ports_list"][port]
+            find_value = data["ports_list"][self.port]
             f.close()
 
             return True
         
         except:
-            cdf.log.error_msg(f"Port '{port}' doesn't found in metadata!")
+            cdf.log.error_msg(f"Port '{self.port}' doesn't found in metadata!")
             return False
     
-    def f_all(self, port: str) -> dict:
-        cdf.log.log_msg(f"Checking found port '{port}' in metadata", level="INFO")
+    def f_all(self) -> dict:
+        cdf.log.log_msg(f"Checking found port '{self.port}' in metadata", level="INFO")
 
-        if not self.metadata(port):
-            cdf.log.log_msg(f"Port '{port}' doesn't found in metadata!", level="FAIL")
+        if not self.metadata(self.port):
+            cdf.log.log_msg(f"Port '{self.port}' doesn't found in metadata!", level="FAIL")
             metadata = False
 
         else:
-            cdf.log.log_msg(f"Port '{port}' is found in metadata!", level=" OK ")
+            cdf.log.log_msg(f"Port '{self.port}' is found in metadata!", level=" OK ")
             metadata = True
         
-        cdf.log.log_msg(f"Checking found port '{port}' in filesystem", level="INFO")
+        cdf.log.log_msg(f"Checking found port '{self.port}' in filesystem", level="INFO")
 
-        if not self.filesystem(port):
-            cdf.log.log_msg(f"Port '{port}' doesn't found in filesystem!", level="FAIL")
+        if not self.filesystem(self.port):
+            cdf.log.log_msg(f"Port '{self.port}' doesn't found in filesystem!", level="FAIL")
             filesystem = False
 
         else:
-            cdf.log.log_msg(f"Port '{port}' is found in filesystem!", level=" OK ")
+            cdf.log.log_msg(f"Port '{self.port}' is found in filesystem!", level=" OK ")
             filesystem = True
         
-        cdf.log.log_msg(f"Checking found port '{port}' in installed database", level="INFO")
+        cdf.log.log_msg(f"Checking found port '{self.port}' in installed database", level="INFO")
 
-        if not self.database(port):
-            cdf.log.log_msg(f"Port '{port}' doesn't found in database!", level="FAIL")
+        if not self.database(self.port):
+            cdf.log.log_msg(f"Port '{self.port}' doesn't found in database!", level="FAIL")
             database = False
 
         else:
-            cdf.log.log_msg(f"Port '{port}' is found in database!", level=" OK ")
+            cdf.log.log_msg(f"Port '{self.port}' is found in database!", level=" OK ")
             database = True
         
         data = {

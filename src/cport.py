@@ -143,7 +143,7 @@ def cmd_parser():
     
     elif args.fs_find:
         print("Этот кусок кода, конечно, должен работать, но из-за разработчиков Python и прочих он не работает.")
-        libcport.find().filesystem(args.find_fs)
+        libcport.find(args.find_fs).filesystem()
 
     elif args.add_blacklist:
         if not libcport.getgid(0):
