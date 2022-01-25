@@ -59,6 +59,7 @@ parser.add_argument(
     action="store_true", help="Get information about cport version"
 )
 
+"""
 subparser = parser.add_subparsers()
 
 ### START INSTALL ###
@@ -95,6 +96,22 @@ blacklist.add_argument(
 )
 
 ### END BLACKLIST ###
+"""
+
+parser.add_argument(
+    "--find.fs", dest="find_fs", type=str,
+    help="Find ports in file system"
+)
+
+parser.add_argument(
+    "--find.db", dest="find_db", type=str,
+    help="Find ports in database"
+)
+
+parser.add_argument(
+    "--find.md", dest="find_md", type=str,
+    help="Find ports in metadata"
+)
 
 args = parser.parse_args()
 
@@ -104,7 +121,7 @@ def ver():
     print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def cmd_parser():
-    if args.inst:
+    if args.install:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
             exit(1)
@@ -141,9 +158,14 @@ def cmd_parser():
         if not cpI.info.port(config):
             exit(1)
     
-    elif args.fs_find:
-        print("Этот кусок кода, конечно, должен работать, но из-за разработчиков Python и прочих он не работает.")
+    elif args.find_fs:
         libcport.find(args.find_fs).filesystem()
+
+    elif args.find_db:
+        libcport.find(args.find_db).database(cdf.DB+"/installed.db")
+    
+    elif args.find_md:
+        libcport.find(args.find_md).metadata()
 
     elif args.add_blacklist:
         if not libcport.getgid(0):

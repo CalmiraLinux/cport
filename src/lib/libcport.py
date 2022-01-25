@@ -42,6 +42,7 @@ Intended for use **only** in sport.
 ```"""
 
 import os
+import sqlite3
 import cp_blacklists as cpb
 import cp_default    as cdf
 import cp_info       as cpI
@@ -298,6 +299,16 @@ def remove(port):
     return True
 
 class find():
+    """
+    Class with methods for search the ports in filesystem,
+    ports metadata and databases
+
+    Methods:
+    - filesystem() - find ports in filesystem (/usr/ports/*)
+    - database(db) - find ports in database (e.g. installed.db)
+    - metadata()   - find ports in cport metadata
+    - f_all() - find ports in filesystem, database and metadata.
+    """
 
     def __init__(self, port: str):
         self.port = port
@@ -312,8 +323,8 @@ class find():
             print(f"{self.port}: true")
             return True
     
-    def database(self) -> bool:
-        conn   = sqlite3.connect(DB)
+    def database(self, database) -> bool:
+        conn   = sqlite3.connect(database)
         cursor = conn.cursor()
 
         command = f"SELECT * FROM ports WHERE port = '{self.port}'"
