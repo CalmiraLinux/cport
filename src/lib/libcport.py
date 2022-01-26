@@ -27,7 +27,6 @@
 cport functions. Uses the Ports API.
 
 ## TODO:
-- 'remove()' method;
 - 'info()' method;
 - 'blacklist()' method.
 
@@ -398,7 +397,7 @@ class check():
         self.port  = port
         self.p_dir = PORTDIR + port
     
-    def port_dir(self):
+    def port_dir(self) -> bool:
         cdf.log.log_msg(f"Start checking of exists dir '{self.p_dir}'...", level="INFO")
         if os.path.isdir(self.p_dir):
             cdf.log.log_msg("OK", level=" OK ")
@@ -407,7 +406,7 @@ class check():
             cdf.log.log_msg("FAIL", level="FAIL")
             return False
     
-    def port_files(self):
+    def port_files(self) -> bool:
         cdf.log.log_msg(f"Start checking of exists port '{self.port}' files...", level="INFO")
 
         files = [
@@ -415,6 +414,11 @@ class check():
             "resources.conf"
             "install"
         ] # Require files
+
+        additional_files = [
+            "files.list",
+            "port_configuration.sh"
+        ]
 
         files_not_exist = []
 
@@ -430,6 +434,15 @@ class check():
         
         print(f"\033[1mExist files:\033[0m {f_e}")
         print(f"\033[1mDon't exist files:\033[0m {f_n_e}")
+
+        for file in additional_files:
+            if os.path.isfile(file):
+                f_add = f_add + f"{file} "
+        
+        print(f"Additional files:\n{f_add}")
+        del(f_add)
+        del(file)
+        del(additional_files)
 
         if len(files_not_exist) > 0:
             return False
