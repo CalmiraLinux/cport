@@ -58,7 +58,7 @@ try:
     conn   = sqlite3.connect(db)
     cursor = conn.cursor()
 except:
-    cdf.log.error_msg(
+    cdf.log().error_msg(
         "It is not possible to use the cp_blacklists API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
@@ -69,11 +69,11 @@ def check_priority(port: str):
     port_dir = PORTDIR + port
 
     if not os.path.isdir(port_dir):
-        cdf.log.error_msg(f"Port '{port}': not found!")
+        cdf.log().error_msg(f"Port '{port}': not found!")
         return False
     
     if cpI.get.priority(config) == "system":
-        cdf.log.error_msg("It is impossible to use the blacklist: the port has a system priority.")
+        cdf.log().error_msg("It is impossible to use the blacklist: the port has a system priority.")
         return False
     else:
         return True
@@ -91,7 +91,7 @@ def add(port: str):
         return True
 
     except sqlite3.DatabaseError as error:
-        cdf.log.error_msg(f"SQLite3 error: {error}")
+        cdf.log().error_msg(f"SQLite3 error: {error}")
         return False
 
 def remove(port: str):

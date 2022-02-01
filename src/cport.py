@@ -59,44 +59,30 @@ parser.add_argument(
     action="store_true", help="Get information about cport version"
 )
 
-"""
-subparser = parser.add_subparsers()
-
-### START INSTALL ###
-install = subparser.add_parser("install")
-
-install.add_argument("--package", "-p", type=str, dest="inst",
+parser.add_argument(
+    "--install", "-i", type=str, dest="inst",
     nargs="+", help="Build and install the port package"
 )
 
-install.add_argument(
+parser.add_argument(
     "--flags", "-f", dest="flags", type=str,
     help="Using compiler flags and cmd arguments"
 )
 
-### END INSTALL ###
-
-### START BLACKLIST ###
-
-blacklist = subparser.add_parser("blacklist")
-
-blacklist.add_argument(
-    "--add", "-a", dest="add_blacklist", type=str,
+parser.add_argument(
+    "--blacklist.add", dest="add_blacklist", type=str,
     help="Add a port in blacklist"
 )
 
-blacklist.add_argument(
-    "--remove", "-r", dest="remove_blacklist", type=str,
+parser.add_argument(
+    "--blacklist.remove", dest="remove_blacklist", type=str,
     help="Remove a port from blacklist"
 )
 
-blacklist.add_argument(
-    "--fetch", "-f", dest="fetch_blacklist", type=str,
-    help="Check the presence of the port in the blacklist"
+parser.add_argument(
+    "--blacklist.fetch", dest="fetch_blacklist", type=str,
+    help="Check the presense of the port in the blacklist"
 )
-
-### END BLACKLIST ###
-"""
 
 parser.add_argument(
     "--find.fs", dest="find_fs", type=str,
@@ -121,7 +107,7 @@ def ver():
     print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def cmd_parser():
-    if args.install:
+    if args.inst:
         if not libcport.getgid(0):
             cdf.log.error_msg("Error: you must run 'cport' as root!")
             exit(1)
@@ -132,7 +118,6 @@ def cmd_parser():
                 if not libcport.install(port, flags=args.flags):
                     exit(1)
             else:
-                print("Start building...")
                 if not libcport.install(port):
                     exit(1)
             

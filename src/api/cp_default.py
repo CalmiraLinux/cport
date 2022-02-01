@@ -69,20 +69,26 @@ def dialog(p_exit=False, default_no=False):
         run = input()
     except KeyboardInterrupt:
         print("Keyboard Interrupt!")
-        exit(1)
+        return False
 
     if run == "n" or run == "N":
         if p_exit:
             print("Aborted!")
-            exit(1)
+            return False
         else:
             print("Aborted!")
-            return 1
+            return False
+    return True
 
-class log(object):
+class log():
     """Log functions"""
 
-    def log_msg(message, level="ERROR"):
+    def __init__(self, check=False):
+        if check:
+            if not os.path.isfile(LOG):
+                raise FileNotFoundError
+
+    def log_msg(self, message, level="ERROR"):
         """
         Format:
         [ time ] - LEVEL - message
@@ -90,35 +96,35 @@ class log(object):
         msg = f"[ {time.ctime()} ] - {level} - {message}\n"
         
         try:
-            f = open(LOG, "a")
-            f.write(msg)
-            f.close()
+            with open(LOG, "a") as f:
+                f.write(msg)
+            return 0
         except PermissionError:
             print(f" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
             return 1
         except:
             return 1
     
-    def error_msg(message, prev="", log=False):
+    def error_msg(self, message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
 
         print(prev, msg)
         if log:
             log.log_msg(message, level="FAIL")
     
-    def ok_msg(message, prev=""):
+    def ok_msg(self, message, prev=""):
         msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
 
         print(prev, msg)
         log.log_msg(message, level=" OK ")
     
-    def warning(message):
+    def warning(self, message):
         msg = f"[ \033[1mWARNING\033[0m ] {message}"
         
         print(msg)
     
     # TODO: DEPRECATED
-    def msg(message, prev="", end_msg="\n"):
+    def msg(self, message, prev="", end_msg="\n"):
         msg = f"{prev}>>> \033[32m{message}\033[0m{end_msg}"
 
         print(msg)
@@ -148,7 +154,7 @@ class check(object):
             file = port_dir + file
 
             if not os.path.isfile(file):
-                log.error_msg(f"File '{file}': not found!")
+                log().error_msg(f"File '{file}': not found!")
                 v_error = True
         
         if v_error:
@@ -169,15 +175,15 @@ class check(object):
                 data_param = data[param]
             
         except FileNotFoundError:
-            log.error_msg(f"File '{config}' not found!")
+            log().error_msg(f"File '{config}' not found!")
             return False
         
         except KeyError:
-            log.error_msg(f"File '{config}' is not a config!")
+            log().error_msg(f"File '{config}' is not a config!")
             return False
         
         except:
-            log.error_msg(f"Uknown error while parsing config '{config}'!")
+            log().error_msg(f"Uknown error while parsing config '{config}'!")
             return False
         
         return True
@@ -230,7 +236,7 @@ class settings(object):
 
     conf = configparser.ConfigParser()
 
-    def get(section, param, source=CONFIG):
+    def get(section, param, source=CONFIG) -> str:
         settings.conf.read(source)
         
         try:
@@ -238,13 +244,12 @@ class settings(object):
         except configparser.NoOptionError:
             conf = "uknown"
 
-        return str(conf)
+        return conf
     
-    def get_json(file):
+    def get_json(file) -> dict:
         if check.json_config(file):
-            f = open(file)
-            data = json.load(f)
-            f.close()
+            with open(file) as f:
+                data = json.load(f)
 
         else:
             data = {
@@ -254,15 +259,18 @@ class settings(object):
         return data
     
     def p_set(section, param, value, source=CONFIG):
+        """
+        Function for update some params in the *.ini config files
+        """
+
         if os.path.isfile(source):
-            log.error_msg(f"File '{source}' not found!")
+            log().error_msg(f"File '{source}' not found!")
             return False
         
         settings.conf.set(section, param, value)
 
-        f = open(source, "w")
-        settings.conf.write(f)
-        f.close()
+        with open(source, "w"):
+            settings.conf.write(f)
 
 class lock():
     """```
@@ -298,7 +306,10 @@ class lock():
 
     FILE = "/var/lock/cport.lock"
 
-    def lock(procedure) -> bool:
+    def __init__(self, procedure):
+        self.procedure = procedure
+
+    def lock(self) -> bool:
         """```
         # `cp_default.lock.lock(procedure)`
         Function for blocking the cport processes
@@ -315,21 +326,26 @@ class lock():
             return False
         
         try:
-            info = f"[lock]\nprocedure = {procedure}\ntime      = {time.ctime()}"
-            f = open(lock.FILE, "w")
-            
-            f.write(info)
-            f.close()
+            info = f"[lock]\nprocedure = {self.procedure}\ntime      = {time.ctime()}"
 
+            with open(self.FILE, "w") as f:
+                f.write(info)
             return True
+
         except:
             return False
     
-    def unlock() -> bool:
+    def unlock(self) -> bool:
         """```
         # `cp_default.lock.unlock()`
         Function for unblocking the cport processes
         ```"""
+
+        procedure = self.procedure
+
+        if procedure != None:
+            if settings().get("lock", "procedure", source=self.FILE) != self.procedure:
+                return False
 
         try:
             os.remove(lock.FILE)
@@ -337,7 +353,7 @@ class lock():
         except:
             return False
     
-    def info() -> dict:
+    def info(self) -> dict:
         """```
         # `cp_default.lock.info()`
 

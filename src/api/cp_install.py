@@ -52,7 +52,7 @@ try:
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except:
-    cdf.log.error_msg(
+    cdf.log().error_msg(
         "It is not possible to use the cp_install API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
@@ -78,14 +78,16 @@ def calc_sbu(func):
 
     return wrapper
 
-class prepare(object):
-    """```
+class prepare():
+    """
     Содержит методы, вызываемые перед сборкой порта.
     Необходимы для подготовки к сборке.
-    ```"""
+    """
 
-    def check_size(size: float):
+    def check_size(self, size: float):
         usage = shutil.disk_usage("/")
+        # Место на диске рассчитывается по формуле U = u + 100 (u - свободное место на
+        # диске, U - необходимое на диске место для установки программы)
         free  = float(usage[2] + 100)
         del(usage)
 
@@ -94,7 +96,7 @@ class prepare(object):
         else:
             return True
 
-    def download(link, dest):
+    def download(self, link, dest):
         """```
         Function for download a port files
 
@@ -113,7 +115,7 @@ class prepare(object):
             return True
 
         except ConnectionError:
-            cdf.log.error_msg(f"Connection error while downloading '{link}'!")
+            cdf.log().error_msg(f"Connection error while downloading '{link}'!")
             return False
 
         # Раскомментировать в стабильной версии
@@ -121,7 +123,7 @@ class prepare(object):
         #    cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
         #    return False
     
-    def unpack(file, dest):
+    def unpack(self, file, dest):
         """```
         Function for unpack a tar archives
 
@@ -133,7 +135,7 @@ class prepare(object):
         ```"""
 
         if not os.path.isfile(CACHE+file):
-            cdf.log.error_msg(f"File '{file}' not found!")
+            cdf.log().error_msg(f"File '{file}' not found!")
             return False
         
         file = CACHE + file
@@ -145,38 +147,38 @@ class prepare(object):
             return True
         
         except tarfile.ReadError:
-            cdf.log.error_msg(f"Package '{file}' read error! Perhaps he is broken.")
+            cdf.log().error_msg(f"Package '{file}' read error! Perhaps he is broken.")
             return False
         
         except tarfile.CompressionError:
-            cdf.log.error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
+            cdf.log().error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
             return False
         
         #except:
         #    cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
         #    return False
 
-class install(object):
+class install():
     """
     Содержит функции для сборки порта и добавления его
     в базу данных установленных портов.
     """
 
     @calc_sbu
-    def build(install, flags=""):
+    def build(self, install, flags=""):
         command = f"{install} {flags}"
 
         run = subprocess.run(command, shell=True)
 
         if run.returncode != 0:
-            cdf.log.error_msg(
+            cdf.log().error_msg(
                 "\aPort returned a non-zero return code!", prev="\n\n"
             )
-            cdf.log.log_msg("Port returned a non-zero return code!", level="FAIL")
+            cdf.log().log_msg("Port returned a non-zero return code!", level="FAIL")
         
         return run.returncode
     
-    def add_in_db(port_info: tuple):
+    def add_in_db(self, port_info: tuple):
         # Table structure:
         # | name | version | maintainer | release | build_time |
         # |------|---------|------------|---------|------------|
@@ -187,5 +189,5 @@ class install(object):
             return True
         
         except sqlite3.DatabaseError as error:
-            cdf.log.error_msg(f"SQLite3 error: {error}")
+            cdf.log().error_msg(f"SQLite3 error: {error}")
             return False

@@ -44,43 +44,45 @@ files_info = [
     "bins", "libs", "dirs"
 ]
 
-class get(object):
+class get():
 
     # TODO: добавить функцию 'port()' для проверки на существование порта
     # TODO: добавить функцию 'port_files()' для получения списка файлов порта
+
+    def __init__(self, config):
+        self.config = config
     
-    def param(config, conf_param):
-        if not os.path.isfile(config):
-            cdf.log.error_msg(f"File '{config}': not found!")
+    def param(self, conf_param):
+        if not os.path.isfile(self.config):
+            cdf.log.error_msg(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
-            f = open(config)
-            data = json.load(f)
-        except KeyError:
-            cdf.log.error_msg(f"File '{config}: file is not config!")
+            with open(self.config) as f:
+                data = json.load(f)
+        except:
+            cdf.log.error_msg(f"File '{self.config}: file is not config!")
             return False
         
         try:
             prm = data[conf_param]
-        except:
+        except KeyError:
             prm = "not found"
         
-        f.close()
         return prm
     
-    def param_dep(config, conf_param):
-        if not os.path.isfile(config):
-            cdf.log.error_msg(f"File '{config}': not found!")
+    def param_dep(self, conf_param):
+        if not os.path.isfile(self.config):
+            cdf.log.error_msg(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
-            f = open(config)
-            data = json.load(f)
-        except KeyError:
-            cdf.log.error_msg(f"File '{config}: file is not config!")
+            with open(self.config) as f:
+                data = json.load(f)
+        except:
+            cdf.log.error_msg(f"File '{self.config}: file is not config!")
             return False
         
         try:
@@ -91,58 +93,56 @@ class get(object):
             for value in prm:
                 param_list = param_list + f"'{value}' "
 
-            f.close()
             return param_list
         except:
             f.close()
             return "not found"
     
-    def priority(config):
-        if not os.path.isfile(config):
-            cdf.log.error_msg(f"File '{config}': not found!")
+    def priority(self):
+        if not os.path.isfile(self.config):
+            cdf.log.error_msg(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
         try:
-            f = open(config)
-            data = json.load(f)
-        except KeyError:
-            cdf.log.error_msg(f"File '{config}: file is not config!")
+            with open(self.config) as f:
+                data = json.load(f)
+        except:
+            cdf.log.error_msg(f"File '{self.config}: file is not config!")
             return False
 
         prior = data["priority"]
-        f.close()
-
         return str(prior)
 
-class info(object):
+class info():
 
-    def description_port(config):
-        f = open(config)
-        data = json.load(f)
-        desc = data["description"]
-        f.close()
+    def __init__(self, config):
+        self.config = config
+
+    def description_port(self):
+        with open(self.config) as f:
+            data = json.load(f)
+            desc = data["description"]
 
         return desc
 
-    def depends(configs: list):
-        for config in configs:
-            for param in deps_info:
-                print(f"\033[1m{param}:\033[0m {get.param_dep(config, param)}")
+    def depends(self):
+        for param in deps_info:
+            print(f"\033[1m{param}:\033[0m {get(self.config).param_dep(param)}")
+
         return 0
     
-    def files(configs: list):
-        for config in configs:
-            for param in files_info:
-                print(f"\033[1m{param}:\033[0m {get.param(config, param)}")
+    def files(self):
+        for param in files_info:
+            print(f"\033[1m{param}:\033[0m {get(self.config).param(param)}")
     
-    def port(config):
+    def port(self):
         for param in base_info:
-            print(f"\033[1m{param}:\033[0m {get.param(config, param)}")
+            print(f"\033[1m{param}:\033[0m {get(self.config).param(param)}")
         
         # Get blacklist
-        f = open(config)
-        data = json.load(f)
+        with open(self.config) as f:
+            data = json.load(f)
 
         if cpb.fetch(data["name"]):
             print(f"\033[1mblacklist:\033[0m true")
