@@ -190,12 +190,12 @@ def cmd_parser():
 try:
     cmd_parser()
 except KeyboardInterrupt:
-    cdf.log.error_msg("Keyboard interrupt!")
+    cdf.log().error_msg("Keyboard interrupt!")
 
     os.system("killall install")
     exit(1)
 except SystemExit:
-    cdf.log.error_msg("An incorrigible error occurred during the build/remove!")
+    cdf.log().error_msg("An incorrigible error occurred during the build/remove!")
     exit(1)
 #except:
     #cdf.log.error_msg("Uknown error!")

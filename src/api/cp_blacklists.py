@@ -44,7 +44,6 @@ Table contents:
 """
 
 import os
-import json
 import time
 import cp_default as cdf
 import cp_info    as cpI

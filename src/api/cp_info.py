@@ -86,7 +86,7 @@ class get():
             return False
         
         try:
-            not_deps = False
+            #not_deps = False
             prm = data['deps'][conf_param]
 
             param_list = ""
@@ -145,8 +145,8 @@ class info():
             data = json.load(f)
 
         if cpb.fetch(data["name"]):
-            print(f"\033[1mblacklist:\033[0m true")
+            print("\033[1mblacklist:\033[0m true")
         else:
-            print(f"\033[1mblacklist:\033[0m false")
+            print("\033[1mblacklist:\033[0m false")
 
         return True

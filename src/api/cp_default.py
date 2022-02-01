@@ -32,13 +32,6 @@ import time
 import json
 import configparser
 
-NO_SQLITE = False
-
-try:
-    import sqlite3
-except:
-    NO_SQLITE = True
-
 VERSION = "v1.0b1 DEV"
 PORTDIR = "/usr/ports/"
 LOG = "/var/log/cport.log"
@@ -100,7 +93,7 @@ class log():
                 f.write(msg)
             return 0
         except PermissionError:
-            print(f" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
+            print(" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
             return 1
         except:
             return 1
@@ -168,11 +161,12 @@ class check(object):
             check_param = False
         
         try:
-            f = open(config)
-            data = json.load(f)
+            with open(config) as f:
+                data = json.load(f)
 
             if check_param:
-                data_param = data[param]
+                data_param = data[param] # Проверка наличия значения в словаре
+                del(data_param) # Очистка
             
         except FileNotFoundError:
             log().error_msg(f"File '{config}' not found!")
@@ -250,6 +244,7 @@ class settings(object):
         if check.json_config(file):
             with open(file) as f:
                 data = json.load(f)
+                ###print(data)
 
         else:
             data = {
@@ -269,7 +264,7 @@ class settings(object):
         
         settings.conf.set(section, param, value)
 
-        with open(source, "w"):
+        with open(source, "w") as f:
             settings.conf.write(f)
 
 class lock():
@@ -306,7 +301,7 @@ class lock():
 
     FILE = "/var/lock/cport.lock"
 
-    def __init__(self, procedure):
+    def __init__(self, procedure=None):
         self.procedure = procedure
 
     def lock(self) -> bool:

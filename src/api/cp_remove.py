@@ -26,12 +26,8 @@
 # TODO: добавить проверку на наличие удаляемого порта в 'installed.db'
 
 import os
-import sys
-import json
 import shutil
-import cp_info    as cpI
 import cp_default as cdf
-import cp_blacklists as cpb
 
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG

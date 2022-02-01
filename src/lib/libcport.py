@@ -32,15 +32,18 @@ cport functions. Uses the Ports API.
 
 ## Description
 
-This module is used in the cport package manager as a wrapper over the Port API.
+This module is used in the cport package manager as a wrapper over the Port
+API.
 
-There are plans to implement functions for deleting a port and viewing information about it,
-as well as working with a blacklist of ports.
+There are plans to implement functions for deleting a port and viewing
+information about it, as well as working with a blacklist of ports.
 
 Intended for use **only** in cport.
 """
 
 import os
+import json
+import time
 import sqlite3
 import cp_blacklists as cpb
 import cp_default    as cdf
@@ -72,7 +75,7 @@ def install(port, flags="default"):
     port_resources = port_dir + "/resources.conf"
 
     if os.path.isfile(cdf.lock.FILE):
-        data = cdf.lock.info()
+        data = cdf.lock().info()
 
         cdf.log().error_msg(
             f"""The port assembly process cannot be started!
@@ -122,7 +125,7 @@ def install(port, flags="default"):
         cdf.log().log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
     
     # Check priority
-    if cpI.get.priority(port_config) == "system":
+    if cpI.get(port_config).priority() == "system":
         cdf.log().warning(f"'{port}' have a system priority!")
         cdf.dialog(p_exit=True)
     
@@ -131,7 +134,6 @@ def install(port, flags="default"):
         try:
             data = json.load(f)
             size = float(data["size"])
-
         except:
             size = 1.0
     
@@ -341,9 +343,10 @@ class find():
         try:
             with open(METADATA, 'r') as f:
                 data = json.load(f)
-                find_value = data["port_list"][self.port]
+                find_value = data["port_list"][self.port] # Проверка наличия значения в словаре
+            del(find_value)
+
             return True
-        
         except:
             cdf.log().error_msg(f"Port '{self.port}' doesn't found in metadata!")
             return False
@@ -428,10 +431,10 @@ class check():
                 files_not_exist.append(file)
         
         f_n_e = ""
+        f_add = ""
         for file in files_not_exist:
             f_n_e = f_n_e + f"{file} "
         
-        print(f"\033[1mExist files:\033[0m {f_e}")
         print(f"\033[1mDon't exist files:\033[0m {f_n_e}")
 
         for file in additional_files:

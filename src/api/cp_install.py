@@ -34,15 +34,12 @@
 
 import os
 import sys
-import json
 import time
 import wget
 import shutil
 import tarfile
 import subprocess
-import cp_info       as cpI
 import cp_default    as cdf
-import cp_blacklists as cpb
 
 try:
     import sqlite3
