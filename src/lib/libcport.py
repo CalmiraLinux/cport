@@ -55,7 +55,7 @@ VERSION = "v1.0a4"
 PORTDIR = cdf.PORTDIR
 METADATA = cdf.METADATA_INST
 
-def ver():
+def ver(args):
     msg = f"cport {VERSION} - utility for manage Calmira Port system"
     msg_api = f"API version: {cdf.VERSION}\n"
     print(msg)
@@ -530,3 +530,14 @@ def rem_port(args):
         if len(args.remove) > 1:
             sep = 80 * "-"
             print(sep)
+
+def info(args):
+    if args.info:
+        port_config = PORTDIR + args.info + "/config.json"
+    
+    if not os.path.isfile(port_config):
+        cdf.log().error_msg(f"File '{port_config}' not found!")
+        return False
+    
+    cpI.info(port_config).port()
+    return True

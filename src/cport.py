@@ -135,27 +135,39 @@ find.set_defaults(func=libcport.find)
 
 ### END 'find' SUBPARSER ###
 
+### BEGIN 'info' SUBPARSER ###
+
+info = subparser.add_parser(
+    "info", help="Get information about package"
+)
+
+info.add_argument(
+    "--port", "-p", type=str, dest="info",
+    help="Get information about package"
+)
+
+info.set_defaults(func=libcport.info)
+
+### END 'info' SUBPARSER ###
+
+### BEGIN 'version' SUBPARSER ###
+
+version = subparser.add_parser(
+    "ver", help="Get information about cport version"
+)
+version.set_defaults(func=libcport.ver)
+
+### END 'version' SUBPARSER ###
+
 args = parser.parse_args()
-
-"""
-parser.add_argument(
-    "--info", "-I", type=str, dest="info",
-    help="Get information about port package"
-)
-
-parser.add_argument(
-    "-v", "--version", dest="version",
-    action="store_true", help="Get information about cport version"
-)
-"""
 
 try:
     args.func(args)
 except KeyboardInterrupt:
     cdf.log().error_msg("Keyboard interrupt!")
-    os.system("killall install > /dev/null")
+    os.system("killall install 2> /dev/null")
     exit(1)
 except SystemExit:
     cdf.log().error_msg("Uknown error while working cport!")
-    os.system("killall install > /dev/null")
+    os.system("killall install 2> /dev/null")
     exit(1)

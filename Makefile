@@ -21,3 +21,4 @@ remove:
 	rm -rf /etc/cport.d
 	rm -rf /usr/lib/python3.10/site-packages/{libcport,cp_{blacklists,default,info,install,remove}}.py
 	rm -rf /usr/sbin/cport
+	rm -rf /usr/share/cport
