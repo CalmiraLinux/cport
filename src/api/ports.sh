@@ -23,7 +23,7 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
-set -Eeuo
+set -Eeuo pipefail
 
 function g_msg() {
     dialog --backtitle " cport " $@
@@ -34,7 +34,7 @@ function g_dialog() {
 
     case "$?" in
         0)     echo "OK"
-        1|255) echo "Aborted!"; exit 1
+        1|255) echo "Aborted!";         exit 1
         *)     echo "Uknown answer..."; exit 1
     esac
 }
@@ -43,12 +43,11 @@ function dialog() {
     echo -n "> Continue? (y/n) "
     read run
 
-    if [[ $run -eq "y" ]]; then
-        echo "OK"
-    else
-        echo "Aborted!"
-        exit 1
-    fi
+    case "$run" in
+        Y|y) echo "OK"
+        N|n) echo "Aborted!"; exit 1
+        *)   echo "Aborted!"; exit 1
+    esac
 }
 
 # Function for logging port instruction scripts
