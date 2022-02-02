@@ -103,13 +103,13 @@ class log():
 
         print(prev, msg)
         if log:
-            log.log_msg(message, level="FAIL")
+            log().log_msg(message, level="FAIL")
     
     def ok_msg(self, message, prev=""):
         msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
 
         print(prev, msg)
-        log.log_msg(message, level=" OK ")
+        log().log_msg(message, level=" OK ")
     
     def warning(self, message):
         msg = f"[ \033[1mWARNING\033[0m ] {message}"
@@ -132,7 +132,7 @@ class check(object):
             f = port_dir + file
 
             if not os.path.isfile(f):
-                log.error_msg(f"File '{f}': not found!")
+                log().error_msg(f"File '{f}': not found!")
                 v_error = True
         
         if v_error:

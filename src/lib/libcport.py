@@ -51,8 +51,16 @@ import cp_info       as cpI
 import cp_install    as cpi
 import cp_remove     as cpr
 
+VERSION = "v1.0a4"
 PORTDIR = cdf.PORTDIR
 METADATA = cdf.METADATA_INST
+
+def ver():
+    msg = f"cport {VERSION} - utility for manage Calmira Port system"
+    msg_api = f"API version: {cdf.VERSION}\n"
+    print(msg)
+    print(msg_api)
+    print("(C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def getgid(gid: int):
     if os.getgid() != gid:
@@ -67,7 +75,7 @@ def unlock():
     else:
         return True
 
-def install(port, flags="default"):
+def install(port, yes_st=False):
     port_dir       = PORTDIR  + port # Directory with port
 
     port_install   = port_dir + "/install"
@@ -143,7 +151,7 @@ def install(port, flags="default"):
         cdf.log().error_msg(message)
 
         return False
-        
+    
     """
     # Check release
     if not cdf.check.release(port_config):
@@ -160,7 +168,10 @@ def install(port, flags="default"):
     print("\n\033[0mDependencies:\033[0m")
     cpI.info(port_config).depends()
 
-    cdf.dialog(p_exit=True)
+    if not yes_st:
+        if not cdf.dialog(p_exit=True):
+            unlock()
+            return False
 
     ## Download files ##
     message = f"Downloading file '{download}'..."
@@ -212,7 +223,7 @@ def install(port, flags="default"):
 
     ## Build port ##
     cdf.log().log_msg("Start building a port...", level="INFO")
-    if cpi.install().build(port_install, flags) == 0:
+    if cpi.install().build(port_install) == 0:
         with open(port_config) as f:
             js = json.load(f)
 
@@ -228,7 +239,7 @@ def install(port, flags="default"):
         unlock()
         return False
 
-def remove(port):
+def remove(port, yes_st):
     port_dir    = PORTDIR + port
     port_config = port_dir + "/config.json"
 
@@ -240,7 +251,7 @@ def remove(port):
         )
         return False
     
-    if not cdf.lock().lock("remove"):
+    if not cdf.lock("remove").lock():
         cdf.log().error_msg("Unknown error blocking the deletion process")
         return False
 
@@ -289,10 +300,13 @@ def remove(port):
     print("\n\033[1mDependencies:\033[0m")
     cpI.info(port_config).depends()
 
-    cdf.dialog(p_exit=True)
+    if not yes_st:
+        if not cdf.dialog(p_exit=True):
+            unlock()
+            return False
 
     ## Remove files ##
-    if not cpr.remove(port):
+    if not cpr.remove(args.remove[0]):
         unlock()
         return False
     unlock()
@@ -310,8 +324,16 @@ class find():
     - f_all() - find ports in filesystem, database and metadata.
     """
 
-    def __init__(self, port: str):
-        self.port = port
+    def __init__(self, args):
+        if args.find_fs:
+            self.port = args.find_fs
+            self.filesystem()
+        elif args.find_db:
+            self.port = args.find_db
+            self.database(cdf.DB+"/installed.db")
+        else:
+            self.port = args.find_md
+            self.metadata()
 
     def filesystem(self) -> bool:
         directory = "/usr/ports/" + self.port
@@ -327,12 +349,14 @@ class find():
         conn   = sqlite3.connect(database)
         cursor = conn.cursor()
 
-        command = f"SELECT * FROM ports WHERE port = '{self.port}'"
+        command = f"SELECT * FROM ports WHERE name = '{self.port}'"
         db      = cursor.execute(command)
 
         if db.fetchone() is None:
+            print(f"\033[1m{self.port}\033[0m: false")
             return False
         else:
+            print(f"\033[1m{self.port}\033[0m: true")
             return True
 
     def metadata(self) -> bool:
@@ -450,3 +474,59 @@ class check():
             return False
         else:
             return True
+
+class blacklists():
+
+    def __init__(self, args):
+        if args.add_blacklist:
+            self.add(args.add_blacklist)
+        elif args.remove_blacklist:
+            self.remove(args.remove_blacklist)
+        else:
+            self.fetch(args.fetch_blacklist)
+
+    def add(self, port) -> int:
+        if not cpb.add(port):
+            return 1
+        else:
+            return 0
+
+    def remove(self, port) -> int:
+        if not cpb.remove(port):
+            return 1
+        else:
+            return 0
+
+    def fetch(self, port) -> int:
+        if cpb.fetch(port):
+            print(f"\033[1m{port}\033[0m: true")
+            return 0
+        else:
+            print(f"\033[1m{port}\033[0m: false")
+            return 1
+
+def inst_port(args):
+    if args.yes_answer:
+        yes_answ = True
+    else:
+        yes_answ = False
+    
+    for port in args.inst:
+        install(port, yes_st=yes_answ)
+
+        if len(args.inst) > 1:
+            sep = 80 * "-"
+            print(sep)
+
+def rem_port(args):
+    if args.yes_answer:
+        yes_answ = True
+    else:
+        yes_answ = False
+    
+    for port in args.remove:
+        remove(port, yes_st=yes_answ)
+
+        if len(args.remove) > 1:
+            sep = 80 * "-"
+            print(sep)

@@ -71,7 +71,7 @@ def check_priority(port: str):
         cdf.log().error_msg(f"Port '{port}': not found!")
         return False
     
-    if cpI.get.priority(config) == "system":
+    if cpI.get(config).priority() == "system":
         cdf.log().error_msg("It is impossible to use the blacklist: the port has a system priority.")
         return False
     else:

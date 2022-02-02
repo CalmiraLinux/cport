@@ -28,83 +28,125 @@
 # LOAD SCRIPT CONFIGURATIONS
 #
 
+import os
 import libcport
 import cp_info       as cpI
 import cp_blacklists as cpb
 import cp_default    as cdf
 import argparse
 
+######################################################################
+
 parser = argparse.ArgumentParser(
     description="Utility for building and installing the ports"
 )
 
+subparser = parser.add_subparsers()
+
 ######################################################################
 
-parser.add_argument(
-    "--remove", "-r", type=str, dest="remove", nargs="+",
+### BEGIN 'install' SUBPARSER ###
+
+install = subparser.add_parser(
+    "install", help="Build and install the port package"
+)
+
+install.add_argument(
+    "--port", "-p", type=str, dest="inst",
+    nargs="+", help="Build and install the port package"
+)
+
+install.add_argument(
+    "--yes", "-y", dest="yes_answer",
+    action="store_true", help="Answering 'yes'"
+)
+
+install.set_defaults(func=libcport.inst_port)
+
+### END 'install' SUBPARSER ###
+
+### BEGIN 'remove' SUBPARSER ###
+
+remove = subparser.add_parser(
+    "remove", help="Remove the port package from system"
+)
+
+remove.add_argument(
+    "--port", "-p", type=str, dest="remove", nargs="+",
     help="Remove the port package from system"
 )
 
+remove.add_argument(
+    "--yes", "-y", dest="yes_answer",
+    action="store_true", help="Answering 'yes'"
+)
+
+remove.set_defaults(func=libcport.remove)
+
+### END 'remove' SUBPARSER ###
+
+### BEGIN 'blacklist' SUBPARSER ###
+
+blacklist = subparser.add_parser(
+    "blacklist", help="Add and remove ports from blacklist"
+)
+
+blacklist.add_argument(
+    "--add", "-a", dest="add_blacklist", type=str,
+    help="Add a port in blacklist"
+)
+
+blacklist.add_argument(
+    "--remove", "-r", dest="remove_blacklist", type=str,
+    help="Remove a port from blacklist"
+)
+
+blacklist.add_argument(
+    "--fetch", "-f", dest="fetch_blacklist", type=str,
+    help="Check the presense of the port in the blacklist"
+)
+
+blacklist.set_defaults(func=libcport.blacklists)
+
+### END 'blacklist' SUBPARSER ###
+
+### BEGIN 'find' SUBPARSER ###
+
+find = subparser.add_parser(
+    "find", help="Find ports in metadata, database and filesystem"
+)
+
+find.add_argument(
+    "--fs", "-f", dest="find_fs", type=str,
+    help="Find ports in the filesystem"
+)
+
+find.add_argument(
+    "--db", "-d", dest="find_db", type=str,
+    help="Find ports in database"
+)
+
+find.add_argument(
+    "--metadata", "--md", "-m", dest="find_md",
+    type=str, help="Find ports in metadata"
+)
+
+find.set_defaults(func=libcport.find)
+
+### END 'find' SUBPARSER ###
+
+args = parser.parse_args()
+
+"""
 parser.add_argument(
     "--info", "-I", type=str, dest="info",
     help="Get information about port package"
 )
 
 parser.add_argument(
-    "--update", type=str, help="Update the port system"
-)
-
-parser.add_argument(
     "-v", "--version", dest="version",
     action="store_true", help="Get information about cport version"
 )
-
-parser.add_argument(
-    "--install", "-i", type=str, dest="inst",
-    nargs="+", help="Build and install the port package"
-)
-
-parser.add_argument(
-    "--flags", "-f", dest="flags", type=str,
-    help="Using compiler flags and cmd arguments"
-)
-
-parser.add_argument(
-    "--blacklist.add", dest="add_blacklist", type=str,
-    help="Add a port in blacklist"
-)
-
-parser.add_argument(
-    "--blacklist.remove", dest="remove_blacklist", type=str,
-    help="Remove a port from blacklist"
-)
-
-parser.add_argument(
-    "--blacklist.fetch", dest="fetch_blacklist", type=str,
-    help="Check the presense of the port in the blacklist"
-)
-
-parser.add_argument(
-    "--find.fs", dest="find_fs", type=str,
-    help="Find ports in file system"
-)
-
-parser.add_argument(
-    "--find.db", dest="find_db", type=str,
-    help="Find ports in database"
-)
-
-parser.add_argument(
-    "--find.md", dest="find_md", type=str,
-    help="Find ports in metadata"
-)
-
-args = parser.parse_args()
-
-def ver():
-    msg = "cport " + cdf.VERSION + " - utility for building and installing the ports\n"
-    print(msg)
-    print("Copyright (C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
 def cmd_parser():
     if args.inst:
@@ -181,7 +223,7 @@ def cmd_parser():
             exit(1)
 
     elif args.version:
-        ver()
+        libcport.ver()
     
     else:
         cdf.log.error_msg("You must input an arguments!")
@@ -200,3 +242,15 @@ except SystemExit:
 #except:
     #cdf.log.error_msg("Uknown error!")
     #exit(1)
+"""
+
+try:
+    args.func(args)
+except KeyboardInterrupt:
+    cdf.log().error_msg("Keyboard interrupt!")
+    os.system("killall install > /dev/null")
+    exit(1)
+except SystemExit:
+    cdf.log().error_msg("Uknown error while working cport!")
+    os.system("killall install > /dev/null")
+    exit(1)
