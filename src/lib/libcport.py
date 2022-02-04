@@ -51,8 +51,8 @@ import cp_info       as cpI
 import cp_install    as cpi
 import cp_remove     as cpr
 
-VERSION = "v1.0a4"
-PORTDIR = cdf.PORTDIR
+VERSION  = "v1.0a4"
+PORTDIR  = cdf.PORTDIR
 METADATA = cdf.METADATA_INST
 
 def ver(args):
@@ -486,12 +486,20 @@ class blacklists():
             self.fetch(args.fetch_blacklist)
 
     def add(self, port) -> int:
+        if cpb.fetch(port):
+            cdf.log().error_msg(f"Error: Port '{port}' is already blacklisted!")
+            return 1
+        
         if not cpb.add(port):
             return 1
         else:
             return 0
 
     def remove(self, port) -> int:
+        if not cpb.fetch(port):
+            cdf.log().error_msg(f"Error: Port '{port}' is not blacklisted!")
+            return 1
+        
         if not cpb.remove(port):
             return 1
         else:

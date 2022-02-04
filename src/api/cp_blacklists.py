@@ -117,7 +117,7 @@ def fetch(port: str):
     data = f"SELECT * FROM ports WHERE port = '{port}'"
     db = cursor.execute(data)
 
-    if not db.fetchone() is None:
-        return True
-    else:
+    if db.fetchone() is None:
         return False
+    else:
+        return True
