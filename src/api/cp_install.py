@@ -59,7 +59,7 @@ CACHE   = cdf.CACHE
 
 def calc_sbu(func):
     def wrapper(*args, **kwargs):
-        time_def   = float(cdf.settings.get("base", "sbu"))
+        time_def   = float(cdf.settings().get("base", "sbu"))
         time_start = float(time.time())
 
         return_value = func(*args, **kwargs)

@@ -23,12 +23,20 @@
 # Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
 #
 
+# Requires packages:
+# 'base/dialog'
+# 'base/bash'
+# 'base/coreutils'
+
 set -Eeuo pipefail
 
+# GUI (pseudo). Uses 'base/dialog' port
 function g_msg() {
     dialog --backtitle " cport " $@
 }
 
+# GUI dialog (analogue the 'dialog' function)
+# Uses 'base/dialog' port
 function g_dialog() {
     g_msg --title " Dialog " --yesno "Continue?" 0 0
 
@@ -59,5 +67,5 @@ function log_msg() {
     LOG="/var/log/cport_ports.log"
     msg="[ ${time} ] - $1 - $2"
 
-    echo $msg > $LOG
+    echo $msg >> $LOG
 }

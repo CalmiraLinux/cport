@@ -27,8 +27,7 @@
 cport functions. Uses the Ports API.
 
 ## TODO:
-- 'info()' method;
-- 'blacklist()' method.
+- 'update()' method.
 
 ## Description
 
@@ -82,6 +81,7 @@ def install(port, yes_st=False):
     port_config    = port_dir + "/config.json"
     port_resources = port_dir + "/resources.conf"
 
+    print("check locking")
     if os.path.isfile(cdf.lock.FILE):
         data = cdf.lock().info()
 
@@ -91,24 +91,37 @@ def install(port, yes_st=False):
         )
         return False
     
+    print("locking...")
     if not cdf.lock("install").lock():
         cdf.log().error_msg("Unknown error blocking the installation process")
         return False
 
+    print("parsing the resources file...")
+    """
     try:
-        res = cdf.settings.get_json(port_resources)
+        res = cdf.settings().get_json(port_resources)
         download = res["resources"]["url"]
         archive  = res["resources"]["file"]
+
+        print(f"download: {download}")
+        print(f"file: {archive}")
     except:
+        print("parsing error!")
         unlock()
         return False
+    """
+    
+    res = cdf.settings().get_json(port_resources)
+    download = res["resources"]["url"]
+    archive  = res["resources"]["file"]
 
+    print("start building a port...")
     cdf.log().log_msg(f"{42*'='}", level="SEP ")
     cdf.log().log_msg(f"Starting building a port '{port}'...", level="INFO")
 
     ## Checkings ##
     cdf.log().log_msg("Checking for file exist...", level="INFO")
-    if not cdf.check.install(port_dir):
+    if not cdf.check().install(port_dir):
         message = "Error during testing for the presence of port files"
 
         cdf.log().log_msg(message, level="FAIL")
@@ -182,7 +195,7 @@ def install(port, yes_st=False):
     # Следующая часть кода скачивает необходимый файл из репозиториев
     # NOTE: работает только в том случае, когда выключен
     # cacheonly-режим ('cache = false' в /etc/cport.d/cport.conf).
-    cache = cdf.settings.get("develop", "cache")
+    cache = cdf.settings().get("develop", "cache")
 
     if cache == "false":
         d = cpi.prepare().download(download, cdf.CACHE)
@@ -306,9 +319,24 @@ def remove(port, yes_st):
             return False
 
     ## Remove files ##
-    if not cpr.remove(args.remove[0]):
-        unlock()
-        return False
+    for port in args.remove:
+        if not cpr.remove(port).remove():
+            unlock()
+            
+            message = f"Port '{port}' is damaged!"
+            cdf.log().log_msg(message, level="FAIL")
+            cdf.log().error_msg(message)
+
+            return False
+        
+        if not cpr.remove(port).remove_from_db():
+            unlock()
+
+            message = f"Port '{port}' was removed from the system, but by an unknown error remained in the '{cdf.DB+'/installed.db'}' database!"
+            cdf.log().log_msg(message, level="FAIL")
+            cdf.log().error_msg(message)
+
+            return False
     unlock()
     return True
 
@@ -466,6 +494,7 @@ class check():
                 f_add = f_add + f"{file} "
         
         print(f"Additional files:\n{f_add}")
+        
         del(f_add)
         del(file)
         del(additional_files)

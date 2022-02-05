@@ -103,7 +103,7 @@ def remove(port: str):
         return True
 
     except sqlite3.DatabaseError as error:
-        cdf.log.error_msg(f"SQLite3 error: {error}")
+        cdf.log().error_msg(f"SQLite3 error: {error}")
         return False
 
 # TODO: can be better

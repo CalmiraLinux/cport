@@ -39,45 +39,37 @@ PORTS         = BRANCH + "/ports.txz"               # Link to download the ports
 PORTS_INST    = "/usr/ports"                        # Installed ports package
 PORTS_TMP     = "/tmp/ports.txz"                    # Temp downloaded ports archive
 
-class check(object):
+class check():
     """
     Check updates
     """
 
-    def get_update_number(metadata) -> int:
+    def _get_update_number(self, metadata) -> int:
         if not os.path.isfile(metadata):
             raise FileNotFoundError
         
-        f = open(metadata)
-        data = json.load(f)
-        update_number = data["update_number"]
-        f.close()
+        with open(metadata) as f:
+            data = json.load(f)
+            update_number = data["update_number"]
 
-        return int(update_number)
+        return update_number
     
-    def updates(metadata=METADATA_TMP) -> int:
+    def updates(self, metadata=METADATA_TMP):
         """
         Return codes:
-        0  - updates not found;
-        1  - found updates;
-        -1 - downgrade
+        0   - updates not found;
+        > 0 - found updates;
+        < 0 - downgrade
         """
 
-        updt_num_inst  = check.get_update_number(METADATA_INST) # Update number from installed metadata
-        updt_num_dwnld = check.get_update_number(metadata)      # Update number from downloaded metadata
+        updt_num_inst  = check._get_update_number(METADATA_INST) # Update number from installed metadata
+        updt_num_dwnld = check._get_update_number(metadata)      # Update number from downloaded metadata
 
-        difference     = updt_num_dwnld - updt_num_inst
+        return updt_num_dwnld - updt_num_inst
 
-        if difference == 0:
-            return 0
-        elif difference < 0:
-            return -1
-        else:
-            return 1
+class get():
 
-class get(object):
-
-    def changelog():
+    def changelog(self) -> int:
         link = BRANCH + "/CHANGELOG.md"
         pager = cdf.settings.get("base", "pager")
         
@@ -92,7 +84,7 @@ class get(object):
         except:
             return 1
 
-    def get_metadata(branch, dest=METADATA_TMP):
+    def get_metadata(self, branch, dest=METADATA_TMP):
         try:
             if os.path.isfile(dest):
                 os.remove(dest)
@@ -102,7 +94,7 @@ class get(object):
         except:
             return False
     
-    def port(branch, dest=PORTS_TMP):
+    def port(self, branch, dest=PORTS_TMP):
         try:
             if os.path.isfile(dest):
                 os.remove(dest)
@@ -112,12 +104,12 @@ class get(object):
         except:
             return False
 
-    def diff(metadata):
+    def diff(self, metadata):
         if not os.path.isfile(metadata):
             raise FileNotFoundError
-        
-        f = open(metadata)
-        data = json.load(f)
+
+        with open(metadata) as f:
+            data = json.load(f)
 
         for param in "updates", "addings", "removes":
             try:
@@ -129,5 +121,3 @@ class get(object):
                 print()
             except:
                 print(f"\033[1m{param}\033[0m: not found")
-        
-        f.close()

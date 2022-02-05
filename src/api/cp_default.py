@@ -122,9 +122,9 @@ class log():
 
         print(msg)
 
-class check(object):
+class check():
    
-    def install(port_dir):
+    def install(self, port_dir):
         files = ["/install", "/config.json"]
 
         v_error = False
@@ -139,7 +139,7 @@ class check(object):
             return False
         return True
     
-    def remove(port_dir):
+    def remove(self, port_dir):
         files = ["/files.list", "/config.json"]
 
         v_error = False
@@ -154,7 +154,7 @@ class check(object):
             return False
         return True
     
-    def json_config(config, param=None) -> bool:
+    def json_config(self, config, param=None) -> bool:
         if param != None:
             check_param = True
         else:
@@ -182,11 +182,11 @@ class check(object):
         
         return True
     
-    def _get_calm_release():
+    def _get_calm_release(self):
         SYSTEM = "/etc/calm-release"
         
         if not check.json_config(SYSTEM):
-            return "uknown release"
+            return "NaN"
         
         f = open(SYSTEM)
         data = json.load(f)
@@ -196,41 +196,52 @@ class check(object):
         
         return release
     
-    def release(config):    
+    def release(self, config):    
         # TODO: проверить на работоспособность    
-        if check.json_config(config):
-            f        = open(config)
-            
-            data     = json.load(f)
+        if not self.json_config(config):
+            return False
+        
+        f        = open(config)
+
+        with open(config) as f:
+            data = json.load(f)
             releases = data["release"]
-            
-            f.close()
 
-            ## CHANGE IN v1.0a3:
-            # В конфиге 'config.json' релиз, для которого предназначен
-            # порт, занесён в список 'release', который перебирается
-            # ниже.
-            ## OLD:
-            # Раньше в конфиге 'release' был представлен обычным str
+        ## CHANGE IN v1.0a3:
+        # В конфиге 'config.json' релиз, для которого предназначен
+        # порт, занесён в список 'release', который перебирается
+        # ниже.
+        ## OLD:
+        # Раньше в конфиге 'release' был представлен обычным str
 
-            for release in releases:
-                if str(release) == check._get_calm_release():
-                    return True
-            else:
-                return False
-
+        for release in releases:
+            if str(release) == self._get_calm_release():
+                return True
         else:
             return False
 
-class settings(object):
+class settings():
     """```
     Содержит методы для работы с параметрами: получение параметров,
     изменение параметров, парсинг конфигов.
     ```"""
 
+    ## CHANGE IN v1.0b1:
+    # TODO: проверить новую версию класса на работоспособность
+
     conf = configparser.ConfigParser()
 
-    def get(section, param, source=CONFIG) -> str:
+    def get(self, section, param, source=CONFIG) -> str:
+        """
+        Get some parameters from *.ini config file.
+
+        Usage:
+        settings().get(section, param)
+
+        Additional:
+        source="file.ini" - from alternate source (default = 'CONFIG' variable)
+        """
+
         settings.conf.read(source)
         
         try:
@@ -240,12 +251,17 @@ class settings(object):
 
         return conf
     
-    def get_json(file) -> dict:
-        if check.json_config(file):
+    def get_json(self, file) -> dict:
+        """
+        Get all parameters from *.json file.
+
+        Usage:
+        settings().get_json(file)
+        """
+
+        if check().json_config(file):
             with open(file) as f:
                 data = json.load(f)
-                ###print(data)
-
         else:
             data = {
                 "data": "uknown"
@@ -253,12 +269,20 @@ class settings(object):
 
         return data
     
-    def p_set(section, param, value, source=CONFIG):
+    def p_set(self, section, param, value, source=CONFIG):
         """
         Function for update some params in the *.ini config files
+
+        p_set = 'param set'
+
+        Usage:
+        settings().p_set(section, param, new_value)
+
+        Additional:
+        source="file.ini" - the alternate source (default = 'CONFIG' variable)
         """
 
-        if os.path.isfile(source):
+        if not os.path.isfile(source):
             log().error_msg(f"File '{source}' not found!")
             return False
         
@@ -336,9 +360,7 @@ class lock():
         Function for unblocking the cport processes
         ```"""
 
-        procedure = self.procedure
-
-        if procedure != None:
+        if self.procedure != None:
             if settings().get("lock", "procedure", source=self.FILE) != self.procedure:
                 return False
 
@@ -373,8 +395,8 @@ class lock():
                 "time": f"{time.ctime()}"
             }
         else:
-            procedure = settings.get("lock", "procedure", source=lock.FILE)
-            lock_time = settings.get("lock", "time", source=lock.FILE)
+            procedure = settings().get("lock", "procedure", source=lock.FILE)
+            lock_time = settings().get("lock", "time", source=lock.FILE)
 
             data = {
                 "procedure": procedure,

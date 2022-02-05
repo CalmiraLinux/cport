@@ -155,6 +155,19 @@ info.set_defaults(func=libcport.info)
 version = subparser.add_parser(
     "ver", help="Get information about cport version"
 )
+
+version.add_argument(
+    "--api", action="store_true", help="Get information about Ports API"
+)
+
+version.add_argument(
+    "--program", action="store_true", help="Get information about cport"
+)
+
+version.add_argument(
+    "--all", "-a", action="store_true", help="Get all information"
+)
+
 version.set_defaults(func=libcport.ver)
 
 ### END 'version' SUBPARSER ###
@@ -168,6 +181,6 @@ except KeyboardInterrupt:
     os.system("killall install 2> /dev/null")
     exit(1)
 except SystemExit:
-    cdf.log().error_msg("Uknown error while working cport!")
+    cdf.log().error_msg("Uknown error while working Ports API!")
     os.system("killall install 2> /dev/null")
     exit(1)

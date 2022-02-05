@@ -29,65 +29,130 @@ import os
 import shutil
 import cp_default as cdf
 
+try:
+    import sqlite3
+
+    db = cdf.DB + "/installed.db"
+
+    conn = sqlite3.connect(db)
+    cursor = conn.cursor()
+except ImportError:
+    cdf.log().error_msg(
+        "It is not possible to use the cp_remove API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
+    )
+    exit(1)
+
 PORTDIR = cdf.PORTDIR
 LOG     = cdf.LOG
 
-def get_files(port) -> list:
-    port_dir = PORTDIR + port
-    files_list = port_dir + "/files.list"
-
-    files = [] # Files list
-    f = open(files_list, "r")
-
-    while True:
-        line = f.readline()
-
-        if not line:
-            break
-        else:
-            files.append(f'{line.strip()}')
+class prepare():
     
-    f.close()
+    """
+    Some preparations before removing ports
+    """
 
-    return files
+    def __init__(self, port):
+        self.port = port
 
-def remove(port):
-    files = get_files(port)
-    error_files = []
-    v_error = False
+    def check_in_db(self):
+        data = f"SELECT * FROM ports WHERE name = '{self.port}'"
+        db = cursor.execute(data)
 
-    for file in files:
-        cdf.log.log_msg(f"Start removing a file '{file}'...", level="INFO")
+        if db.fetchone() is None:
+            return False
+        else:
+            return True
+    
+    def get_files(self) -> list:
+        port_dir = PORTDIR + self.port
+        files_list = port_dir + "/files.list"
+
+        files = [] # Files list
+
+        with open(files_list, "r") as f:
+            while True:
+                line = f.readline()
+
+                if not line:
+                    break
+                else:
+                    files.append(f'{line.strip()}')
+        
+        return files
+
+class remove():
+        
+    """
+    Removing the ports from file system and database
+
+    Methods:
+
+    - 'remove()' - remove from file system;
+    - 'remove_from_db()' - remove from 'installed.db' database
+    """
+
+    def __init__(self, port):
+        self.port = port
+    
+    def remove(self):
+        """
+        Removing ports from filesystem
+        """
+
+        files = prepare(self.port).get_files()
+        error_files = []
+        v_error = False
+
+        for file in files:
+            cdf.log().log_msg(f"Start removing a file '{file}'...", level="INFO")
+            
+            try:
+                os.remove(file)
+                cdf.log().log_msg(f"File '{file}' deleted successfully", level=" OK ")
+            
+            except IsADirectoryError:
+                shutil.rmtree(file)
+                cdf.log().log_msg(f"Directory '{file}' deleted successfully", level=" OK ")
+            
+            except FileNotFoundError:
+                message = f"File '{file}' not found!"
+                
+                cdf.log().log_msg(message, level="FAIL")
+                cdf.log().error_msg(message)
+
+                error_files.append(file)
+                v_error = True
+            
+            except PermissionError:
+                message = f"Permission denied while removing a file '{file}'"
+
+                cdf.log().log_msg(message, level="FAIL")
+                cdf.log().error_msg(message)
+
+                error_files.append(file)
+                v_error = True
+        
+        if v_error:
+            cdf.log().error_msg(f"Some errors while deleting {len(error_files)} files!")
+            cdf.log().error_msg(f"See the '{LOG}' file for get more info.")
+            return False
+
+        else:
+            cdf.log().msg(f"{len(files)} successfully deleted!")
+            return True
+    
+    def remove_from_db(self):
+        """
+        Removing ports from database
+        """
+
+        data = f"DELETE FROM ports WHERE name = '{self.port}'"
 
         try:
-            os.remove(file)
-            cdf.log.log_msg(f"File '{file}' deleted successfully", level=" OK ")
-        
-        except IsADirectoryError:
-            shutil.rmtree(file)
-            cdf.log.log_msg(f"Directory '{file}' deleted successfully", level=" OK ")
-        
-        except FileNotFoundError:
-            message = f"File '{file}' not found!"
-            
-            cdf.log.log_msg(message, level="FAIL")
-            cdf.log.error_msg(message)
+            cursor.execute(data)
+            conn.commit()
 
-            error_files.append(file)
-            v_error = True
-
-        except PermissionError:
-            message = f"Permission denied while removing a file '{file}'"
-            
-            cdf.log.log_msg(message, level="FAIL")
-            cdf.log.error_msg(message)
-
-            error_files.append(file)
-            v_error = True
-
-    if v_error:
-        cdf.log.error_msg(f"Some errors while deleting {len(error_files)} files", prev="\n")
-        return False
-    else:
-        cdf.log.msg(f"{len(files)} files successfully deleted")
-        return True
+            return True
+        except sqlite3.DatabaseError as error:
+            cdf.log().error_msg(f"SQLite3 error: {error}")
+            return False
