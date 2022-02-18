@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # CPort - a new port manager for Calmira Linux
 # Copyright (C) 2021, 2022 Michail Krasnov <linuxoid85@gmail.com>
@@ -28,8 +28,6 @@
 # 'base/bash'
 # 'base/coreutils'
 
-set -Eeuo pipefail
-
 # GUI (pseudo). Uses 'base/dialog' port
 function g_msg() {
     dialog --backtitle " cport " $@
@@ -42,8 +40,8 @@ function g_dialog() {
 
     case "$?" in
         0)     echo "OK"
-        1|255) echo "Aborted!";         exit 1
-        *)     echo "Uknown answer..."; exit 1
+        1|255) echo "Aborted!";         return 1
+        *)     echo "Uknown answer..."; return 1
     esac
 }
 
@@ -53,8 +51,8 @@ function dialog() {
 
     case "$run" in
         Y|y) echo "OK"
-        N|n) echo "Aborted!"; exit 1
-        *)   echo "Aborted!"; exit 1
+        N|n) echo "Aborted!"; return 1
+        *)   echo "Aborted!"; return 1
     esac
 }
 
