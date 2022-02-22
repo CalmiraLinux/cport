@@ -34,7 +34,8 @@ import configparser
 
 VERSION = "v1.0b1 DEV"
 PORTDIR = "/usr/ports/"
-LOG = "/var/log/cport.log"
+LOG_DIR = "/var/log/cport.log.d"
+LOG_FILE = "/var/log/cport.log"
 DB  = "/var/db/cport.d"            # cport databases
 CONFIG = "/etc/cport.d/cport.conf" # cport configuration file
 SOURCES = "/etc/cport.d/sources.list"
@@ -42,85 +43,69 @@ METADATA_INST = "/usr/share/cport/metadata.json"    # Installed metadata file
 METADATA_TMP  = "/tmp/metadata.json"                # Temp downloaded metadata file
 CACHE = "/usr/src/"
 
-def dialog(p_exit=False, default_no=False):
-    """```
-    Function for print the dialog messages.
+LOG = LOG_FILE # Для совместимости со старыми версиями. TODO - ВРЕМЕННО
 
-    Arguments:
-    - `p_exit`: if 'True' then exit while user input "n" or "N" (no);
-    - `default_no`: if 'True' then "n" or "N" - the default answer.
-    ```"""
+class log:
 
-    print("\n> Continue?", end=" ")
-
-    if default_no:
-        print("(y/N)", end=" ")
-    else:
-        print("(Y/n)", end=" ")
-
-    try:
-        run = input()
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt!")
-        return False
-
-    if run == "n" or run == "N":
-        if p_exit:
-            print("Aborted!")
-            return False
+    def __init__(self):
+        if os.path.isdir(LOG_DIR):
+            self.logdir = True
         else:
-            print("Aborted!")
-            return False
-    return True
-
-class log():
-    """Log functions"""
-
-    def __init__(self, check=False):
-        if check:
-            if not os.path.isfile(LOG):
-                raise FileNotFoundError
-
-    def log_msg(self, message, level="ERROR"):
-        """
-        Format:
-        [ time ] - LEVEL - message
-        """
-        msg = f"[ {time.ctime()} ] - {level} - {message}\n"
-        
-        try:
-            with open(LOG, "a") as f:
-                f.write(msg)
-            return 0
-        except PermissionError:
-            print(" \033[1m!!!\033[0m \033[31mPermission denied!\033[0m")
-            return 1
-        except:
-            return 1
+            self.logdir = False
     
-    def error_msg(self, message, prev="", log=False):
+    def log(self, message, level="UKNOWN"):
+        msg = f"[ {time.ctime()} ] - {level} - {message}"
+
+        with open(LOG_FILE, "a") as f:
+            f.write(msg)
+    
+    def show(self):
+        with open(LOG_FILE) as f:
+            print(f.read())
+
+class msg:
+
+    def error(self, message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
 
         print(prev, msg)
         if log:
-            log().log_msg(message, level="FAIL")
+            log().log(message, level="FAIL")
     
-    def ok_msg(self, message, prev=""):
+    def ok(self, message, prev="", log=False):
         msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
 
         print(prev, msg)
-        log().log_msg(message, level=" OK ")
+        if log:
+            log().log(message, level=" OK ")
     
     def warning(self, message):
         msg = f"[ \033[1mWARNING\033[0m ] {message}"
         
         print(msg)
     
-    # TODO: DEPRECATED
-    def msg(self, message, prev="", end_msg="\n"):
-        msg = f"{prev}>>> \033[32m{message}\033[0m{end_msg}"
+    def dialog(self, default_no=False):
+        print("\n> Continue?", end=" ")
 
-        print(msg)
+        if default_no:
+            print("(y/N)", end=" ")
+        else:
+            print("(Y/n)", end=" ")
+        
+        try:
+            run = input()
+        except KeyboardInterrupt:
+            print("Keyboard Interrupt!")
+            return False
+        
+        if run == "n" or run == "N":
+            print("Aborted!")
+            return False
+        elif run == "y" or run == "Y":
+            return True
+        else:
+            print(f"Uknown command '{run}'!")
+            return False
 
 class check():
    
@@ -220,43 +205,109 @@ class check():
         else:
             return False
 
-class settings():
-    """```
-    Содержит методы для работы с параметрами: получение параметров,
-    изменение параметров, парсинг конфигов.
-    ```"""
+class settings:
 
-    ## CHANGE IN v1.0b1:
-    # TODO: проверить новую версию класса на работоспособность
-
-    conf = configparser.ConfigParser()
-
-    def get(self, section, param, source=CONFIG) -> str:
+    def __init__(self):
+        self.conf = configparser.ConfigParser()
+    
+    def _get_conf_type(self, param_name):
         """
-        Get some parameters from *.ini config file.
+        Function for get data type of some parameter from *.ini file
 
         Usage:
-        settings().get(section, param)
+        settings()._get_conf_type(param_name)
+        """
+        
+        param_type = str(f"{param_name[-2]}{param_name[-1]}")
 
-        Additional:
-        source="file.ini" - from alternate source (default = 'CONFIG' variable)
+        match(param_type):
+            case "_i":
+                return int
+            case "_f":
+                return float
+            case "_s":
+                return str
+            case "_b":
+                return bool
+            case "_t":
+                return tuple
+            case "_l":
+                return list
+            case _:
+                return str
+    
+    def _check_config(self, section, param):
+        """
+        Function for check some parameters from *.ini config files
+
+        Usage:
+        settings()._check_config(section, param)
         """
 
-        settings.conf.read(source)
-        
         try:
-            conf = settings.conf.get(section, param)
+            conf = self.conf.get(section, param)
+            no_option = False
         except configparser.NoOptionError:
             conf = "uknown"
+            no_option = True
+        
+        if no_option:
+            return False
+        else:
+            return True
+    
+    def config_param_get(self, section, param, source=CONFIG):
+        """
+        Get some parameters from *.ini config file
 
+        Usage:
+        settings().get(section, param, source=SOURCE)
+        """
+
+        self.conf.read(source)
+
+        if not self._check_config(section, param):
+            no_option = True
+            conf = self.conf.get(section, param)
+        else:
+            no_option = False
+            conf = "uknown"
+        
+        if not no_option:
+            param_type = self._get_conf_type(param)
+            conf = param_type(conf)
+        
         return conf
     
-    def get_json(self, file) -> dict:
+    def config_param_set(self, section, param, value: str, source=CONFIG):
+        """
+        Function for update some params in the *.ini config files.
+
+        Usage:
+        settings().config_param_set(section, param, value, source=SOURCE)
+        """
+
+        if not os.path.isfile(source):
+            msg().error(f"File '{source}' not found!")
+            return False
+        
+        if not self._check_config(section, param):
+            msg().error(f"Parameter '{param}' is uknown!")
+            return False
+        
+        self.conf.set(section, param, value)
+
+        with open(source, "w") as f:
+            self.conf.write(f)
+        
+        return True
+    
+    def json_data_get(self, file) -> dict:
         """
         Get all parameters from *.json file.
 
         Usage:
-        settings().get_json(file)
+        settings().json_data_get(file)
         """
 
         if check().json_config(file):
@@ -268,28 +319,6 @@ class settings():
             }
 
         return data
-    
-    def p_set(self, section, param, value, source=CONFIG):
-        """
-        Function for update some params in the *.ini config files
-
-        p_set = 'param set'
-
-        Usage:
-        settings().p_set(section, param, new_value)
-
-        Additional:
-        source="file.ini" - the alternate source (default = 'CONFIG' variable)
-        """
-
-        if not os.path.isfile(source):
-            log().error_msg(f"File '{source}' not found!")
-            return False
-        
-        settings.conf.set(section, param, value)
-
-        with open(source, "w") as f:
-            settings.conf.write(f)
 
 class lock():
     """```
