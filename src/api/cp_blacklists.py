@@ -52,9 +52,9 @@ try:
     import sqlite3
 
     PORTDIR = cdf.PORTDIR
-    db      = cdf.DB + "/blacklist.db"
+    db = cdf.DB + "/blacklist.db"
 
-    conn   = sqlite3.connect(db)
+    conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except:
     cdf.log().error_msg(

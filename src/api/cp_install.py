@@ -44,7 +44,6 @@ try:
     import sqlite3
 
     db = cdf.DB + "/installed.db"
-
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except ImportError:
@@ -54,18 +53,18 @@ except ImportError:
     exit(1)
 
 PORTDIR = cdf.PORTDIR
-LOG     = cdf.LOG
-CACHE   = cdf.CACHE
+LOG = cdf.LOG
+CACHE = cdf.CACHE
 
 def calc_sbu(func):
     def wrapper(*args, **kwargs):
-        time_def   = float(cdf.settings().get("base", "sbu"))
+        time_def = float(cdf.settings().get("base", "sbu"))
         time_start = float(time.time())
 
         return_value = func(*args, **kwargs)
-        time_end     = float(time.time())
+        time_end = float(time.time())
 
-        difference   = time_end - time_start # Building time (secs)
+        difference = time_end - time_start # Building time (secs)
 
         sbu = difference / time_def
         print(f"Build time (sbu) = {round(sbu, 2)}") # Rounding the sbu value to hundredths and print result
@@ -82,8 +81,10 @@ class prepare():
 
     def check_size(self, size: float):
         usage = shutil.disk_usage("/")
-        # Место на диске рассчитывается по формуле U = u + 100 (u - свободное место на
-        # диске, U - необходимое на диске место для установки программы)
+        
+        # Место на диске рассчитывается по формуле U = u + 100 (u - 
+        # свободное место на диске, U - необходимое на диске место для
+        # установки программы)
         free  = float(usage[2] + 100)
         del(usage)
 
@@ -149,10 +150,6 @@ class prepare():
         except tarfile.CompressionError:
             cdf.log().error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
             return False
-        
-        #except:
-        #    cdf.log.error_msg(f"Uknown error while unpacking '{file}'!")
-        #    return False
 
 class install():
     """

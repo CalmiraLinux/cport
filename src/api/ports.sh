@@ -45,6 +45,7 @@ function g_dialog() {
     esac
 }
 
+# Print dialog messages in ports build instructions
 function dialog() {
     echo -n "> Continue? (y/n) "
     read run

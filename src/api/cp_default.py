@@ -28,6 +28,7 @@
 """
 
 import os
+import sys
 import time
 import json
 import configparser
@@ -53,6 +54,25 @@ class log:
         else:
             self.logdir = False
     
+    def __doc__(self):
+        """
+        Class with methods for logging the cport and port system.
+        
+        Files:
+        - /var/log/cport.log - the master cport log file
+        - /var/log/cport.d/ - the slave cport directory with log files
+        
+        Methods:
+        - log(message, level="UKNOWN") - create and write logs in '/var/log/cport.log'
+        - show() - print log file in stdout
+        
+        Levels:
+        - INFO,
+        - FAIL,
+        - DEBUG,
+        - OK
+        """
+    
     def log(self, message, level="UKNOWN"):
         msg = f"[ {time.ctime()} ] - {level} - {message}"
 
@@ -65,10 +85,22 @@ class log:
 
 class msg:
 
+    def __doc__(self):
+        """
+        Class with methods for print some messages in stdout and stderr
+        
+        Methods:
+        - error(message, prev="", log=False)
+        - ok(message, prev="", log=False)
+        - warning(message)
+        - dialog(default_no=False)
+        """
+
     def error(self, message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
 
-        print(prev, msg)
+        print(prev, msg, file=sys.stder)
+        
         if log:
             log().log(message, level="FAIL")
     
@@ -171,22 +203,18 @@ class check():
         SYSTEM = "/etc/calm-release"
         
         if not check.json_config(SYSTEM):
-            return "NaN"
+            return "uknown"
         
-        f = open(SYSTEM)
-        data = json.load(f)
+        with open(SYSTEM) as f:
+            data = json.load(f)
         
         release = str(data["distroVersion"])
-        f.close()
         
         return release
     
     def release(self, config):    
-        # TODO: проверить на работоспособность    
         if not self.json_config(config):
             return False
-        
-        f        = open(config)
 
         with open(config) as f:
             data = json.load(f)
@@ -207,8 +235,12 @@ class check():
 
 class settings:
 
-    def __init__(self):
-        self.conf = configparser.ConfigParser()
+    # TODO: need to tests!!!
+    # FIXME: не используется 'self.source'
+
+    def __init__(self, source=CONFIG):
+        self.conf   = configparser.ConfigParser()
+        self.source = source
     
     def _get_conf_type(self, param_name):
         """
@@ -217,7 +249,7 @@ class settings:
         Usage:
         settings()._get_conf_type(param_name)
         """
-        
+
         param_type = str(f"{param_name[-2]}{param_name[-1]}")
 
         match(param_type):
@@ -244,6 +276,8 @@ class settings:
         settings()._check_config(section, param)
         """
 
+        self.conf.read(self.source)
+
         try:
             conf = self.conf.get(section, param)
             no_option = False
@@ -256,7 +290,7 @@ class settings:
         else:
             return True
     
-    def config_param_get(self, section, param, source=CONFIG):
+    def config_param_get(self, section, param):
         """
         Get some parameters from *.ini config file
 
@@ -264,7 +298,7 @@ class settings:
         settings().get(section, param, source=SOURCE)
         """
 
-        self.conf.read(source)
+        self.conf.read(self.source)
 
         if not self._check_config(section, param):
             no_option = True
@@ -279,7 +313,7 @@ class settings:
         
         return conf
     
-    def config_param_set(self, section, param, value: str, source=CONFIG):
+    def config_param_set(self, section, param, value: str):
         """
         Function for update some params in the *.ini config files.
 

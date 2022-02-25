@@ -33,7 +33,6 @@ try:
     import sqlite3
 
     db = cdf.DB + "/installed.db"
-
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except ImportError:
@@ -43,7 +42,7 @@ except ImportError:
     exit(1)
 
 PORTDIR = cdf.PORTDIR
-LOG     = cdf.LOG
+LOG = cdf.LOG
 
 class prepare():
     
