@@ -54,7 +54,7 @@ class get():
     
     def param(self, conf_param):
         if not os.path.isfile(self.config):
-            cdf.log().error_msg(f"File '{self.config}': not found!")
+            cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
@@ -62,7 +62,7 @@ class get():
             with open(self.config) as f:
                 data = json.load(f)
         except:
-            cdf.log().error_msg(f"File '{self.config}: file is not config!")
+            cdf.msg().error(f"File '{self.config}: file is not config!")
             return False
         
         try:
@@ -74,7 +74,7 @@ class get():
     
     def param_dep(self, conf_param):
         if not os.path.isfile(self.config):
-            cdf.log().error_msg(f"File '{self.config}': not found!")
+            cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
@@ -82,7 +82,7 @@ class get():
             with open(self.config) as f:
                 data = json.load(f)
         except:
-            cdf.log().error_msg(f"File '{self.config}: file is not config!")
+            cdf.msg().error(f"File '{self.config}: file is not config!")
             return False
         
         try:
@@ -100,7 +100,7 @@ class get():
     
     def priority(self):
         if not os.path.isfile(self.config):
-            cdf.log().error_msg(f"File '{self.config}': not found!")
+            cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
         # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
@@ -108,7 +108,7 @@ class get():
             with open(self.config) as f:
                 data = json.load(f)
         except:
-            cdf.log().error_msg(f"File '{self.config}: file is not config!")
+            cdf.msg().error(f"File '{self.config}: file is not config!")
             return False
 
         prior = data["priority"]
@@ -144,7 +144,7 @@ class info():
         with open(self.config) as f:
             data = json.load(f)
 
-        if cpb.fetch(data["name"]):
+        if cpb.check().exists_db(data["name"]):
             print("\033[1mblacklist:\033[0m true")
         else:
             print("\033[1mblacklist:\033[0m false")

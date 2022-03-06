@@ -47,7 +47,7 @@ try:
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except ImportError:
-    cdf.log().error_msg(
+    cdf.msg().error(
         "It is not possible to use the cp_install API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
@@ -58,7 +58,9 @@ CACHE = cdf.CACHE
 
 def calc_sbu(func):
     def wrapper(*args, **kwargs):
-        time_def = float(cdf.settings().get("base", "sbu"))
+        # FIXME: ValueError: could not convert string to float: 'uknown'
+        #time_def = float(cdf.settings().config_param_get("base", "sbu_f"))
+        time_def = 189.0
         time_start = float(time.time())
 
         return_value = func(*args, **kwargs)
@@ -112,7 +114,7 @@ class prepare():
             return True
 
         except ConnectionError:
-            cdf.log().error_msg(f"Connection error while downloading '{link}'!")
+            cdf.msg().error(f"Connection error while downloading '{link}'!")
             return False
 
         # Раскомментировать в стабильной версии
@@ -132,7 +134,7 @@ class prepare():
         ```"""
 
         if not os.path.isfile(CACHE+file):
-            cdf.log().error_msg(f"File '{file}' not found!")
+            cdf.msg().error(f"File '{file}' not found!")
             return False
         
         file = CACHE + file
@@ -144,11 +146,11 @@ class prepare():
             return True
         
         except tarfile.ReadError:
-            cdf.log().error_msg(f"Package '{file}' read error! Perhaps he is broken.")
+            cdf.msg().error(f"Package '{file}' read error! Perhaps he is broken.")
             return False
         
         except tarfile.CompressionError:
-            cdf.log().error_msg(f"Package '{file}' unpacking error! The format isn't supported.")
+            cdf.msg().error(f"Package '{file}' unpacking error! The format isn't supported.")
             return False
 
 class install():
@@ -164,10 +166,10 @@ class install():
         run = subprocess.run(command, shell=True)
 
         if run.returncode != 0:
-            cdf.log().error_msg(
+            cdf.msg().error(
                 "\aPort returned a non-zero return code!", prev="\n\n"
             )
-            cdf.log().log_msg("Port returned a non-zero return code!", level="FAIL")
+            cdf.log().log("Port returned a non-zero return code!", level="FAIL")
         
         return run.returncode
     
@@ -182,5 +184,5 @@ class install():
             return True
         
         except sqlite3.DatabaseError as error:
-            cdf.log().error_msg(f"SQLite3 error: {error}")
+            cdf.msg().error(f"SQLite3 Database error: {error}")
             return False

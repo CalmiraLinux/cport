@@ -36,7 +36,7 @@ try:
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
 except ImportError:
-    cdf.log().error_msg(
+    cdf.msg().error(
         "It is not possible to use the cp_remove API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
     )
     exit(1)
@@ -103,21 +103,21 @@ class remove():
         v_error = False
 
         for file in files:
-            cdf.log().log_msg(f"Start removing a file '{file}'...", level="INFO")
+            cdf.log().log(f"Start removing a file '{file}'...", level="INFO")
             
             try:
                 os.remove(file)
-                cdf.log().log_msg(f"File '{file}' deleted successfully", level=" OK ")
+                cdf.log().log(f"File '{file}' deleted successfully", level=" OK ")
             
             except IsADirectoryError:
                 shutil.rmtree(file)
-                cdf.log().log_msg(f"Directory '{file}' deleted successfully", level=" OK ")
+                cdf.log().log(f"Directory '{file}' deleted successfully", level=" OK ")
             
             except FileNotFoundError:
                 message = f"File '{file}' not found!"
                 
-                cdf.log().log_msg(message, level="FAIL")
-                cdf.log().error_msg(message)
+                cdf.log().log(message, level="FAIL")
+                cdf.msg().error(message)
 
                 error_files.append(file)
                 v_error = True
@@ -125,15 +125,15 @@ class remove():
             except PermissionError:
                 message = f"Permission denied while removing a file '{file}'"
 
-                cdf.log().log_msg(message, level="FAIL")
-                cdf.log().error_msg(message)
+                cdf.log().log(message, level="FAIL")
+                cdf.msg().error(message)
 
                 error_files.append(file)
                 v_error = True
         
         if v_error:
-            cdf.log().error_msg(f"Some errors while deleting {len(error_files)} files!")
-            cdf.log().error_msg(f"See the '{LOG}' file for get more info.")
+            cdf.msg().error(f"Some errors while deleting {len(error_files)} files!")
+            cdf.msg().error(f"See the '{LOG}' file for get more info.")
             return False
 
         else:
@@ -153,5 +153,5 @@ class remove():
 
             return True
         except sqlite3.DatabaseError as error:
-            cdf.log().error_msg(f"SQLite3 error: {error}")
+            cdf.msg().error(f"SQLite3 error: {error}")
             return False

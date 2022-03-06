@@ -4,7 +4,7 @@
 # Copyright (C) 2021, 2022 Michail Krasnov <linuxoid85@gmail.com>
 #
 # cp_blacklists.py
-#
+# 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -45,6 +45,7 @@ Table contents:
 
 import os
 import time
+import json
 import cp_default as cdf
 import cp_info    as cpI
 
@@ -62,17 +63,94 @@ except:
     )
     exit(1)
 
+def _get_port_info(port: str) -> dict:
+    """
+    Get all port information from 'config.json' port file
+    
+    Usage:
+    _get_port_info(port: str)
+    
+    'port' - the port name (e.g. base/editors/vim)
+    """
+    
+    config = PORTDIR + port + "/config.json"
+    
+    def get_port_exists() -> bool:
+        port_dir = PORTDIR + port
+        
+        return os.path.isdir(port_dir)
+    
+    if not get_port_exists():
+        port_info = {
+            "name": "uknown"
+        }
+        return port_info
+    
+    with open(config) as f:
+        data = json.load(f)
+    
+    return data
+
+class check:
+    def exists_fs(self, port):
+        port_dir = PORTDIR + port
+        
+        config = port_dir + "/config.json"
+        resources = port_dir + "/resources.json"
+        install = port_dir + "/install"
+        files = port_dir + "/files.list"
+        
+        if not os.path.isdir(port_dir):
+            cdf.msg().error(f"Port '{port}' not found!")
+            data = {
+                "port": "not found",
+                "exist": "not exist",
+                "not_exist": "not exist"
+            }
+            
+            return data
+        
+        f_error = []
+        f_exist = []
+
+        for file in config, resources, install, files:
+            if os.path.isfile(file):
+                f_exist.append(file)
+            else:
+                f_error.append(file)
+        
+        data = {
+            "port": "found",
+            "exist": f_exist,
+            "not_exist": f_error
+        }
+        
+        return data
+        
+    def exists_db(self, port):
+        """
+        Method for checking the presense of a port in the blacklist. If the
+        package is present, it returns 'True', if it is absent, it returns
+        'False'
+        """
+        db = cursor.execute(f"SELECT * FROM ports WHERE port = '{port}'")
+        
+        if db.fetchone() is None:
+            return False
+        else:
+            return True
+
 def check_priority(port: str):
     # TODO: DEPRECATED
     config = PORTDIR + port + "/config.json"
     port_dir = PORTDIR + port
 
     if not os.path.isdir(port_dir):
-        cdf.log().error_msg(f"Port '{port}': not found!")
+        cdf.msg().error(f"Port '{port}': not found!")
         return False
     
     if cpI.get(config).priority() == "system":
-        cdf.log().error_msg("It is impossible to use the blacklist: the port has a system priority.")
+        cdf.msg().error("It is impossible to use the blacklist: the port has a system priority.")
         return False
     else:
         return True
@@ -90,7 +168,7 @@ def add(port: str):
         return True
 
     except sqlite3.DatabaseError as error:
-        cdf.log().error_msg(f"SQLite3 error: {error}")
+        cdf.msg().error(f"SQLite3 Database error: {error}")
         return False
 
 def remove(port: str):
@@ -103,21 +181,5 @@ def remove(port: str):
         return True
 
     except sqlite3.DatabaseError as error:
-        cdf.log().error_msg(f"SQLite3 error: {error}")
+        cdf.msg().error(f"SQLite3 Database error: {error}")
         return False
-
-# TODO: can be better
-def fetch(port: str):
-    """```
-    A function for checking the presence of a port
-    in the blacklist. If the package is present,
-    it returns `True`, if it is absent, it returns `False`.
-    ```"""
-
-    data = f"SELECT * FROM ports WHERE port = '{port}'"
-    db = cursor.execute(data)
-
-    if db.fetchone() is None:
-        return False
-    else:
-        return True

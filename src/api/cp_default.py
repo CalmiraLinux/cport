@@ -99,7 +99,7 @@ class msg:
     def error(self, message, prev="", log=False):
         msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
 
-        print(prev, msg, file=sys.stder)
+        print(prev, msg, file=sys.stderr)
         
         if log:
             log().log(message, level="FAIL")
@@ -282,7 +282,6 @@ class settings:
             conf = self.conf.get(section, param)
             no_option = False
         except configparser.NoOptionError:
-            conf = "uknown"
             no_option = True
         
         if no_option:
@@ -295,7 +294,7 @@ class settings:
         Get some parameters from *.ini config file
 
         Usage:
-        settings().get(section, param, source=SOURCE)
+        settings().config_param_get(section, param, source=SOURCE)
         """
 
         self.conf.read(self.source)
@@ -320,10 +319,6 @@ class settings:
         Usage:
         settings().config_param_set(section, param, value, source=SOURCE)
         """
-
-        if not os.path.isfile(source):
-            msg().error(f"File '{source}' not found!")
-            return False
         
         if not self._check_config(section, param):
             msg().error(f"Parameter '{param}' is uknown!")
@@ -424,7 +419,7 @@ class lock():
         ```"""
 
         if self.procedure != None:
-            if settings().get("lock", "procedure", source=self.FILE) != self.procedure:
+            if settings().config_param_get("lock", "procedure", source=self.FILE) != self.procedure:
                 return False
 
         try:
@@ -458,8 +453,8 @@ class lock():
                 "time": f"{time.ctime()}"
             }
         else:
-            procedure = settings().get("lock", "procedure", source=lock.FILE)
-            lock_time = settings().get("lock", "time", source=lock.FILE)
+            procedure = settings(source=lock.FILE).config_param_get("lock", "procedure")
+            lock_time = settings(source=lock.FILE).config_param_get("lock", "time")
 
             data = {
                 "procedure": procedure,

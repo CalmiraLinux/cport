@@ -175,12 +175,16 @@ version.set_defaults(func=libcport.ver)
 args = parser.parse_args()
 
 try:
-    args.func(args)
+    if not vars(args):
+        parser.print_usage()
+        exit(1)
+    else:
+        args.func(args)
 except KeyboardInterrupt:
-    cdf.log().error_msg("Keyboard interrupt!")
+    cdf.msg().error("Keyboard interrupt!")
     os.system("killall install 2> /dev/null")
     exit(1)
 except SystemExit:
-    cdf.log().error_msg("Uknown error while working Ports API!")
+    cdf.msg().error("Uknown error while working Ports API!")
     os.system("killall install 2> /dev/null")
     exit(1)

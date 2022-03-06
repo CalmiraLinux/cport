@@ -61,6 +61,8 @@ def ver(args):
     print(msg_api)
     print("(C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
+    print("\033[1mZ 🇷🇺️\033[0m")
+
 def getgid(gid: int):
     if os.getgid() != gid:
         return False
@@ -69,7 +71,7 @@ def getgid(gid: int):
 
 def unlock():
     if not cdf.lock().unlock():
-        cdf.log().error_msg("Unknown error unlocking the cport process")
+        cdf.msg().error("Unknown error unlocking the cport process")
         return False
     else:
         return True
@@ -85,7 +87,7 @@ def install(port, yes_st=False):
     if os.path.isfile(cdf.lock.FILE):
         data = cdf.lock().info()
 
-        cdf.log().error_msg(
+        cdf.msg().error(
             f"""The port assembly process cannot be started!
             The cport process executes the following script {data['procedure']}, started at {data['time']}"""
         )
@@ -93,62 +95,49 @@ def install(port, yes_st=False):
     
     print("locking...")
     if not cdf.lock("install").lock():
-        cdf.log().error_msg("Unknown error blocking the installation process")
+        cdf.msg().error("Unknown error blocking the installation process")
         return False
 
     print("parsing the resources file...")
-    """
-    try:
-        res = cdf.settings().get_json(port_resources)
-        download = res["resources"]["url"]
-        archive  = res["resources"]["file"]
-
-        print(f"download: {download}")
-        print(f"file: {archive}")
-    except:
-        print("parsing error!")
-        unlock()
-        return False
-    """
     
-    res = cdf.settings().get_json(port_resources)
+    res = cdf.settings().json_data_get(port_resources)
     download = res["resources"]["url"]
     archive  = res["resources"]["file"]
 
     print("start building a port...")
-    cdf.log().log_msg(f"{42*'='}", level="SEP ")
-    cdf.log().log_msg(f"Starting building a port '{port}'...", level="INFO")
+    cdf.log().log(f"{42*'='}", level="SEP ")
+    cdf.log().log(f"Starting building a port '{port}'...", level="INFO")
 
     ## Checkings ##
-    cdf.log().log_msg("Checking for file exist...", level="INFO")
+    cdf.log().log("Checking for file exist...", level="INFO")
     if not cdf.check().install(port_dir):
         message = "Error during testing for the presence of port files"
 
-        cdf.log().log_msg(message, level="FAIL")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="FAIL")
+        cdf.msg().error(message)
 
         unlock()
         return False
     else:
-        cdf.log().log_msg("Checking successfully", level=" OK ")
+        cdf.log().log("Checking successfully", level=" OK ")
 
     # Проверка на наличие порта в чёрном списке
-    cdf.log().log_msg("Checking for the presence of a port in the blacklist...", level="INFO")
-    if cpb.fetch(port):
+    cdf.log().log("Checking for the presence of a port in the blacklist...", level="INFO")
+    if cpb.check().exists_db(port):
         message = f"The port '{port}' is blacklisted"
 
-        cdf.log().log_msg(message, level="ERROR")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="ERROR")
+        cdf.msg().error(message)
 
         unlock()
         return False
     else:
-        cdf.log().log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
+        cdf.log().log(f"The port '{port}' isn't blacklisted", level=" OK ")
     
     # Check priority
     if cpI.get(port_config).priority() == "system":
-        cdf.log().warning(f"'{port}' have a system priority!")
-        cdf.dialog(p_exit=True)
+        cdf.msg().warning(f"'{port}' have a system priority!")
+        cdf.msg().dialog()
     
     # Check disk usage
     with open(port_config) as f:
@@ -160,18 +149,18 @@ def install(port, yes_st=False):
     
     if not cpi.prepare().check_size(size):
         message = "There is no space on the hard disk to build the port!"
-        cdf.log().log_msg(message)
-        cdf.log().error_msg(message)
+        cdf.log().log(message)
+        cdf.msg().error(message)
 
         return False
     
     """
     # Check release
-    if not cdf.check.release(port_config):
-        cdf.log().error_msg(
+    if not cdf.check().release(port_config):
+        cdf.msg().error(
             f"Port '{port}' isn't compatible with the installed Calmira release!"
         )
-        cdf.dialog(p_exit=True)
+        cdf.msg().dialog()
     """
     
     ## Print inforpation about port ##
@@ -182,40 +171,40 @@ def install(port, yes_st=False):
     cpI.info(port_config).depends()
 
     if not yes_st:
-        if not cdf.dialog(p_exit=True):
+        if not cdf.msg().dialog():
             unlock()
             return False
 
     ## Download files ##
     message = f"Downloading file '{download}'..."
 
-    cdf.log().log_msg(message, level="INFO")
+    cdf.log().log(message, level="INFO")
     print(f"\n{message}")
 
     # Следующая часть кода скачивает необходимый файл из репозиториев
     # NOTE: работает только в том случае, когда выключен
-    # cacheonly-режим ('cache = false' в /etc/cport.d/cport.conf).
-    cache = cdf.settings().get("develop", "cache")
+    # cacheonly-режим ('cache_b = false' в /etc/cport.d/cport.conf).
+    cache = cdf.settings().config_param_get("develop", "cache_b")
 
-    if cache == "false":
+    if cache:
         d = cpi.prepare().download(download, cdf.CACHE)
 
         if d != True:
             message = f"Error while downloading file '{download}'!"
 
-            cdf.log().log_msg(message, level="ERROR")
-        
+            cdf.log().log(message, level="ERROR")
             unlock()
+
             return False
         else:
-            cdf.log().log_msg(f"File '{download}' was downloaded successfully", level=" OK ")
+            cdf.log().log(f"File '{download}' was downloaded successfully", level=" OK ")
     else:
-        cdf.log().warning("Cacheonly mode is used! In this case, no files will be downloaded. Local versions of archives are used (if they are present on the disk).")
+        cdf.msg().warning("Cacheonly mode is used! In this case, no files will be downloaded. Local versions of archives are used (if they are present on the disk).")
     
     ## Unpack files ##
     message = f"Unpacking file '{archive}'..."
 
-    cdf.log().log_msg(message, level="INFO")
+    cdf.log().log(message, level="INFO")
     print(f"\n\n{message}")
 
     u = cpi.prepare().unpack(archive, cdf.CACHE)
@@ -223,19 +212,19 @@ def install(port, yes_st=False):
     if u != True:
         message = f"Error while unpacking file '{archive}'"
 
-        cdf.log().log_msg(message, level="ERROR")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="ERROR")
+        cdf.msg().error(message)
 
         unlock()
         return False
     else:
-        cdf.log().log_msg(f"File '{archive}' was unpacked successfully", level=" OK ")
+        cdf.log().log(f"File '{archive}' was unpacked successfully", level=" OK ")
     
     del(u)
     del(d)
 
     ## Build port ##
-    cdf.log().log_msg("Start building a port...", level="INFO")
+    cdf.log().log("Start building a port...", level="INFO")
     if cpi.install().build(port_install) == 0:
         with open(port_config) as f:
             js = json.load(f)
@@ -258,50 +247,50 @@ def remove(port, yes_st):
 
     if os.path.isfile(cdf.lock.FILE):
         data = cdf.lock().info()
-        cdf.log().error_msg(
+        cdf.msg().error(
             f"""The port assembly process cannot be started!
             The cport process executes the following script {data['procedure']}, started at {data['time']}"""
         )
         return False
     
     if not cdf.lock("remove").lock():
-        cdf.log().error_msg("Unknown error blocking the deletion process")
+        cdf.msg().error("Unknown error blocking the deletion process")
         return False
 
-    cdf.log().log_msg(f"{42 * '='}", level="SEP ")
-    cdf.log().log_msg(f"Starting the removal of the '{port}' port...", level="INFO")
+    cdf.log().log(f"{42 * '='}", level="SEP ")
+    cdf.log().log(f"Starting the removal of the '{port}' port...", level="INFO")
 
     ## Checkings ##
     if not cdf.check.remove(port_dir):
         message = "Error during testing for the presence of port files"
 
-        cdf.log().log_msg(message, level="FAIL")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="FAIL")
+        cdf.msg().error(message)
 
         unlock()
         return False
     else:
-        cdf.log().log_msg("Checking successfully", level=" OK ")
+        cdf.log().log("Checking successfully", level=" OK ")
     
     # Проверка на наличие порта в чёрном списке
-    cdf.log().log_msg("Checking for the presence of a port in the blacklist...", level="INFO")
-    if cpb.fetch(port):
+    cdf.log().log("Checking for the presence of a port in the blacklist...", level="INFO")
+    if cpb.check().exists_db(port):
         message = f"The port '{port}' is blacklisted"
 
-        cdf.log().log_msg(message, level="FAIL")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="FAIL")
+        cdf.msg().error(message)
 
         unlock()
         return False
     else:
-        cdf.log().log_msg(f"The port '{port}' isn't blacklisted", level=" OK ")
+        cdf.log().log(f"The port '{port}' isn't blacklisted", level=" OK ")
     
     # Check priority
     if cpI.get(port_config).priority() == "system":
         message = f"'{port}' have a system priority. Aborted."
 
-        cdf.log().log_msg(message, level="FAIL")
-        cdf.log().error_msg(message)
+        cdf.log().log(message, level="FAIL")
+        cdf.msg().error(message)
 
         unlock()
         return False
@@ -314,7 +303,7 @@ def remove(port, yes_st):
     cpI.info(port_config).depends()
 
     if not yes_st:
-        if not cdf.dialog(p_exit=True):
+        if not cdf.msg().dialog():
             unlock()
             return False
 
@@ -324,8 +313,8 @@ def remove(port, yes_st):
             unlock()
             
             message = f"Port '{port}' is damaged!"
-            cdf.log().log_msg(message, level="FAIL")
-            cdf.log().error_msg(message)
+            cdf.log().log(message, level="FAIL")
+            cdf.msg().error(message)
 
             return False
         
@@ -333,8 +322,8 @@ def remove(port, yes_st):
             unlock()
 
             message = f"Port '{port}' was removed from the system, but by an unknown error remained in the '{cdf.DB+'/installed.db'}' database!"
-            cdf.log().log_msg(message, level="FAIL")
-            cdf.log().error_msg(message)
+            cdf.log().log(message, level="FAIL")
+            cdf.msg().error(message)
 
             return False
     unlock()
@@ -389,7 +378,7 @@ class find():
 
     def metadata(self) -> bool:
         if not cdf.check.json_config(METADATA):
-            cdf.log().error_msg(f"Config {METADATA} is not config")
+            cdf.msg().error(f"Config {METADATA} is not config")
             return False
         
         try:
@@ -400,38 +389,38 @@ class find():
 
             return True
         except:
-            cdf.log().error_msg(f"Port '{self.port}' doesn't found in metadata!")
+            cdf.msg().error(f"Port '{self.port}' doesn't found in metadata!")
             return False
     
     def f_all(self) -> dict:
-        cdf.log().log_msg(f"Checking found port '{self.port}' in metadata", level="INFO")
+        cdf.log().log(f"Checking found port '{self.port}' in metadata", level="INFO")
 
         if not self.metadata(self.port):
-            cdf.log().log_msg(f"Port '{self.port}' doesn't found in metadata!", level="FAIL")
+            cdf.log().log(f"Port '{self.port}' doesn't found in metadata!", level="FAIL")
             metadata = False
 
         else:
-            cdf.log().log_msg(f"Port '{self.port}' is found in metadata!", level=" OK ")
+            cdf.log().log(f"Port '{self.port}' is found in metadata!", level=" OK ")
             metadata = True
         
-        cdf.log().log_msg(f"Checking found port '{self.port}' in filesystem", level="INFO")
+        cdf.log().log(f"Checking found port '{self.port}' in filesystem", level="INFO")
 
         if not self.filesystem(self.port):
-            cdf.log().log_msg(f"Port '{self.port}' doesn't found in filesystem!", level="FAIL")
+            cdf.log().log(f"Port '{self.port}' doesn't found in filesystem!", level="FAIL")
             filesystem = False
 
         else:
-            cdf.log().log_msg(f"Port '{self.port}' is found in filesystem!", level=" OK ")
+            cdf.log().log(f"Port '{self.port}' is found in filesystem!", level=" OK ")
             filesystem = True
         
-        cdf.log().log_msg(f"Checking found port '{self.port}' in installed database", level="INFO")
+        cdf.log().log(f"Checking found port '{self.port}' in installed database", level="INFO")
 
         if not self.database(self.port):
-            cdf.log().log_msg(f"Port '{self.port}' doesn't found in database!", level="FAIL")
+            cdf.log().log(f"Port '{self.port}' doesn't found in database!", level="FAIL")
             database = False
 
         else:
-            cdf.log().log_msg(f"Port '{self.port}' is found in database!", level=" OK ")
+            cdf.log().log(f"Port '{self.port}' is found in database!", level=" OK ")
             database = True
         
         data = {
@@ -452,16 +441,16 @@ class check():
         self.p_dir = PORTDIR + port
     
     def port_dir(self) -> bool:
-        cdf.log().log_msg(f"Start checking of exists dir '{self.p_dir}'...", level="INFO")
+        cdf.log().log(f"Start checking of exists dir '{self.p_dir}'...", level="INFO")
         if os.path.isdir(self.p_dir):
-            cdf.log().log_msg("OK", level=" OK ")
+            cdf.log().log("OK", level=" OK ")
             return True
         else:
-            cdf.log.log_msg("FAIL", level="FAIL")
+            cdf.log().log("FAIL", level="FAIL")
             return False
     
     def port_files(self) -> bool:
-        cdf.log.log_msg(f"Start checking of exists port '{self.port}' files...", level="INFO")
+        cdf.log().log(f"Start checking of exists port '{self.port}' files...", level="INFO")
 
         files = [
             "config.json",
@@ -515,8 +504,8 @@ class blacklists():
             self.fetch(args.fetch_blacklist)
 
     def add(self, port) -> int:
-        if cpb.fetch(port):
-            cdf.log().error_msg(f"Error: Port '{port}' is already blacklisted!")
+        if cpb.check().exists_db(port):
+            cdf.msg().error(f"Error: Port '{port}' is already blacklisted!")
             return 1
         
         if not cpb.add(port):
@@ -525,8 +514,8 @@ class blacklists():
             return 0
 
     def remove(self, port) -> int:
-        if not cpb.fetch(port):
-            cdf.log().error_msg(f"Error: Port '{port}' is not blacklisted!")
+        if not cpb.check().exists_db(port):
+            cdf.msg().error(f"Error: Port '{port}' is not blacklisted!")
             return 1
         
         if not cpb.remove(port):
@@ -535,7 +524,7 @@ class blacklists():
             return 0
 
     def fetch(self, port) -> int:
-        if cpb.fetch(port):
+        if cpb.check().exists_db(port):
             print(f"\033[1m{port}\033[0m: true")
             return 0
         else:
@@ -573,7 +562,7 @@ def info(args):
         port_config = PORTDIR + args.info + "/config.json"
     
     if not os.path.isfile(port_config):
-        cdf.log().error_msg(f"File '{port_config}' not found!")
+        cdf.msg().error(f"File '{port_config}' not found!")
         return False
     
     cpI.info(port_config).port()
