@@ -25,7 +25,7 @@
 
 import os
 import json
-import cp_default    as cdf
+import cp_default as cdf
 import cp_blacklists as cpb
 
 # base_info - base information about port
@@ -57,13 +57,11 @@ class get():
             cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
-        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
-        try:
-            with open(self.config) as f:
-                data = json.load(f)
-        except:
-            cdf.msg().error(f"File '{self.config}: file is not config!")
+        if not cdf.check.json_config(self.config):
             return False
+        
+        with open(self.config) as f:
+            data = json.load(f)
         
         try:
             prm = data[conf_param]
@@ -72,21 +70,18 @@ class get():
         
         return prm
     
-    def param_dep(self, conf_param):
+    def param_dep(self, conf_param) -> str:
         if not os.path.isfile(self.config):
             cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
-        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
-        try:
-            with open(self.config) as f:
-                data = json.load(f)
-        except:
-            cdf.msg().error(f"File '{self.config}: file is not config!")
+        if not cdf.check().json_config(self.config):
             return False
         
+        with open(self.config) as f:
+            data = json.load()
+        
         try:
-            #not_deps = False
             prm = data['deps'][conf_param]
 
             param_list = ""
@@ -94,25 +89,22 @@ class get():
                 param_list = param_list + f"'{value}' "
 
             return param_list
-        except:
-            f.close()
+        except KeyError:
             return "not found"
     
-    def priority(self):
+    def priority(self) -> str:
         if not os.path.isfile(self.config):
             cdf.msg().error(f"File '{self.config}': not found!")
             return False
         
-        # TODO: заменить эту конструкцию на 'cdf.check.json_config()'
-        try:
-            with open(self.config) as f:
-                data = json.load(f)
-        except:
-            cdf.msg().error(f"File '{self.config}: file is not config!")
+        if not cdf.check.json_config(self.config):
             return False
+        
+        with open(self.config) as f:
+            data = json.load(f)
 
         prior = data["priority"]
-        return str(prior)
+        return prior
 
 class info():
 
