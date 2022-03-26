@@ -1,464 +1,121 @@
 #!/usr/bin/python3
-#
-# CPort - a new port manager for Calmira Linux
-# Copyright (C) 2021, 2022 Michail Krasnov <linuxoid85@gmail.com>
-#
-# cp_default.py
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# Project Page: http://github.com/Linuxoid85/cport
-# Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
-#
-
-"""
-Общие методы API
-"""
 
 import os
-import sys
-import time
 import json
+import time
 import configparser
+import cp_exceptions as cpe
 
-VERSION = "v1.0b1 DEV"
-PORTDIR = "/usr/ports/"
-LOG_DIR = "/var/log/cport.log.d"
-LOG_FILE = "/var/log/cport.log"
-DB  = "/var/db/cport.d"            # cport databases
-CONFIG = "/etc/cport.d/cport.conf" # cport configuration file
-SOURCES = "/etc/cport.d/sources.list"
-METADATA_INST = "/usr/share/cport/metadata.json"    # Installed metadata file
-METADATA_TMP  = "/tmp/metadata.json"                # Temp downloaded metadata file
-CACHE = "/usr/src/"
+VERSION   = "v1.0a3"
 
-LOG = LOG_FILE # Для совместимости со старыми версиями. TODO - ВРЕМЕННО
+LOG_DIR   = "/var/log/cport.d/"
+LOG       = "/var/log/cport.log"
+DB        = "/var/lib/cport.d/cport.db"
+CACHE_DIR = "/var/cache/cport/"
+CACHE_DATA_DIR = CACHE_DIR + "pkg"
+PORT_DIR  = "/usr/ports/"
 
-class log:
+CALMIRA   = "/etc/calm-release"
 
-    def __init__(self):
-        if os.path.isdir(LOG_DIR):
-            self.logdir = True
-        else:
-            self.logdir = False
-    
-    def __doc__(self):
-        """
-        Class with methods for logging the cport and port system.
-        
-        Files:
-        - /var/log/cport.log - the master cport log file
-        - /var/log/cport.d/ - the slave cport directory with log files
-        
-        Methods:
-        - log(message, level="UKNOWN") - create and write logs in '/var/log/cport.log'
-        - show() - print log file in stdout
-        
-        Levels:
-        - INFO,
-        - FAIL,
-        - DEBUG,
-        - OK
-        """
-    
-    def log(self, message, level="UKNOWN"):
-        msg = f"[ {time.ctime()} ] - {level} - {message}"
+def log(message, level="INFO"):
+    """
+    Usage:
+    log(message, level)
+    """
 
-        with open(LOG_FILE, "a") as f:
-            f.write(msg)
-    
-    def show(self):
-        with open(LOG_FILE) as f:
-            print(f.read())
+    message = f"[ {time.ctime()} ] [ {level} ] - {message}"
+
+    with open(LOG, "a") as f:
+        data = f.write(message)
 
 class msg:
 
-    def __doc__(self):
-        """
-        Class with methods for print some messages in stdout and stderr
-        
-        Methods:
-        - error(message, prev="", log=False)
-        - ok(message, prev="", log=False)
-        - warning(message)
-        - dialog(default_no=False)
-        """
+    def error(self, message, log_msg=False):
+        print(f"\033[31m[!]\033[0m {message}")
 
-    def error(self, message, prev="", log=False):
-        msg = f"\033[1m!!!\033[0m \033[31m{message}\033[0m"
+        if log_msg:
+            log(message, level="FAIL")
 
-        print(prev, msg, file=sys.stderr)
-        
-        if log:
-            log().log(message, level="FAIL")
-    
-    def ok(self, message, prev="", log=False):
-        msg = f"[ {time.ctime()} ] - \033[32m{message}\033[0m"
+    def error_trace(self, message, function):
+        print(
+            "!!! ERROR TRACEBACK:\n",
+            "\033[1mError:\033[0m \033[31m{message}\033[0m\n",
+            "\033[1mFunction/class:\033[0m {function}\n",
+            "\033[1mTime:\033[0m {time.time()} (UNIX), {time.ctime()} (human)",
+            "\033[1meRepository:\033[0m https://github.com/CalmiraLinux/cport/"
+        )
 
-        print(prev, msg)
-        if log:
-            log().log(message, level=" OK ")
-    
-    def warning(self, message):
-        msg = f"[ \033[1mWARNING\033[0m ] {message}"
-        
-        print(msg)
-    
-    def dialog(self, default_no=False):
-        print("\n> Continue?", end=" ")
+        log(message, level="TRACE")
 
-        if default_no:
-            print("(y/N)", end=" ")
-        else:
-            print("(Y/n)", end=" ")
-        
-        try:
-            run = input()
-        except KeyboardInterrupt:
-            print("Keyboard Interrupt!")
-            return False
-        
-        if run == "n" or run == "N":
-            print("Aborted!")
-            return False
-        elif run == "y" or run == "Y":
-            return True
-        else:
-            print(f"Uknown command '{run}'!")
-            return False
+    def ok(self, message, log_msg=False):
+        print(f"\033[32m[+]\033[0m {message}")
 
-class check():
-   
-    def install(self, port_dir):
-        files = ["/install", "/config.json"]
+        if log_msg:
+            log(message, level=" OK ")
 
-        v_error = False
-        for file in files:
-            f = port_dir + file
+    def header(self, message):
+        print(f"===> {message}")
 
-            if not os.path.isfile(f):
-                log().error_msg(f"File '{f}': not found!")
-                v_error = True
-        
-        if v_error:
-            return False
-        return True
-    
-    def remove(self, port_dir):
-        files = ["/files.list", "/config.json"]
+    def sub_header(self, message):
+        print(f"==> {message}")
 
-        v_error = False
-        for file in files:
-            file = port_dir + file
-
-            if not os.path.isfile(file):
-                log().error_msg(f"File '{file}': not found!")
-                v_error = True
-        
-        if v_error:
-            return False
-        return True
-    
-    def json_config(self, config, param=None) -> bool:
-        if param != None:
-            check_param = True
-        else:
-            check_param = False
-        
-        try:
-            with open(config) as f:
-                data = json.load(f)
-
-            if check_param:
-                data_param = data[param] # Проверка наличия значения в словаре
-                del(data_param) # Очистка
-            
-        except FileNotFoundError:
-            log().error_msg(f"File '{config}' not found!")
-            return False
-        
-        except KeyError:
-            log().error_msg(f"File '{config}' is not a config!")
-            return False
-        
-        except:
-            log().error_msg(f"Uknown error while parsing config '{config}'!")
-            return False
-        
-        return True
-    
-    def _get_calm_release(self):
-        SYSTEM = "/etc/calm-release"
-        
-        if not check.json_config(SYSTEM):
-            return "uknown"
-        
-        with open(SYSTEM) as f:
-            data = json.load(f)
-        
-        release = str(data["distroVersion"])
-        
-        return release
-    
-    def release(self, config):    
-        if not self.json_config(config):
-            return False
-
-        with open(config) as f:
-            data = json.load(f)
-            releases = data["release"]
-
-        ## CHANGE IN v1.0a3:
-        # В конфиге 'config.json' релиз, для которого предназначен
-        # порт, занесён в список 'release', который перебирается
-        # ниже.
-        ## OLD:
-        # Раньше в конфиге 'release' был представлен обычным str
-
-        for release in releases:
-            if str(release) == self._get_calm_release():
-                return True
-        else:
-            return False
+    def sub_sub_header(self, message):
+        print(f"-> {message}")
 
 class settings:
+    # TODO: изменить алгоритм автоматического определения типа данных параметра
+    # Не на основе суффикса названия параметра, а на основе префикса значения:
+    # list:///, bool:/// intg:///
 
-    # TODO: need to tests!!!
-    # FIXME: не используется 'self.source'
+    def __init__(self):
+        self.config = configparser.ConfigParse()
 
-    def __init__(self, source=CONFIG):
-        self.conf   = configparser.ConfigParser()
-        self.source = source
-    
-    def _get_conf_type(self, param_name):
-        """
-        Function for get data type of some parameter from *.ini file
+    def _get_type(self, tp: str):
+        tp = f"{tp[0:7]}"
 
-        Usage:
-        settings()._get_conf_type(param_name)
-        """
-
-        param_type = str(f"{param_name[-2]}{param_name[-1]}")
-
-        match(param_type):
-            case "_i":
+        match(tp):
+            case "INTG:///":
                 return int
-            case "_f":
+            case "FLOT:///":
                 return float
-            case "_s":
-                return str
-            case "_b":
+            case "BOOL:///":
                 return bool
-            case "_t":
-                return tuple
-            case "_l":
+            case "LIST:///":
                 return list
             case _:
                 return str
-    
-    def _check_config(self, section, param):
-        """
-        Function for check some parameters from *.ini config files
 
-        Usage:
-        settings()._check_config(section, param)
-        """
-
-        self.conf.read(self.source)
-
-        try:
-            conf = self.conf.get(section, param)
-            no_option = False
-        except configparser.NoOptionError:
-            no_option = True
-        
-        if no_option:
-            return False
-        else:
-            return True
-    
-    def config_param_get(self, section, param):
-        """
-        Get some parameters from *.ini config file
-
-        Usage:
-        settings().config_param_get(section, param, source=SOURCE)
-        """
-
-        self.conf.read(self.source)
-
-        if not self._check_config(section, param):
-            no_option = True
-            conf = self.conf.get(section, param)
-        else:
-            no_option = False
-            conf = "uknown"
-        
-        if not no_option:
-            param_type = self._get_conf_type(param)
-            conf = param_type(conf)
-        
-        return conf
-    
-    def config_param_set(self, section, param, value: str):
-        """
-        Function for update some params in the *.ini config files.
-
-        Usage:
-        settings().config_param_set(section, param, value, source=SOURCE)
-        """
-        
-        if not self._check_config(section, param):
-            msg().error(f"Parameter '{param}' is uknown!")
-            return False
-        
-        self.conf.set(section, param, value)
-
-        with open(source, "w") as f:
-            self.conf.write(f)
-        
-        return True
-    
-    def json_data_get(self, file) -> dict:
-        """
-        Get all parameters from *.json file.
-
-        Usage:
-        settings().json_data_get(file)
-        """
-
-        if check().json_config(file):
-            with open(file) as f:
-                data = json.load(f)
-        else:
-            data = {
-                "data": "uknown"
-            }
-
-        return data
-
-class lock():
-    """```
-    # `cp_default.lock()`
-
-    API methods for blocking cport processes, as well as checking the status (blocked/not blocked).
-
-    ## Files
-
-    - `/var/lock/cport.lock` - the *.ini configuration file.
-
-    ## File Contents
-
-    This file contains information about the procedure that is currently being performed using cport:
-
-    - "install";
-    - "remove";
-    - "other".
-
-    ## File structure
-
-    ```
-    procedure = {procedure}
-    time      = {time.ctime()}
-    ```
-    
-    ## Variables
-
-    - `lock.FILE` - the lock file.
-
-    ## TODO:
-    ```"""
-
-    FILE = "/var/lock/cport.lock"
-
-    def __init__(self, procedure=None):
-        self.procedure = procedure
-
-    def lock(self) -> bool:
-        """```
-        # `cp_default.lock.lock(procedure)`
-        Function for blocking the cport processes
-
-        ## Arguments:
-
-        - `procedure`: procedure name:
-            - `install`;
-            - `remove`;
-            - `other`.
-        ```"""
-
-        if os.path.isfile(lock.FILE):
-            return False
+    def get(self, config, section, param):
+        conf = self.config(config)
         
         try:
-            info = f"[lock]\nprocedure = {self.procedure}\ntime      = {time.ctime()}"
+            data = conf.get(section, param)
+        except Error as err:
+            msg().error_trace(
+                    err, f"cdf.settings().get({config}, {section}, {param})"
+            )
+            return None
 
-            with open(self.FILE, "w") as f:
-                f.write(info)
-            return True
+        get_type = self._get_type(param)
 
-        except:
-            return False
-    
-    def unlock(self) -> bool:
-        """```
-        # `cp_default.lock.unlock()`
-        Function for unblocking the cport processes
-        ```"""
+        _type = data[0:7]
+        _types = ["INTG:///", "FLOT:///", "BOOL:///", "LIST:///"]
 
-        if self.procedure != None:
-            if settings().config_param_get("lock", "procedure", source=self.FILE) != self.procedure:
-                return False
+        if _type in _types:
+            data = data[8:]
+        
+        return get_type(data)
+
+    def set(self, config, section, param, value):
+        conf = self.config(config)
 
         try:
-            os.remove(lock.FILE)
-            return True
-        except:
-            return False
-    
-    def info(self) -> dict:
-        """```
-        # `cp_default.lock.info()`
-
-        Function for get info about the cport locking process.
-
-        ## Returned
-
-        The function returned a `dict`:
-
-        ```
-        data = {
-            "procedure": f"{procedure}",
-            "time": f"{lock_time}"
-        }
-        ```
-
-        ```"""
-
-        if not os.path.isfile(lock.FILE):
-            data = {
-                "procedure": "cport doesn't locked",
-                "time": f"{time.ctime()}"
-            }
-        else:
-            procedure = settings(source=lock.FILE).config_param_get("lock", "procedure")
-            lock_time = settings(source=lock.FILE).config_param_get("lock", "time")
-
-            data = {
-                "procedure": procedure,
-                "time": lock_time
-            }
+            data = conf.set(section, param, value)
+        except Error as err:
+            msg().error_trace(
+                err,
+                f"cdf.settings().set({config}, {section}, {param}, {value}"
+            )
+            return None
 
         return data

@@ -1,188 +1,89 @@
 #!/usr/bin/python3
-#
-# CPort - a new port manager for Calmira Linux
-# Copyright (C) 2021, 2022 Michail Krasnov <linuxoid85@gmail.com>
-#
-# cp_install.py
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-# Project Page: http://github.com/Linuxoid85/cport
-# Michail Krasnov (aka Linuxoid85) linuxoid85@gmail.com
-#
-
-"""
-Методы и классы для сборки и установки портов
-
-Возможности:
-- скачивание и распаковка порта;
-- выполнение инструкций сборки;
-- TODO: добавление порта в `installed.db`
-"""
 
 import os
-import time
 import wget
-import shutil
+import time
 import tarfile
 import subprocess
-import cp_default    as cdf
+import cp_default as cdf
+import cp_info    as cpI
 
-try:
-    import sqlite3
-
-    db = cdf.DB + "/installed.db"
-    conn = sqlite3.connect(db)
-    cursor = conn.cursor()
-except ImportError:
-    cdf.msg().error(
-        "It is not possible to use the cp_install API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
-    )
-    exit(1)
-
-PORTDIR = cdf.PORTDIR
-LOG = cdf.LOG
-CACHE = cdf.CACHE
-
-def calc_sbu(func):
-    def wrapper(*args, **kwargs):
-        # FIXME: ValueError: could not convert string to float: 'uknown'
-        #time_def = float(cdf.settings().config_param_get("base", "sbu_f"))
-        time_def = 189.0
-        time_start = float(time.time())
-
-        return_value = func(*args, **kwargs)
-        time_end = float(time.time())
-
-        difference = time_end - time_start # Building time (secs)
-
-        sbu = difference / time_def
-        print(f"Build time (sbu) = {round(sbu, 2)}") # Rounding the sbu value to hundredths and print result
-        
-        return return_value
-
-    return wrapper
+PORT_DIR  = cdf.PORT_DIR
+CACHE_DIR = cdf.CACHE_DIR
+CACHE_DATA_DIR = cdf.CACHE_DATA_DIR
 
 class prepare():
-    """
-    Содержит методы, вызываемые перед сборкой порта.
-    Необходимы для подготовки к сборке.
-    """
-
-    def check_size(self, size: float):
-        usage = shutil.disk_usage("/")
-        
-        # Место на диске рассчитывается по формуле U = u + 100 (u - 
-        # свободное место на диске, U - необходимое на диске место для
-        # установки программы)
-        free  = float(usage[2] + 100)
-        del(usage)
-
-        if free <= size:
-            return False
-        else:
-            return True
-
-    def download(self, link, dest):
-        """```
-        Function for download a port files
-
-        Usage:
-        `download(link, dest)`
-
-        - `link` - download url;
-        - `dest` - destination file.
-        ```"""
-
-        if os.path.isfile(dest):
-            os.remove(dest)
-        
-        try:
-            wget.download(link, dest)
-            return True
-
-        except ConnectionError:
-            cdf.msg().error(f"Connection error while downloading '{link}'!")
-            return False
-
-        # Раскомментировать в стабильной версии
-        #except:
-        #    cdf.log.error_msg(f"Uknown error while downloading '{link}'!")
-        #    return False
     
-    def unpack(self, file, dest):
-        """```
-        Function for unpack a tar archives
+    def download(self, port):
+        url  = cpI.get().port_info(port, "port_management", "url")
+        file = cpI.get().port_info(port, "port_management", "file")
+        cache_file = f"{CACHE_DIR}{file}"
 
-        Usage:
-        `unpack(file, dest)`
-
-        - `file` - archive file;
-        - `dest` - destination file.
-        ```"""
-
-        if not os.path.isfile(CACHE+file):
-            cdf.msg().error(f"File '{file}' not found!")
-            return False
-        
-        file = CACHE + file
+        if os.path.isfile(cache_file):
+            os.remove(cache_file)
 
         try:
-            t = tarfile.open(file, 'r')
-            t.extractall(path=dest)
-
+            wget.download(url, file)
             return True
-        
-        except tarfile.ReadError:
-            cdf.msg().error(f"Package '{file}' read error! Perhaps he is broken.")
-            return False
-        
-        except tarfile.CompressionError:
-            cdf.msg().error(f"Package '{file}' unpacking error! The format isn't supported.")
-            return False
-
-class install():
-    """
-    Содержит функции для сборки порта и добавления его
-    в базу данных установленных портов.
-    """
-
-    @calc_sbu
-    def build(self, install, flags=""):
-        command = f"{install} {flags}"
-
-        run = subprocess.run(command, shell=True)
-
-        if run.returncode != 0:
-            cdf.msg().error(
-                "\aPort returned a non-zero return code!", prev="\n\n"
+        except Error as err:
+            cdf.msg().error_trace(
+                err,
+                f"cpi.prepare.gownload({port})"
             )
-            cdf.log().log("Port returned a non-zero return code!", level="FAIL")
-        
-        return run.returncode
-    
-    def add_in_db(self, port_info: tuple):
-        # Table structure:
-        # | name | version | maintainer | release | build_time |
-        # |------|---------|------------|---------|------------|
-        try:
-            cursor.execute("INSERT INTO ports VALUES (?,?,?,?,?)", port_info)
-            conn.commit()
-
-            return True
-        
-        except sqlite3.DatabaseError as error:
-            cdf.msg().error(f"SQLite3 Database error: {error}")
             return False
+
+    def unpack(self, port):
+        file = cpI.get().port_info(port, "port_management", "file")
+        cache_file = f"{CACHE_DIR}{file}"
+
+        if not os.path.exists(cache_file):
+            cdf.msg().error_trace(
+                f"File '{cache_file}' not found!",
+                f"cpi.prepare.unpack({port})"
+            )
+            return False
+
+        if os.path.exists(CACHE_DATA_DIR):
+            # Очистка директории, в которую будет распакован архив с исходным кодом
+            os.removedirs(CACHE_DATA_DIR)
+            # TODO: проверить на работоспособность
+        os.makedirs(CACHE_DATA_DIR)
+
+        try:
+            with tarfile.open(cache_file) as t:
+                t.extractall(path=CACHE_DATA_DIR)
+            return True
+        except Error as err:
+            cdf.msg().error_trace(
+                f"File '{cache_file}' not found!",
+                f"cpi.prepare.unpack({port})"
+            )
+            return False
+
+class build(prepare):
+
+    def calc_time(self, func):
+        def wrapper(*args, **kwargs):
+            time_start = time.time()
+            data = func(*args, **kwargs)
+            time_end = time.time()
+
+            diff = (time_end - time_start) / 189
+
+            print(f"Build time: {diff} SBU")
+            return func
+        return wrapper
+    
+    @self.calc_time
+    def build(self, port) -> int:
+        port_config = PORT_DIR + port + "/config.ini"
+        port_install = PORT_DIR + port + "/install"
+
+        run = subprocess.run(port_install, shell=True)
+
+        return run.returncode
+
+    def add_in_db(self, port):
+        """
+        TODO: add a code
+        """
