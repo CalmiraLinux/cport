@@ -32,29 +32,24 @@ import cp_default as cdf
 try:
     import sqlite3
 
-    db = cdf.DB + "/installed.db"
-    conn = sqlite3.connect(db)
+    db     = cdf.DB
+    conn   = sqlite3.connect(db)
     cursor = conn.cursor()
 except ImportError:
-    cdf.msg().error(
-        "It is not possible to use the cp_remove API Module: you must install the 'sqlite3' port and rebuild the 'base/python' port."
+    cdf.msg().error_trace(
+        f"It is not possible to use the cp_remove kernel module: the" \
+        " 'sqlite3' package doesn't installed",
+        "cp_remove kernel module"
     )
-    exit(1)
+    raise cdf.KernelModuleImportError
 
 PORTDIR = cdf.PORTDIR
 LOG = cdf.LOG
 
 class prepare():
     
-    """
-    Some preparations before removing ports
-    """
-
-    def __init__(self, port):
-        self.port = port
-
-    def check_in_db(self):
-        data = f"SELECT * FROM ports WHERE name = '{self.port}'"
+    def check_in_db(self, port):
+        data = f"SELECT * FROM ports WHERE name = '{port}'"
         db = cursor.execute(data)
 
         if db.fetchone() is None:
@@ -62,8 +57,8 @@ class prepare():
         else:
             return True
     
-    def get_files(self) -> list:
-        port_dir = PORTDIR + self.port
+    def get_files(self, port) -> list:
+        port_dir = PORTDIR + port
         files_list = port_dir + "/files.list"
 
         files = [] # Files list
@@ -87,36 +82,27 @@ class remove():
     Methods:
 
     - 'remove()' - remove from file system;
-    - 'remove_from_db()' - remove from 'installed.db' database
+    - 'remove_from_db()' - remove from database
     """
 
-    def __init__(self, port):
-        self.port = port
-    
-    def remove(self):
-        """
-        Removing ports from filesystem
-        """
-
-        files = prepare(self.port).get_files()
+    def remove(self, port):
+        files = prepare().get_files(port)
         error_files = []
         v_error = False
 
         for file in files:
-            cdf.log().log(f"Start removing a file '{file}'...", level="INFO")
+            cdf.log(f"Start removing a file '{file}'...", level="INFO")
             
             try:
-                os.remove(file)
-                cdf.log().log(f"File '{file}' deleted successfully", level=" OK ")
-            
-            except IsADirectoryError:
-                shutil.rmtree(file)
-                cdf.log().log(f"Directory '{file}' deleted successfully", level=" OK ")
+                if os.path.isfile(file):
+                    os.remove(file)
+                else:
+                    shutil.rmtree(file)
             
             except FileNotFoundError:
                 message = f"File '{file}' not found!"
                 
-                cdf.log().log(message, level="FAIL")
+                cdf.log(message, level="FAIL")
                 cdf.msg().error(message)
 
                 error_files.append(file)
@@ -125,7 +111,7 @@ class remove():
             except PermissionError:
                 message = f"Permission denied while removing a file '{file}'"
 
-                cdf.log().log(message, level="FAIL")
+                cdf.log(message, level="FAIL")
                 cdf.msg().error(message)
 
                 error_files.append(file)
@@ -133,19 +119,18 @@ class remove():
         
         if v_error:
             cdf.msg().error(f"Some errors while deleting {len(error_files)} files!")
-            cdf.msg().error(f"See the '{LOG}' file for get more info.")
             return False
 
         else:
-            cdf.log().msg(f"{len(files)} successfully deleted!")
+            cdf.msg().ok(f"{len(files)} successfully deleted!")
             return True
     
-    def remove_from_db(self):
+    def remove_from_db(self, port):
         """
         Removing ports from database
         """
 
-        data = f"DELETE FROM ports WHERE name = '{self.port}'"
+        data = f"DELETE FROM ports WHERE name = '{port}'"
 
         try:
             cursor.execute(data)

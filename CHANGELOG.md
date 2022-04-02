@@ -1,3 +1,9 @@
+* 02.04.2022 Михаил Краснов <linuxoid85@gmail.com>
+	* Начало работы над ядром `cport_kernel.py`.
+
+* 27.03.2022 Михаил Краснов <linuxoid85@gmail.com>
+	* Рефакторинг модуля `cp_remove.py`;
+	* Отказ от использования Ports API, начало работы над полноценным ядром `cport`.
 * 26.03.2022 Михаил Краснов <linuxoid85@gmail.com>
 	* Начало работы над модулем `cp_install.py`;
 	* Добавление `check().port_compatible()` для проверки порта на совместимость с релизом Calmira GNU/Linux-libre.

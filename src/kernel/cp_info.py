@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# Test implementation of the 'cp_info' API module
 # Copyright (C) 2022 Michail Krasnov <linuxoid85@gmail.com>
 
 import os
@@ -49,10 +48,11 @@ class get:
 class check(get):
     
     def port_compatible(self, port) -> bool:
-        calm_release = data["distroVersion"]
+        with open(CALMIRA) as f:
+            clm_release = json.load(f)
         
         data = self.port_info(port, "release")
-        compat = calm_release in data
+        compat = clm_release["distroVersion"] in data
 
         return compat
 

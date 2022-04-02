@@ -61,7 +61,16 @@ def ver(args):
     print(msg_api)
     print("(C) 2021, 2022 Michail Linuxoid85 Krasnov <linuxoid85@gmail.com>")
 
-    print("\033[1mZ 🇷🇺️\033[0m")
+    import random
+    some = random.randint(1, 10)
+
+    match(some):
+        case 1:
+            print("---- \033[1mZ\033[0m ----")
+        case 2:
+            print("---- \033[1mV\033[0m ----")
+        case _:
+            print("---- 🇷🇺️ ----")
 
 def getgid(gid: int):
     if os.getgid() != gid:
@@ -83,7 +92,6 @@ def install(port, yes_st=False):
     port_config    = port_dir + "/config.json"
     port_resources = port_dir + "/resources.conf"
 
-    print("check locking")
     if os.path.isfile(cdf.lock.FILE):
         data = cdf.lock().info()
 
@@ -93,18 +101,14 @@ def install(port, yes_st=False):
         )
         return False
     
-    print("locking...")
     if not cdf.lock("install").lock():
         cdf.msg().error("Unknown error blocking the installation process")
         return False
-
-    print("parsing the resources file...")
     
     res = cdf.settings().json_data_get(port_resources)
     download = res["resources"]["url"]
     archive  = res["resources"]["file"]
 
-    print("start building a port...")
     cdf.log().log(f"{42*'='}", level="SEP ")
     cdf.log().log(f"Starting building a port '{port}'...", level="INFO")
 

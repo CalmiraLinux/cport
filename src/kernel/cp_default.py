@@ -62,6 +62,21 @@ class msg:
     def sub_sub_header(self, message):
         print(f"-> {message}")
 
+class PortError(Exception):
+    """
+    Какая-либо ошибка, связанная с портом
+    """
+
+class KernelModuleError(Exception):
+    """
+    Связанные с модулем ядра ошибки
+    """
+
+class KernelModuleImportError(Exception, KernelModuleError):
+    """
+    Ошибки, связанные с ImportError в модулях ядра
+    """
+
 class settings:
     # TODO: изменить алгоритм автоматического определения типа данных параметра
     # Не на основе суффикса названия параметра, а на основе префикса значения:

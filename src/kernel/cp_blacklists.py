@@ -33,7 +33,7 @@ Opportunities:
 - Checking for the presence of a port in the blacklist - TODO.
 
 The blacklist is represented by the SQLite3 database. By default,
-it is not installed in the Caldera Linux distribution, so if the
+it is not installed in the Calmira GNU/Linux distribution, so if the
 database is not found, then working with the blacklist will be
 impossible.
 
@@ -92,7 +92,28 @@ def _get_port_info(port: str) -> dict:
     return data
 
 class check:
+    """
+    Checking the presence of the port in the database and in the file system
+
+    Methods:
+    - exists_fs(port)
+    - exists_db(port)
+
+    Change in the v1.0b1:
+    - These methods are a replacement for the 'fetch()' function, which checks
+    for the presence of a port in the database
+    """
+
     def exists_fs(self, port):
+        """
+        Checking the presense of the port in the file system
+
+        Usage:
+        check().exists_fs(port)
+
+        port - the port name
+        """
+
         port_dir = PORTDIR + port
         
         config = port_dir + "/config.json"
@@ -132,7 +153,13 @@ class check:
         Method for checking the presense of a port in the blacklist. If the
         package is present, it returns 'True', if it is absent, it returns
         'False'
+
+        Usage:
+        check().exists_db(port)
+
+        port - the port name
         """
+
         db = cursor.execute(f"SELECT * FROM ports WHERE port = '{port}'")
         
         if db.fetchone() is None:
@@ -140,23 +167,12 @@ class check:
         else:
             return True
 
-def check_priority(port: str):
-    # TODO: DEPRECATED
-    config = PORTDIR + port + "/config.json"
-    port_dir = PORTDIR + port
-
-    if not os.path.isdir(port_dir):
-        cdf.msg().error(f"Port '{port}': not found!")
-        return False
-    
-    if cpI.get(config).priority() == "system":
-        cdf.msg().error("It is impossible to use the blacklist: the port has a system priority.")
-        return False
-    else:
-        return True
-
 def add(port: str):
-    if not check_priority(port):
+    config = PORTDIR + port + "/config.json"
+    port_priority = cpI.get().priority()
+
+    if port_priority == "system":
+        cdf.msg().error("It is impossible to use the blacklist: the port has a system priority.")
         return False
     
     data = [port, time.ctime()]
