@@ -51,7 +51,10 @@ class port(cdf.parser):
     Получение данных о порте
     """
 
-    def path(self, port_name: str) -> str:
+    def __init__(self, port_name: str):
+        self.port_name = port_name
+
+    def path(self) -> str:
         """
         Function for getting information about port path directory
 
@@ -65,13 +68,13 @@ class port(cdf.parser):
         Return code: str
         """
 
-        port_path = f"{PORT_DIR}/{port_name}"
+        port_path = f"{PORT_DIR}/{self.port_name}"
 
-        if not os.path.isfile(port_path):
+        if not os.path.isdir(port_path):
             return None
-        return port_name
+        return port_path
 
-    def info_param(self, port_name: str):
+    def info_param(self):
         """
         Function for get some parameters from a TOML file (port config)
 
@@ -94,33 +97,38 @@ class port(cdf.parser):
 
 class database:
 
-    def __init__(self):
+    def __init__(self, port_name: str):
+        self.port_name = port_name
+
         self.conn = sqlite3.connect(DATABASE_MASTER)
         self.cursor = conn.cursor()
 
-    def check_port_exists(self, port_name: str) -> bool:
-        self.cursor.execute("SELECT name FROM ports WHERE name = ?", (port_name ))
+    def check_port_exists(self) -> bool:
+        self.cursor.execute("SELECT name FROM ports WHERE name = ?", (self.port_name ))
         if self.cursor.fetchone() is None:
             return False
         return True
 
 class format_out:
 
-    def base_info(self, port_name: str, section: str, params: tuple):
-        port_path = port().path(port_name)
+    def __init__(self, port_name: str):
+        self.port_name = port_name
+
+    def base_info(self, section: str, params: tuple):
+        port_path = port().path(self.port_name)
 
         if not port_path is None:
             for param in params:
-                data = port().get(port_name)
+                data = port().get(self.port_name)
                 if not data is none:
                     print(f"\033[1m{param}:\033[0m {data[section][param]}")
             return {"request": "ok"}
         else:
             return {"request": "PortNotFoundError"}
 
-    def description(self, port_name: str):
-        port_path = port().path(port_name)
-        data = port().info_param(port_name)
+    def description(self):
+        port_path = port().path(self.port_name)
+        data = port().info_param(self.port_name)
 
         description_base = data['package']['description']
 

@@ -51,19 +51,22 @@ DATABASE_MASTER = cdf.DATABASE_MASTER
 
 class prepare():
 
-    def create_cache(self):
+    def __init__(self, port_name: str):
+        self.port_name = port_name
+
+    def refresh_cache(self):
         for _dir in CACHE_DOWNLOADED, CACHE_UNPACKED:
             shutil.rmtree(_dir)
             os.makedirs(_dir)
 
-    def check_disk_usage(self, port_name: str) -> bool:
+    def check_disk_usage(self) -> bool:
         api_settings = cdf.parser().get(API_SETTINGS)
         minimal_disk_usage_free = float(
             api_settings['build']['mininal_disk_usage_free']
         )
 
-        port_conf_data = cpI.port().info_param(port_name)
-        port_usage = float(port_conf_data['package']['usage'])
+        port_conf_data = cpI.port().info_param(self.port_name)
+        port_usage = float(port_conf_data['package']['usage']) # Mb
 
         disk_usage_all = shutil.disk_usage('/')
         disk_usage_free = float(disk_usage_all[2])
@@ -83,8 +86,8 @@ class prepare():
             return False
         return True
 
-    def check_release(self, port_name: str) -> bool:
-        port_conf_data = cpI.port().info_param(port_name)
+    def check_release(self) -> bool:
+        port_conf_data = cpI.port().info_param(self.port_name)
         port_compat_rel = port_conf_data['package']['release']
 
         calm_rel_info = cdf.parser().get(CALMIRA)
@@ -92,15 +95,15 @@ class prepare():
 
         return calm_rel_number in port_compat_rel
 
-    def download(self, port_name: str):
-        port_conf_data = cpI.port().info_param(port_name)
+    def download(self):
+        port_conf_data = cpI.port().info_param(self.port_name)
         port_url = port_conf_data['port']['url']
 
         filename = wget.download(port_url, out = CACHE_DOWNLOADED)
         return filename
 
-    def check_md5_hash(self, port_name: str) -> bool:
-        port_conf_data = cpI.port().info_param(port_name)
+    def check_md5_hash(self) -> bool:
+        port_conf_data = cpI.port().info_param(self.port_name)
         filename = f"{CACHE_DOWNLOADED}/{port_conf_data['port']['file']}"
         md5_conf = port_conf_data['port']['md5']
 
@@ -112,8 +115,8 @@ class prepare():
 
         return md5_conf == md5_file
 
-    def unpack(self, port_name: str):
-        port_conf_data = cpI.port().info_param(port_name)
+    def unpack(self):
+        port_conf_data = cpI.port().info_param(self.port_name)
         filename = port_conf_data['port']['file']
 
         try:
@@ -135,11 +138,14 @@ class prepare():
 
 class build:
 
-    def __init__(self):
+    def __init__(self, port_name: str):
+        self.port_name = port_name
+
         self.conn = sqlite3.connect(DATABASE_MASTER)
         self.cursor = conn.cursor()
 
     def _create_table(self):
+        # NOTE: only for initial startup!
         return self.cursor.execute("""CREATE TABLE IF NOT EXISTS ports(
             name TEXT,
             version TEXT,
@@ -150,8 +156,8 @@ class build:
             build_date TEXT);
         """)
 
-    def build(self, port_name: str):
-        port_path = cpI.port().path(port_name)
+    def build(self):
+        port_path = cpI.port().path(self.port_name)
         port_build = f"{port_path}/install"
         build_time = []
 
@@ -165,7 +171,7 @@ class build:
         }
         return data
 
-    def add_in_db(self, port_name: str):
+    def add_in_db(self):
         port_conf_data = cpI.port().info_param(port_name)
         port_conf = port_conf_data['package']
 
