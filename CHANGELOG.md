@@ -1,3 +1,14 @@
+- 20.04.2022 Михаил Краснов <linuxoid85@gmail.com>
+	- **Конфигурация:**
+		- Добавление параметров `sbu` и `[remove]allow_rem_of_system_ports`
+	- **`cp_default.py`:**
+		- Мелкий фикс `msg.log()`;
+	- **`cp_info.py`:**
+		- Изменение логики `format_out.base_info()`;
+		- Добавление метода `format_out.deps_info()`;
+		- Изменение поведения `format_out.description()`:
+			- Полное описание теперь выводится через строку от краткого.
+
 - 17.04.2022 Михаил Краснов <linuxoid85@gmail.com>
 	- Унификация использования классов API;
 	- Добавление модуля `cp_remove`;

@@ -12,11 +12,9 @@ import cp_info as cpI
 
 import os
 import shutil
+import sqlite3
 
 API_SETTINGS = cdf.API_SETTINGS
-CALMIRA = cdf.CALMIRA
-CACHE_DOWNLOADED = cdf.CACHE_DOWNLOADED
-CACHE_UNPACKED = cdf.CACHE_UNPACKED
 DATABASE_MASTER = cdf.DATABASE_MASTER
 
 class prepare(cpI.database):
@@ -61,3 +59,7 @@ class remove:
         }
 
         return data
+
+    def remove_from_db(self):
+        self.cursor.execute("REMOVE FROM ports WHERE id = ?", (self.port_name))
+        self.conn.commit()

@@ -49,7 +49,7 @@ DBATABASE_MASTER = f"{DB_DIR}/master.db"
 
 class msg:
     
-    def log(self, msgs, status = "INFO", file = LOG_FILE_MASTER):
+    def log(self, msg, status = "INFO", file = LOG_FILE_MASTER):
         with open(LOG_FILE, "a") as f:
             msg = f"[ {time.ctime()} ] [ {status} ] - {msg}"
             f.write(msg)

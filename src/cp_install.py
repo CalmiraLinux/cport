@@ -53,6 +53,7 @@ class prepare():
 
     def __init__(self, port_name: str):
         self.port_name = port_name
+        self.port_info = cpI.port(port_name).info_param()
 
     def refresh_cache(self):
         for _dir in CACHE_DOWNLOADED, CACHE_UNPACKED:
@@ -65,8 +66,7 @@ class prepare():
             api_settings['build']['mininal_disk_usage_free']
         )
 
-        port_conf_data = cpI.port().info_param(self.port_name)
-        port_usage = float(port_conf_data['package']['usage']) # Mb
+        port_usage = float(self.port_info['package']['usage']) # Mb
 
         disk_usage_all = shutil.disk_usage('/')
         disk_usage_free = float(disk_usage_all[2])
@@ -87,8 +87,7 @@ class prepare():
         return True
 
     def check_release(self) -> bool:
-        port_conf_data = cpI.port().info_param(self.port_name)
-        port_compat_rel = port_conf_data['package']['release']
+        port_compat_rel = self.port_info['package']['release']
 
         calm_rel_info = cdf.parser().get(CALMIRA)
         calm_rel_number = calm_rel_info['system']['version']
@@ -96,16 +95,14 @@ class prepare():
         return calm_rel_number in port_compat_rel
 
     def download(self):
-        port_conf_data = cpI.port().info_param(self.port_name)
-        port_url = port_conf_data['port']['url']
+        port_url = self.port_info['port']['url']
 
         filename = wget.download(port_url, out = CACHE_DOWNLOADED)
         return filename
 
     def check_md5_hash(self) -> bool:
-        port_conf_data = cpI.port().info_param(self.port_name)
         filename = f"{CACHE_DOWNLOADED}/{port_conf_data['port']['file']}"
-        md5_conf = port_conf_data['port']['md5']
+        md5_conf = self.port_info['port']['md5']
 
         if not os.path.isfile(filename):
             return False
@@ -116,8 +113,7 @@ class prepare():
         return md5_conf == md5_file
 
     def unpack(self):
-        port_conf_data = cpI.port().info_param(self.port_name)
-        filename = port_conf_data['port']['file']
+        filename = self.port_info['port']['file']
 
         try:
             t = tarfile.open(filename, "r")
@@ -140,6 +136,10 @@ class build:
 
     def __init__(self, port_name: str):
         self.port_name = port_name
+        
+        port_info_func = cpI.port(port_name)
+        self.port_path = port_info_func.path()
+        self.port_info = port_info_func.info_param()
 
         self.conn = sqlite3.connect(DATABASE_MASTER)
         self.cursor = conn.cursor()
@@ -157,8 +157,7 @@ class build:
         """)
 
     def build(self):
-        port_path = cpI.port().path(self.port_name)
-        port_build = f"{port_path}/install"
+        port_build = f"{self.port_path}/install"
         build_time = []
 
         build_time.append(time.ctime())
@@ -172,16 +171,16 @@ class build:
         return data
 
     def add_in_db(self):
-        port_conf_data = cpI.port().info_param(port_name)
-        port_conf = port_conf_data['package']
+        port_conf = self.port_info['package']
 
         port_data = (
             port_conf['name'], port_conf['version'], port_conf['maintainer'],
             port_conf['architecture'], port_conf['priority'],
-            port_conf_data['port']['url'], f"{time.ctime()}"
+            self.port_info['port']['url'], f"{time.ctime()}"
         )
 
         self.cursor.execute(
             "INSERT INTO ports VALUES(?, ?, ?, ?, ?, ?, ?)",
             port_data
         )
+        self.conn.commit()

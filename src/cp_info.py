@@ -114,21 +114,44 @@ class format_out:
     def __init__(self, port_name: str):
         self.port_name = port_name
 
-    def base_info(self, section: str, params: tuple):
+    def base_info(self, params: tuple):
+        # TODO: переделать алгоритм метода: убрать 'params', данные брать из
+        # секции 'package'
+        # TODO: переименовать метод в 'package_info()'
         port_path = port().path(self.port_name)
 
-        if not port_path is None:
-            for param in params:
-                data = port().get(self.port_name)
-                if not data is none:
-                    print(f"\033[1m{param}:\033[0m {data[section][param]}")
-            return {"request": "ok"}
-        else:
+        if port_path is None:
+            return {"request": "PortNotFoundError"}
+            
+        for param in params:
+            data = port().get(self.port_name)
+            if not data is None:
+                print(f"\033[1m{param}:\033[0m {data['package'][param]}")
+        return {"request": "ok"}
+
+    def deps_info(self):
+        port_path = port().path(self.port_name)
+
+        if port_path is None:
             return {"request": "PortNotFoundError"}
 
+        param_list = [
+            "required", "recommend",
+            "optional", "conflict",
+            "runtime", "conflict"
+        ]
+        data_all = port().get(self.port_name)
+
+        for param in param_list:
+            data = data_all['depends'].get(param)
+            if not data is None:
+                print(f"\033[1m{param}:\033[0m", end="")
+                print(" ".join(data))
+        return {"request": "ok"}
+
     def description(self):
-        port_path = port().path(self.port_name)
-        data = port().info_param(self.port_name)
+        port_path = port(self.port_name).path()
+        data = port(self.port_name).info_param()
 
         description_base = data['package']['description']
 
@@ -136,5 +159,5 @@ class format_out:
         with open(description_file) as f:
             description_full = f.read()
 
-        print(f"\033[1mdescription:\033[0m {description_base}")
+        print(f"\033[1mdescription:\033[0m {description_base}\n")
         print(f"\033[1mdescription full:\033[0m {description_full}")
