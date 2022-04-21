@@ -1,30 +1,31 @@
 #!/usr/bin/python3
 
 """
+Module provides functions for installing the port in the system.
 Модуль, содержащий функции для установки порта в систему.
 
-Константы и глобальные переменные:
+Constants and global variables:
     - API_SETTINGS - настройки API;
     - CALMIRA - информация о дистрибутиве Calmira GNU/Linux(-libre);
     - CACHE_DOWNLOADED - директория со скачанными архивами пакетов;
     - CACHE_UNPACKED - директория с распакованным архивом пакета;
     - DATABASE_MASTER - основная база данных cport;
 
-Классы и методы:
+Classes and methods:
     - prepare() - подготовка к установке (скачивание и распаковка файлов,
       базовые проверки);
     - build() - установка порта;
 
-Структура базы данных:
+Database structure:
     - 'packages_installed.db':
     | name | version | maintainer | architecture | priority | url | build_date |
     |------|---------|------------|--------------|----------|-----|------------|
 
-    name - имя порта (например, 'base/editors/vim')
-    version - версия порта
-    maintainer - сопровождающий этот порт
+    name - port name (for example, 'base/editors/vim')
+    version - port version
+    maintainer - port's maintainer
     architecture - архитектура(ы), для которых предназначен порт
-    priority - приоритет порта (пользовательский, системный)
+    priority - приоритет порта (user, system)
     url - ссылка на репозиторий/файловое хранилище, откуда был скачан архив с
           исходным кодом пакета
     build_date - дата и время начала и окончания сборки

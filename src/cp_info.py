@@ -48,7 +48,7 @@ DATABASE_MASTER = cdf.DATABASE_MASTER
 class port(cdf.parser):
 
     """
-    Получение данных о порте
+    Getting information about ports
     """
 
     def __init__(self, port_name: str):
@@ -114,11 +114,12 @@ class format_out:
     def __init__(self, port_name: str):
         self.port_name = port_name
 
-    def base_info(self, params: tuple):
-        # TODO: переделать алгоритм метода: убрать 'params', данные брать из
-        # секции 'package'
-        # TODO: переименовать метод в 'package_info()'
+    def base_info(self):
         port_path = port().path(self.port_name)
+        param_list = (
+            "name", "version", "maintainer", "provider",
+            "architecture", "priority", "calm_release", "usage"
+        )
 
         if port_path is None:
             return {"request": "PortNotFoundError"}
@@ -126,7 +127,14 @@ class format_out:
         for param in params:
             data = port().get(self.port_name)
             if not data is None:
+                param_type = type(data)
+
+                if param_type == list:
+                    for i in data: f1 += str(i) + " "
+                    data = f1
+
                 print(f"\033[1m{param}:\033[0m {data['package'][param]}")
+
         return {"request": "ok"}
 
     def deps_info(self):
@@ -135,11 +143,11 @@ class format_out:
         if port_path is None:
             return {"request": "PortNotFoundError"}
 
-        param_list = [
+        param_list = (
             "required", "recommend",
             "optional", "conflict",
             "runtime", "conflict"
-        ]
+        )
         data_all = port().get(self.port_name)
 
         for param in param_list:
