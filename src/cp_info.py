@@ -40,6 +40,8 @@
 """
 
 import cp_default as cdf
+import sqlite3
+from prettytable from_db_cursor
 
 PORT_DIR = cdf.PORT_DIR
 CALMIRA = cdf.CALMIRA
@@ -114,6 +116,9 @@ class format_out:
     def __init__(self, port_name: str):
         self.port_name = port_name
 
+        self.conn = sqlite3.connect(DATABASE_MASTER)
+        self.cursor = conn.cursor()
+
     def base_info(self):
         port_path = port().path(self.port_name)
         param_list = (
@@ -169,3 +174,11 @@ class format_out:
 
         print(f"\033[1mdescription:\033[0m {description_base}\n")
         print(f"\033[1mdescription full:\033[0m {description_full}")
+
+    def database_info(self):
+        data = self.cursor.execute(
+                """SELECT name, version, architecture, priority, build_date FROM
+                ports"""
+        )
+        table = from_db_cursor(data)
+        print(table)
