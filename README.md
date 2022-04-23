@@ -17,4 +17,11 @@ cport - это менеджер системы портов Calmira GNU/Linux(-l
 - **ОС:** Calmira GNU/Linux(-libre)
 - **API:** cport API
 
+## Зависимости
+
+- python3
+- sqlite3
+- prettytable (PM)
+- wget (PM)
+
 [FAQ](doc/faq.md)
